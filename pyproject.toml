@@ -1,0 +1,58 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ibp-enm"
+version = "0.1.0"
+description = "Spectral Elastic Network Model for protein structural analysis — 7-instrument thermodynamic band classification with 100% archetype accuracy on the 12-protein benchmark."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [
+    { name = "Joshua Byrom", email = "joshbyrom.mobile@gmail.com" },
+]
+keywords = [
+    "protein",
+    "elastic-network-model",
+    "spectral-analysis",
+    "structural-biology",
+    "bioinformatics",
+    "thermodynamics",
+    "domain-detection",
+    "hinge-prediction",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Typing :: Typed",
+]
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "requests>=2.28",
+]
+
+[project.urls]
+Homepage = "https://earthform.ai"
+Repository = "https://github.com/impliedDistraction/ibp-enm"
+Documentation = "https://earthform.ai/research/protein-analysis"
+Issues = "https://github.com/impliedDistraction/ibp-enm/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ibp_enm"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 88
