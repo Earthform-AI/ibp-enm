@@ -25,7 +25,7 @@ pip install ibp-enm
 Or from source:
 
 ```bash
-git clone https://github.com/impliedDistraction/ibp-enm.git
+git clone https://github.com/Earthform-AI/ibp-enm.git
 cd ibp-enm
 pip install -e .
 ```
