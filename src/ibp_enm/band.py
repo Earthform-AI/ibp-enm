@@ -304,6 +304,7 @@ class ThermodynamicBand:
         evecs=None,
         domain_labels=None,
         contacts=None,
+        thresholds=None,
     ) -> dict:
         """Re-score pre-computed profiles without re-carving.
 
@@ -322,6 +323,9 @@ class ThermodynamicBand:
             Domain assignment per residue.
         contacts : dict, optional
             Contact map.
+        thresholds : ThresholdRegistry, optional
+            Custom thresholds for the lens stack.  If ``None``,
+            uses ``DEFAULT_THRESHOLDS``.
 
         Returns
         -------
@@ -331,6 +335,7 @@ class ThermodynamicBand:
         synth = LensStackSynthesizer(
             evals=evals, evecs=evecs,
             domain_labels=domain_labels, contacts=contacts,
+            thresholds=thresholds,
         )
         final_votes = [p.archetype_vote() for p in profiles]
         meta_state = synth.compute_meta_fick_state(final_votes)
@@ -504,4 +509,9 @@ def run_single_protein(
         "band_correct": band_correct,
         "true_rank": true_rank,
         "time_s": round(dt, 1),
+        # ENM context for fast rescoring (D116)
+        "evals": evals,
+        "evecs": evecs,
+        "domain_labels": domain_labels,
+        "contacts": contacts,
     }
