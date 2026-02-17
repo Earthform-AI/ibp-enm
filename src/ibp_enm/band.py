@@ -66,8 +66,9 @@ from .instruments import (
     INSTRUMENTS,
     STEPS_PER_INSTRUMENT,
     ThermoInstrumentCarver,
+    steps_for_protein,
 )
-from .synthesis import MetaFickBalancer, HingeLensSynthesis
+from .synthesis import MetaFickBalancer, HingeLensSynthesis, SizeAwareHingeLens
 from .thermodynamics import (
     heat_capacity,
     helmholtz_free_energy,
@@ -160,11 +161,14 @@ class ThermodynamicBand:
                 predicted_bfactors=predicted_bfactors,
             )
 
-        self.meta_fick = HingeLensSynthesis(
+        self.meta_fick = SizeAwareHingeLens(
             evals=evals, evecs=evecs,
             domain_labels=domain_labels, contacts=contacts,
         )
         self.initial_diagnosis: Optional[Dict] = None
+
+        # D113: dynamic carving steps based on protein size
+        self._steps = steps_for_protein(N, len(contacts))
 
     # ── Phase 1: snapshot diagnosis ─────────────────────────────
 
@@ -209,7 +213,7 @@ class ThermodynamicBand:
         for inst_name, _ in INSTRUMENTS:
             carver = self.carvers[inst_name]
             inst_log = []
-            for step in range(1, STEPS_PER_INSTRUMENT + 1):
+            for step in range(1, self._steps + 1):
                 result = carver.play_step(step)
                 inst_log.append(result)
             band_log[inst_name] = inst_log

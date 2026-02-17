@@ -44,6 +44,7 @@ __all__ = [
     "MetaFickBalancer",
     "EnzymeLensSynthesis",
     "HingeLensSynthesis",
+    "SizeAwareHingeLens",
 ]
 
 
@@ -199,12 +200,28 @@ class MetaFickBalancer:
             [p.mean_ipr for p in carver_profiles]))
         all_mass = float(np.mean(
             [p.mean_bus_mass for p in carver_profiles]))
+        # D113: size-normalised scatter and spatial radius
+        all_scatter_norm = float(np.mean(
+            [p.scatter_normalised for p in carver_profiles]))
+        all_radius = float(np.mean(
+            [p.mean_spatial_radius for p in carver_profiles]))
+        n_residues = carver_profiles[0].n_residues if carver_profiles else 200
 
         # BARREL: LOW scatter across ALL instruments (d=2.1–3.3)
-        if all_scatter < 1.5:
+        # D113: use normalised scatter
+        if all_scatter_norm < 1.5:
             context_boost["barrel"] += 0.8
-        elif all_scatter > 3.0:
+        elif all_scatter_norm > 3.0:
             context_boost["barrel"] -= 0.5
+
+        # D113: barrel penalty for large proteins
+        # Large proteins (N > 350) with high normalised scatter
+        # are probably NOT barrels — they're dumbbells or allosteric
+        # proteins whose raw scatter is diluted by size.
+        if n_residues > 350 and all_scatter_norm > 1.2:
+            context_boost["barrel"] -= 0.6
+            context_boost["dumbbell"] += 0.3
+            context_boost["allosteric"] += 0.3
 
         # DUMBBELL: HIGH Δβ across instruments (d=2.1–2.9)
         if all_db > 0.12:
@@ -246,6 +263,36 @@ class MetaFickBalancer:
                     context_boost["dumbbell"] += 0.5
                 if profile.reversible_frac < 0.5:
                     context_boost["dumbbell"] += 0.3
+
+        # D113: ALLOSTERIC context boost (was missing entirely!)
+        # High spatial radius across propagative is the strongest
+        # allosteric signal (d=2.8), but it had no context boost.
+        propagative_radius = 0.0
+        propagative_scatter_norm = 0.0
+        for profile in carver_profiles:
+            if profile.instrument == "propagative":
+                propagative_radius = profile.mean_spatial_radius
+                propagative_scatter_norm = profile.scatter_normalised
+                break
+
+        # Only boost allosteric for proteins large enough to have
+        # genuine multi-domain allosteric architecture.  Small globins
+        # (N < 200) can show high propagative radius simply because
+        # perturbations easily span the entire protein.
+        if propagative_radius > 20.0 and n_residues > 200:
+            context_boost["allosteric"] += 0.8
+            # If propagative radius is high AND normalised scatter
+            # is moderate, suppress barrel (scatter is low due to
+            # size, not due to barrel-ness)
+            if propagative_scatter_norm > 0.8:
+                context_boost["barrel"] -= 0.3
+
+        if all_radius > 15.0 and n_residues > 200:
+            context_boost["allosteric"] += 0.4
+
+        # D113: dumbbell size boost — large proteins with high Δβ
+        if n_residues > 250 and all_db > 0.05:
+            context_boost["dumbbell"] += 0.4
 
         # ── Combine ──
         final_scores: Dict[str, float] = {}
@@ -319,14 +366,23 @@ class EnzymeLensSynthesis(MetaFickBalancer):
         # ── Enzyme lens ──
         enzyme_score = scores.get("enzyme_active", 0)
         allosteric_score = scores.get("allosteric", 0)
-        top2 = sorted(scores.values(), reverse=True)[:2]
-        is_close_call = (len(top2) >= 2
-                         and top2[0] - top2[1] < 0.10)
+        sorted_by_score = sorted(scores.items(), key=lambda x: -x[1])
+        top2_names = [a for a, _ in sorted_by_score[:2]]
+        is_close_call = (len(sorted_by_score) >= 2
+                         and sorted_by_score[0][1] - sorted_by_score[1][1] < 0.10)
+        # D113: enzyme lens should only fire when BOTH enzyme AND
+        # allosteric are in the top 3 — the lens resolves enzyme↔allosteric
+        # confusion, not enzyme↔globin or enzyme↔barrel confusion.
+        enzyme_in_top3 = "enzyme_active" in [a for a, _ in sorted_by_score[:3]]
+        allosteric_in_top3 = "allosteric" in [a for a, _ in sorted_by_score[:3]]
+        enzyme_allosteric_contest = enzyme_in_top3 and allosteric_in_top3
 
         enzyme_signals = self._compute_enzyme_signals(carver_profiles)
         result["enzyme_lens"] = enzyme_signals
 
-        if is_close_call or abs(enzyme_score - allosteric_score) < 0.15:
+        if (enzyme_allosteric_contest
+                and (is_close_call
+                     or abs(enzyme_score - allosteric_score) < 0.15)):
             lens_boost = self._enzyme_lens_boost(enzyme_signals)
             scores["enzyme_active"] += lens_boost
             scores["allosteric"] -= lens_boost * 0.5
@@ -502,17 +558,29 @@ class HingeLensSynthesis(EnzymeLensSynthesis):
         # has a gap of 0.225 — the enzyme lens never fires there.
         # The hinge lens fires when:
         #   1. allosteric is in the top 2 archetypes
-        #   2. enzyme_active is in the top 4
+        #   2. enzyme_active has a non-trivial score (> 0.05)
+        #      (relaxed from top-4 in D113 — scoring changes can push
+        #       enzyme below 4th even for true hinge enzymes like T4)
         #   3. hinge_R > 1.0 (modes 2–5 feel the cleft)
+        #   4. D113: allosteric score > 0.15 (prevents firing on
+        #      globins where allosteric is barely in top 2)
+        #   5. D113: N > 150 (hinge enzymes are multi-domain;
+        #      small globins should never trigger this lens)
         sorted_scores = sorted(scores.items(), key=lambda x: -x[1])
         top2_archs = [a for a, _ in sorted_scores[:2]]
-        top4_archs = [a for a, _ in sorted_scores[:4]]
         allosteric_in_top2 = "allosteric" in top2_archs
-        enzyme_in_top4 = "enzyme_active" in top4_archs
+        enzyme_nontrivial = scores.get("enzyme_active", 0) > 0.05
+        allosteric_score_significant = scores.get("allosteric", 0) > 0.15
+        # N > 150: hinge enzymes (T4 lysozyme N=164 is the smallest)
+        n_res = (carver_profiles[0].n_residues
+                 if carver_profiles else 200)
+        protein_large_enough = n_res > 150
 
         hinge_r = hinge_signals.get("hinge_r", 1.0)
         should_activate = (allosteric_in_top2
-                           and enzyme_in_top4
+                           and enzyme_nontrivial
+                           and allosteric_score_significant
+                           and protein_large_enough
                            and hinge_r > 1.0)
 
         if should_activate:
@@ -574,3 +642,118 @@ class HingeLensSynthesis(EnzymeLensSynthesis):
             excess = hinge_r - 1.0
             return min(0.35, excess * 3.0)
         return 0.0
+
+
+class SizeAwareHingeLens(HingeLensSynthesis):
+    """HingeLensSynthesis with a barrel-penalty lens for large proteins (D113).
+
+    Extends D111's :class:`HingeLensSynthesis` with a third post-hoc
+    lens that addresses the systematic barrel over-prediction found
+    in D112's expanded 52-protein benchmark.
+
+    The barrel penalty lens fires when:
+
+    1. ``barrel`` wins the initial classification, AND
+    2. The protein is large (N > 250), AND
+    3. Size-normalised scatter is not extremely low (scatter_norm > 0.5)
+
+    When these conditions are met, the lens checks whether the
+    carving profiles show signals more consistent with dumbbell or
+    allosteric:
+
+    * High Δβ or spatial radius → boost dumbbell/allosteric
+    * Multiple domain labels → boost dumbbell
+    * Gap flatness pattern inconsistent with barrel → penalise barrel
+
+    Historical notes
+    ----------------
+    Designed in D113 (Barrel Over-Prediction Fix).  D112 showed
+    59.2% accuracy on 52 proteins, with 14 false barrel predictions.
+    Root cause: scatter (the #1 barrel discriminator) was not
+    size-normalised, and barrel accumulated votes from all 7
+    instruments for the same signal.
+
+    D113 fixes:
+    1. Size-normalise scatter in archetype_vote()
+    2. Concentrate barrel scatter voting in 3/7 instruments
+    3. Add allosteric context boosts
+    4. This barrel penalty lens
+    """
+
+    def synthesize_identity(self, carver_profiles, meta_state):
+        # Standard D111 synthesis (MetaFick + enzyme lens + hinge lens)
+        result = super().synthesize_identity(carver_profiles, meta_state)
+        scores = dict(result["scores"])
+
+        identity = result["identity"]
+
+        # ── Barrel penalty lens ──
+        # Only fires when barrel wins AND protein is large AND
+        # normalised scatter isn't extremely low (i.e., the barrel
+        # call might be due to size-diluted scatter, not actual barrel).
+        n_residues = (carver_profiles[0].n_residues
+                      if carver_profiles else 200)
+        all_scatter_norm = float(np.mean(
+            [p.scatter_normalised for p in carver_profiles]))
+        all_db = float(np.mean(
+            [p.mean_delta_beta for p in carver_profiles]))
+        all_radius = float(np.mean(
+            [p.mean_spatial_radius for p in carver_profiles]))
+
+        barrel_penalty_activated = False
+
+        if (identity == "barrel"
+                and n_residues > 250
+                and all_scatter_norm > 0.5):
+
+            penalty = 0.0
+            boost_target = None
+
+            # Signal 1: high Δβ → probably dumbbell
+            if all_db > 0.04:
+                penalty += 0.08
+                boost_target = "dumbbell"
+
+            # Signal 2: high spatial radius → probably allosteric
+            if all_radius > 12.0:
+                penalty += 0.06
+                if boost_target is None:
+                    boost_target = "allosteric"
+
+            # Signal 3: check if multiple domains are detected
+            if (self.domain_labels is not None
+                    and len(set(self.domain_labels)) > 1):
+                n_domains = len(set(self.domain_labels))
+                if n_domains >= 2:
+                    penalty += 0.05
+                    if boost_target is None:
+                        boost_target = "dumbbell"
+
+            # Signal 4: gap NOT flat under algebraic → not barrel
+            for p in carver_profiles:
+                if p.instrument == "algebraic":
+                    if p.gap_flatness < 0.90:
+                        penalty += 0.04
+                    break
+
+            if penalty > 0 and boost_target is not None:
+                scores["barrel"] -= penalty
+                scores[boost_target] += penalty * 0.7
+
+                # Re-normalise
+                total = sum(max(0.01, v) for v in scores.values())
+                scores = {k: max(0.01, v) / total
+                          for k, v in scores.items()}
+                result["scores"] = scores
+                result["identity"] = max(scores, key=scores.get)
+                barrel_penalty_activated = True
+
+        result["barrel_penalty_activated"] = barrel_penalty_activated
+        result["barrel_penalty_signals"] = {
+            "n_residues": n_residues,
+            "scatter_norm": round(all_scatter_norm, 4),
+            "mean_delta_beta": round(all_db, 4),
+            "mean_radius": round(all_radius, 4),
+        }
+
+        return result
