@@ -69,6 +69,7 @@ from .instruments import (
     steps_for_protein,
 )
 from .synthesis import MetaFickBalancer, HingeLensSynthesis, SizeAwareHingeLens
+from .cache import ProfileCache, profiles_to_json, profiles_from_json
 from .thermodynamics import (
     heat_capacity,
     helmholtz_free_energy,
@@ -261,13 +262,77 @@ class ThermodynamicBand:
 
         fick_alphas = self.carvers["fick"].alpha_trajectory
 
+        # Store profiles for caching / re-scoring
+        self._last_profiles = profiles
+
         return {
             "identity": identity_result,
             "meta_fick": meta_state,
             "per_instrument": per_instrument,
             "band_log": band_log,
             "fick_alpha_trajectory": fick_alphas,
+            "profiles": profiles,
         }
+
+    # ── Profile caching ─────────────────────────────────────────
+
+    def get_profiles(self) -> list:
+        """Return the 7 ThermoReactionProfile objects from the last play()."""
+        return getattr(self, "_last_profiles", [
+            self.carvers[name].profile for name, _ in INSTRUMENTS
+        ])
+
+    def save_profiles(self, path: str, metadata: dict | None = None) -> None:
+        """Save all 7 carving profiles to a JSON file.
+
+        Use :meth:`rescore_from_profiles` or :func:`profiles_from_json`
+        to reload and re-score without re-carving.
+        """
+        from pathlib import Path as P
+        profiles = self.get_profiles()
+        text = profiles_to_json(profiles, metadata)
+        P(path).write_text(text, encoding="utf-8")
+
+    @classmethod
+    def rescore_from_profiles(
+        cls,
+        profiles: list,
+        evals=None,
+        evecs=None,
+        domain_labels=None,
+        contacts=None,
+    ) -> dict:
+        """Re-score pre-computed profiles without re-carving.
+
+        This is the fast path (~0.01s vs ~120s for full carving).
+        Pass the eigenvalues/eigenvectors/domain_labels/contacts
+        to enable the HingeLens and SizeAwareHingeLens.  Without
+        them, only the base MetaFickBalancer and EnzymeLens fire.
+
+        Parameters
+        ----------
+        profiles : list[ThermoReactionProfile]
+            The 7 profiles from a previous :meth:`play` call.
+        evals, evecs : ndarray, optional
+            Laplacian eigenvalues/eigenvectors (enables hinge lens).
+        domain_labels : ndarray, optional
+            Domain assignment per residue.
+        contacts : dict, optional
+            Contact map.
+
+        Returns
+        -------
+        dict
+            Same structure as :meth:`play`'s ``identity`` sub-dict.
+        """
+        synth = SizeAwareHingeLens(
+            evals=evals, evecs=evecs,
+            domain_labels=domain_labels, contacts=contacts,
+        )
+        final_votes = [p.archetype_vote() for p in profiles]
+        meta_state = synth.compute_meta_fick_state(final_votes)
+        identity_result = synth.synthesize_identity(profiles, meta_state)
+        return identity_result
 
 
 # ═══════════════════════════════════════════════════════════════════

@@ -28,6 +28,13 @@ from .thermodynamics import (
     multimode_ipr, hinge_occupation_ratio, domain_stiffness_asymmetry,
 )
 
+# Profile caching & benchmark (v0.3.0)
+from .cache import ProfileCache, profile_to_dict, profile_from_dict
+from .benchmark import (
+    ProteinEntry, ProteinResult, BenchmarkReport, BenchmarkRunner,
+    ORIGINAL_CORPUS, EXPANDED_CORPUS,
+)
+
 __all__ = [
     # Core analyser
     "IBPProteinAnalyzer", "IBPResult",
@@ -44,4 +51,8 @@ __all__ = [
     "mean_ipr_low_modes", "spectral_entropy_shannon",
     "per_residue_entropy_contribution", "entropy_asymmetry_score",
     "multimode_ipr", "hinge_occupation_ratio", "domain_stiffness_asymmetry",
+    # Profile caching & benchmark (v0.3.0)
+    "ProfileCache", "profile_to_dict", "profile_from_dict",
+    "ProteinEntry", "ProteinResult", "BenchmarkReport", "BenchmarkRunner",
+    "ORIGINAL_CORPUS", "EXPANDED_CORPUS",
 ]
