@@ -46,6 +46,18 @@ from .thresholds import ThresholdRegistry, DEFAULT_THRESHOLDS
 # ClassificationTrace (v0.7.0)
 from .trace import ClassificationTrace, ContextSignals
 
+# Algebraic structure analysis & deep result analysis (v0.8.0)
+from .algebra import (
+    Fingerprint, fingerprint_from_trace, hamming_distance, distance_matrix,
+    InstrumentCollinearity, check_collinearity,
+    FiringLattice, build_firing_lattice,
+    ThresholdSensitivity, threshold_sensitivity,
+)
+from .analysis import (
+    ArchetypeProfile, ConfusionCluster, RuleCoFiringMatrix,
+    AnalysisReport, analyse_traces, compare_reports,
+)
+
 # Profile caching & benchmark (v0.3.0)
 from .cache import ProfileCache, profile_to_dict, profile_from_dict
 from .benchmark import (
@@ -80,6 +92,14 @@ __all__ = [
     "ThresholdRegistry", "DEFAULT_THRESHOLDS",
     # ClassificationTrace (v0.7.0)
     "ClassificationTrace", "ContextSignals",
+    # Algebraic structure analysis (v0.8.0)
+    "Fingerprint", "fingerprint_from_trace", "hamming_distance", "distance_matrix",
+    "InstrumentCollinearity", "check_collinearity",
+    "FiringLattice", "build_firing_lattice",
+    "ThresholdSensitivity", "threshold_sensitivity",
+    # Deep result analysis (v0.8.0)
+    "ArchetypeProfile", "ConfusionCluster", "RuleCoFiringMatrix",
+    "AnalysisReport", "analyse_traces", "compare_reports",
     # Profile caching & benchmark (v0.3.0)
     "ProfileCache", "profile_to_dict", "profile_from_dict",
     "ProteinEntry", "ProteinResult", "BenchmarkReport", "BenchmarkRunner",
