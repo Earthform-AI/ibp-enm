@@ -69,6 +69,7 @@ from .instruments import (
     steps_for_protein,
 )
 from .synthesis import MetaFickBalancer, HingeLensSynthesis, SizeAwareHingeLens
+from .lens_stack import LensStackSynthesizer, build_default_stack
 from .cache import ProfileCache, profiles_to_json, profiles_from_json
 from .thermodynamics import (
     heat_capacity,
@@ -162,7 +163,7 @@ class ThermodynamicBand:
                 predicted_bfactors=predicted_bfactors,
             )
 
-        self.meta_fick = SizeAwareHingeLens(
+        self.meta_fick = LensStackSynthesizer(
             evals=evals, evecs=evecs,
             domain_labels=domain_labels, contacts=contacts,
         )
@@ -325,7 +326,7 @@ class ThermodynamicBand:
         dict
             Same structure as :meth:`play`'s ``identity`` sub-dict.
         """
-        synth = SizeAwareHingeLens(
+        synth = LensStackSynthesizer(
             evals=evals, evecs=evecs,
             domain_labels=domain_labels, contacts=contacts,
         )

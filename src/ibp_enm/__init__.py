@@ -33,6 +33,13 @@ from .thermodynamics import (
     multimode_ipr, hinge_occupation_ratio, domain_stiffness_asymmetry,
 )
 
+# LensStack composition (v0.5.0)
+from .lens_stack import (
+    Lens, LensTrace, LensStack,
+    EnzymeLens, HingeLens, BarrelPenaltyLens,
+    LensStackSynthesizer, build_default_stack,
+)
+
 # Profile caching & benchmark (v0.3.0)
 from .cache import ProfileCache, profile_to_dict, profile_from_dict
 from .benchmark import (
@@ -59,6 +66,10 @@ __all__ = [
     "mean_ipr_low_modes", "spectral_entropy_shannon",
     "per_residue_entropy_contribution", "entropy_asymmetry_score",
     "multimode_ipr", "hinge_occupation_ratio", "domain_stiffness_asymmetry",
+    # LensStack composition (v0.5.0)
+    "Lens", "LensTrace", "LensStack",
+    "EnzymeLens", "HingeLens", "BarrelPenaltyLens",
+    "LensStackSynthesizer", "build_default_stack",
     # Profile caching & benchmark (v0.3.0)
     "ProfileCache", "profile_to_dict", "profile_from_dict",
     "ProteinEntry", "ProteinResult", "BenchmarkReport", "BenchmarkRunner",

@@ -668,9 +668,9 @@ class BenchmarkRunner:
             }
 
         # Full profile-level rescore
-        from .synthesis import SizeAwareHingeLens
+        from .lens_stack import LensStackSynthesizer
 
-        synth = SizeAwareHingeLens(
+        synth = LensStackSynthesizer(
             evals=None, evecs=None,
             domain_labels=None, contacts=None,
         )
