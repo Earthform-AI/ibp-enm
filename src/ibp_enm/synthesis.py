@@ -32,6 +32,7 @@ from typing import Dict, List
 
 from .archetypes import ARCHETYPE_EXPECTATIONS
 from .instruments import ThermoReactionProfile
+from .thresholds import ThresholdRegistry, DEFAULT_THRESHOLDS
 from .thermodynamics import (
     per_residue_entropy_contribution,
     entropy_asymmetry_score,
@@ -64,11 +65,13 @@ class MetaFickBalancer:
     """
 
     def __init__(self, w1: float = -1.2, w2: float = -0.4,
-                 w3: float = 0.8, beta0: float = 1.5):
+                 w3: float = 0.8, beta0: float = 1.5,
+                 thresholds: ThresholdRegistry | None = None):
         self.w1 = w1
         self.w2 = w2
         self.w3 = w3
         self.beta0 = beta0
+        self._t = thresholds or DEFAULT_THRESHOLDS
         self.history: List[Dict] = []
         self.tau_prev: float | None = None
 
@@ -113,7 +116,7 @@ class MetaFickBalancer:
         if len(sorted_votes) >= 2 and sorted_votes[1] > 1e-10:
             beta = sorted_votes[0] / sorted_votes[1]
         else:
-            beta = 10.0
+            beta = self._t["meta_fick.beta_fallback"]
 
         # ρ = agreement fraction
         top_arch = max(consensus, key=consensus.get)
@@ -182,14 +185,16 @@ class MetaFickBalancer:
 
         # Disagreement pathway
         disagreement_scores: Dict[str, float] = {}
+        eps = self._t["meta_fick.disagree_epsilon"]
         for arch in all_archs:
             arch_vals = [v.get(arch, 0) for v in carver_votes]
             mean_v = float(np.mean(arch_vals))
             std_v = float(np.std(arch_vals))
-            disagreement_scores[arch] = mean_v / (std_v + 0.1)
+            disagreement_scores[arch] = mean_v / (std_v + eps)
 
         # ── Thermodynamic context boost (data-calibrated) ──
         context_boost: Dict[str, float] = {a: 0.0 for a in all_archs}
+        t = self._t
 
         # Cross-instrument summary signals
         all_scatter = float(np.mean(
@@ -209,64 +214,60 @@ class MetaFickBalancer:
 
         # BARREL: LOW scatter across ALL instruments (d=2.1–3.3)
         # D113: use normalised scatter
-        if all_scatter_norm < 1.5:
-            context_boost["barrel"] += 0.8
-        elif all_scatter_norm > 3.0:
-            context_boost["barrel"] -= 0.5
+        if all_scatter_norm < t["ctx_boost.barrel_scatter_low"]:
+            context_boost["barrel"] += t["ctx_boost.barrel_scatter_low_boost"]
+        elif all_scatter_norm > t["ctx_boost.barrel_scatter_high"]:
+            context_boost["barrel"] += t["ctx_boost.barrel_scatter_high_penalty"]
 
         # D113: barrel penalty for large proteins
-        # Large proteins (N > 350) with high normalised scatter
-        # are probably NOT barrels — they're dumbbells or allosteric
-        # proteins whose raw scatter is diluted by size.
-        if n_residues > 350 and all_scatter_norm > 1.2:
-            context_boost["barrel"] -= 0.6
-            context_boost["dumbbell"] += 0.3
-            context_boost["allosteric"] += 0.3
+        if (n_residues > t["ctx_boost.barrel_large_n"]
+                and all_scatter_norm > t["ctx_boost.barrel_large_scatter_gate"]):
+            context_boost["barrel"] += t["ctx_boost.barrel_large_penalty"]
+            context_boost["dumbbell"] += t["ctx_boost.barrel_large_dumbbell_boost"]
+            context_boost["allosteric"] += t["ctx_boost.barrel_large_allosteric_boost"]
 
         # DUMBBELL: HIGH Δβ across instruments (d=2.1–2.9)
-        if all_db > 0.12:
-            context_boost["dumbbell"] += 0.8
-        elif all_db < 0.03:
-            context_boost["dumbbell"] -= 0.3
+        if all_db > t["ctx_boost.dumbbell_db_high"]:
+            context_boost["dumbbell"] += t["ctx_boost.dumbbell_db_high_boost"]
+        elif all_db < t["ctx_boost.dumbbell_db_low"]:
+            context_boost["dumbbell"] += t["ctx_boost.dumbbell_db_low_penalty"]
 
         # ENZYME: HIGH IPR across instruments (d=1.3–1.5)
-        if all_ipr > 0.025:
-            context_boost["enzyme_active"] += 0.8
-        elif all_ipr < 0.017:
-            context_boost["enzyme_active"] -= 0.3
+        if all_ipr > t["ctx_boost.enzyme_ipr_high"]:
+            context_boost["enzyme_active"] += t["ctx_boost.enzyme_ipr_high_boost"]
+        elif all_ipr < t["ctx_boost.enzyme_ipr_low"]:
+            context_boost["enzyme_active"] += t["ctx_boost.enzyme_ipr_low_penalty"]
 
         # Per-instrument specific signals
         for profile in carver_profiles:
             if profile.instrument == "algebraic":
-                if profile.gap_flatness < 0.75:
-                    context_boost["globin"] += 0.8
-                    context_boost["barrel"] -= 0.3
-                elif profile.gap_flatness < 0.85:
-                    context_boost["globin"] += 0.3
-                if profile.mean_bus_mass < 0.5:
-                    context_boost["barrel"] += 0.3
+                if profile.gap_flatness < t["ctx_boost.alg_globin_flat_strong"]:
+                    context_boost["globin"] += t["ctx_boost.alg_globin_flat_strong_boost"]
+                    context_boost["barrel"] += t["ctx_boost.alg_barrel_flat_penalty"]
+                elif profile.gap_flatness < t["ctx_boost.alg_globin_flat_mid"]:
+                    context_boost["globin"] += t["ctx_boost.alg_globin_flat_mid_boost"]
+                if profile.mean_bus_mass < t["ctx_boost.alg_barrel_bus_thresh"]:
+                    context_boost["barrel"] += t["ctx_boost.alg_barrel_bus_boost"]
 
             elif profile.instrument == "thermal":
-                if profile.gap_flatness < 0.75:
-                    context_boost["globin"] += 0.6
-                if profile.mean_bus_mass < 0.45:
-                    context_boost["barrel"] += 0.4
+                if profile.gap_flatness < t["ctx_boost.therm_globin_flat_thresh"]:
+                    context_boost["globin"] += t["ctx_boost.therm_globin_flat_boost"]
+                if profile.mean_bus_mass < t["ctx_boost.therm_barrel_bus_thresh"]:
+                    context_boost["barrel"] += t["ctx_boost.therm_barrel_bus_boost"]
 
             elif profile.instrument == "propagative":
-                if profile.gap_flatness < 0.9:
-                    context_boost["globin"] += 0.5
-                if profile.reversible_frac > 0.9:
-                    context_boost["barrel"] += 0.3
+                if profile.gap_flatness < t["ctx_boost.prop_globin_flat_thresh"]:
+                    context_boost["globin"] += t["ctx_boost.prop_globin_flat_boost"]
+                if profile.reversible_frac > t["ctx_boost.prop_barrel_rev_thresh"]:
+                    context_boost["barrel"] += t["ctx_boost.prop_barrel_rev_boost"]
 
             elif profile.instrument == "fragile":
-                if profile.mean_delta_beta > 0.15:
-                    context_boost["dumbbell"] += 0.5
-                if profile.reversible_frac < 0.5:
-                    context_boost["dumbbell"] += 0.3
+                if profile.mean_delta_beta > t["ctx_boost.frag_dumbbell_db_thresh"]:
+                    context_boost["dumbbell"] += t["ctx_boost.frag_dumbbell_db_boost"]
+                if profile.reversible_frac < t["ctx_boost.frag_dumbbell_rev_thresh"]:
+                    context_boost["dumbbell"] += t["ctx_boost.frag_dumbbell_rev_boost"]
 
-        # D113: ALLOSTERIC context boost (was missing entirely!)
-        # High spatial radius across propagative is the strongest
-        # allosteric signal (d=2.8), but it had no context boost.
+        # D113: ALLOSTERIC context boost
         propagative_radius = 0.0
         propagative_scatter_norm = 0.0
         for profile in carver_profiles:
@@ -275,32 +276,29 @@ class MetaFickBalancer:
                 propagative_scatter_norm = profile.scatter_normalised
                 break
 
-        # Only boost allosteric for proteins large enough to have
-        # genuine multi-domain allosteric architecture.  Small globins
-        # (N < 200) can show high propagative radius simply because
-        # perturbations easily span the entire protein.
-        if propagative_radius > 20.0 and n_residues > 200:
-            context_boost["allosteric"] += 0.8
-            # If propagative radius is high AND normalised scatter
-            # is moderate, suppress barrel (scatter is low due to
-            # size, not due to barrel-ness)
-            if propagative_scatter_norm > 0.8:
-                context_boost["barrel"] -= 0.3
+        if (propagative_radius > t["ctx_boost.allosteric_prop_radius_high"]
+                and n_residues > t["ctx_boost.allosteric_size_gate_n"]):
+            context_boost["allosteric"] += t["ctx_boost.allosteric_prop_radius_boost"]
+            if propagative_scatter_norm > t["ctx_boost.allosteric_barrel_suppress_scatter"]:
+                context_boost["barrel"] += t["ctx_boost.allosteric_barrel_suppress_penalty"]
 
-        if all_radius > 15.0 and n_residues > 200:
-            context_boost["allosteric"] += 0.4
+        if (all_radius > t["ctx_boost.allosteric_all_radius_thresh"]
+                and n_residues > t["ctx_boost.allosteric_size_gate_n"]):
+            context_boost["allosteric"] += t["ctx_boost.allosteric_all_radius_boost"]
 
         # D113: dumbbell size boost — large proteins with high Δβ
-        if n_residues > 250 and all_db > 0.05:
-            context_boost["dumbbell"] += 0.4
+        if (n_residues > t["ctx_boost.dumbbell_size_gate_n"]
+                and all_db > t["ctx_boost.dumbbell_size_db_thresh"]):
+            context_boost["dumbbell"] += t["ctx_boost.dumbbell_size_boost"]
 
         # ── Combine ──
+        ctx_w = t["meta_fick.context_boost_weight"]
         final_scores: Dict[str, float] = {}
         for arch in all_archs:
             final_scores[arch] = (
                 alpha_meta * consensus_scores.get(arch, 0)
                 + (1 - alpha_meta) * disagreement_scores.get(arch, 0)
-                + 0.25 * context_boost.get(arch, 0)
+                + ctx_w * context_boost.get(arch, 0)
             )
 
         total = sum(final_scores.values())

@@ -40,6 +40,9 @@ from .lens_stack import (
     LensStackSynthesizer, build_default_stack,
 )
 
+# ThresholdRegistry (v0.6.0)
+from .thresholds import ThresholdRegistry, DEFAULT_THRESHOLDS
+
 # Profile caching & benchmark (v0.3.0)
 from .cache import ProfileCache, profile_to_dict, profile_from_dict
 from .benchmark import (
@@ -70,6 +73,8 @@ __all__ = [
     "Lens", "LensTrace", "LensStack",
     "EnzymeLens", "HingeLens", "BarrelPenaltyLens",
     "LensStackSynthesizer", "build_default_stack",
+    # ThresholdRegistry (v0.6.0)
+    "ThresholdRegistry", "DEFAULT_THRESHOLDS",
     # Profile caching & benchmark (v0.3.0)
     "ProfileCache", "profile_to_dict", "profile_from_dict",
     "ProteinEntry", "ProteinResult", "BenchmarkReport", "BenchmarkRunner",
