@@ -317,6 +317,11 @@ _DEFAULT_DATA: Dict[str, float] = {
     "hinge_lens.hinge_r_gate": 1.0,
     "hinge_lens.allosteric_counter_ratio": 0.5,
 
+    # D116 gates (default = no additional gating)
+    "hinge_lens.dom_stiff_max": 999.0,     # block if dom_stiff > this
+    "hinge_lens.enzyme_vote_min": 0.0,      # require ≥ this fraction of instruments voting enzyme
+    "hinge_lens.hinge_r_effective_cap": 999.0,  # cap effective hinge_r for boost calc
+
     # Boost computation
     "hinge_lens.boost_cap": 0.35,
     "hinge_lens.boost_multiplier": 3.0,

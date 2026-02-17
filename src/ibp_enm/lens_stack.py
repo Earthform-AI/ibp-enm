@@ -486,7 +486,32 @@ class HingeLens:
         hinge_signals = self._compute_hinge_signals(context)
         # Cache for apply()
         self._last_hinge_signals = hinge_signals
-        return hinge_signals.get("hinge_r", 1.0) > t["hinge_lens.hinge_r_gate"]
+
+        if hinge_signals.get("hinge_r", 1.0) <= t["hinge_lens.hinge_r_gate"]:
+            return False
+
+        # D116 gate: dom_stiff — block when domain stiffness is too high
+        # (non-enzymes show higher dom_stiff; default 999.0 = no gate)
+        if hinge_signals.get("dom_stiff", 0.0) > t["hinge_lens.dom_stiff_max"]:
+            return False
+
+        # D116 gate: instrument consensus — require minimum fraction of
+        # instruments voting enzyme_active (default 0 = no gate)
+        enzyme_vote_min = t["hinge_lens.enzyme_vote_min"]
+        if enzyme_vote_min > 0:
+            n_enzyme = 0
+            n_total = 0
+            for p in profiles:
+                votes = p.archetype_vote()
+                if votes:
+                    n_total += 1
+                    if max(votes, key=votes.get) == "enzyme_active":
+                        n_enzyme += 1
+            frac = n_enzyme / n_total if n_total else 0
+            if frac < enzyme_vote_min:
+                return False
+
+        return True
 
     def apply(
         self,
@@ -529,6 +554,9 @@ class HingeLens:
         if t is None:
             t = DEFAULT_THRESHOLDS
         hinge_r = signals.get("hinge_r", 1.0)
+        # D116: cap effective hinge_r to limit extreme boosts
+        # (default 999.0 = no cap)
+        hinge_r = min(hinge_r, t["hinge_lens.hinge_r_effective_cap"])
         if hinge_r > t["hinge_lens.hinge_r_gate"]:
             excess = hinge_r - t["hinge_lens.hinge_r_gate"]
             return min(t["hinge_lens.boost_cap"],
