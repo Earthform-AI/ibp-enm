@@ -132,6 +132,7 @@ class ThermodynamicBand:
         evecs: np.ndarray,
         handbook: Optional[SurgeonsHandbook] = None,
         predicted_bfactors: Optional[np.ndarray] = None,
+        thresholds=None,
     ):
         self.N = N
         self.contacts = contacts
@@ -166,6 +167,7 @@ class ThermodynamicBand:
         self.meta_fick = LensStackSynthesizer(
             evals=evals, evecs=evecs,
             domain_labels=domain_labels, contacts=contacts,
+            thresholds=thresholds,
         )
         self.initial_diagnosis: Optional[Dict] = None
 
@@ -379,6 +381,7 @@ def run_single_protein(
     chain: str = "A",
     name: Optional[str] = None,
     verbose: bool = False,
+    thresholds=None,
 ) -> Dict:
     """Run the thermodynamic band on a single protein.
 
@@ -443,6 +446,7 @@ def run_single_protein(
         domain_labels, sg, evals, evecs,
         handbook=handbook,
         predicted_bfactors=predicted_bfactors,
+        thresholds=thresholds,
     )
 
     initial_diag = band.diagnose_initial(max_probes=80)

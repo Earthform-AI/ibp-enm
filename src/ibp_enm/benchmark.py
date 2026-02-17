@@ -476,9 +476,11 @@ class BenchmarkRunner:
         self,
         corpus: List[ProteinEntry] | None = None,
         cache_dir: str | Path | None = None,
+        thresholds: "ThresholdRegistry | None" = None,
     ):
         self.corpus = list(corpus) if corpus is not None else list(EXPANDED_CORPUS)
         self.cache = ProfileCache(cache_dir) if cache_dir else None
+        self.thresholds = thresholds  # None → DEFAULT_THRESHOLDS
 
     def run(
         self,
@@ -605,7 +607,8 @@ class BenchmarkRunner:
         from .instruments import INSTRUMENTS
 
         pr = run_single_protein(
-            entry.pdb_id, entry.chain, name=entry.name)
+            entry.pdb_id, entry.chain, name=entry.name,
+            thresholds=self.thresholds)
 
         # Cache profiles if cache is configured
         if self.cache is not None:
@@ -686,6 +689,7 @@ class BenchmarkRunner:
         synth = LensStackSynthesizer(
             evals=None, evecs=None,
             domain_labels=None, contacts=None,
+            thresholds=self.thresholds,
         )
         final_votes = [p.archetype_vote() for p in profiles]
         meta_state = synth.compute_meta_fick_state(final_votes)
