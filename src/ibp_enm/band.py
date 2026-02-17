@@ -67,7 +67,7 @@ from .instruments import (
     STEPS_PER_INSTRUMENT,
     ThermoInstrumentCarver,
 )
-from .synthesis import MetaFickBalancer
+from .synthesis import MetaFickBalancer, HingeLensSynthesis
 from .thermodynamics import (
     heat_capacity,
     helmholtz_free_energy,
@@ -160,7 +160,10 @@ class ThermodynamicBand:
                 predicted_bfactors=predicted_bfactors,
             )
 
-        self.meta_fick = MetaFickBalancer()
+        self.meta_fick = HingeLensSynthesis(
+            evals=evals, evecs=evecs,
+            domain_labels=domain_labels, contacts=contacts,
+        )
         self.initial_diagnosis: Optional[Dict] = None
 
     # ── Phase 1: snapshot diagnosis ─────────────────────────────
@@ -378,7 +381,14 @@ def run_single_protein(
 
     band_result = band.play()
     band_identity = band_result["identity"]["identity"]
-    log(f"  Band:     {band_identity}")
+    hinge_identity = band_identity  # HingeLens is now the default
+    enzyme_lens_activated = band_result["identity"].get(
+        "enzyme_lens_activated", False)
+    hinge_lens_activated = band_result["identity"].get(
+        "hinge_lens_activated", False)
+    log(f"  Band:     {band_identity}"
+        f"  (enzyme_lens={'on' if enzyme_lens_activated else 'off'}"
+        f", hinge_lens={'on' if hinge_lens_activated else 'off'})")
 
     # Ground truth (if available)
     true_arch = GROUND_TRUTH.get(name)
@@ -412,6 +422,9 @@ def run_single_protein(
         "initial_diagnosis": initial_diag,
         "band_result": band_result,
         "band_identity": band_identity,
+        "hinge_identity": hinge_identity,
+        "enzyme_lens_activated": enzyme_lens_activated,
+        "hinge_lens_activated": hinge_lens_activated,
         "true_archetype": true_arch,
         "initial_correct": initial_correct,
         "band_correct": band_correct,
