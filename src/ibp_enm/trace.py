@@ -27,7 +27,26 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
+import numpy as np
+
 from .lens_stack import LensTrace
+
+
+def _json_safe(obj: Any) -> Any:
+    """Recursively convert numpy/non-standard types to JSON-safe Python."""
+    if isinstance(obj, dict):
+        return {k: _json_safe(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [_json_safe(v) for v in obj]
+    if isinstance(obj, np.integer):
+        return int(obj)
+    if isinstance(obj, np.floating):
+        return float(obj)
+    if isinstance(obj, np.bool_):
+        return bool(obj)
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    return obj
 from .rules import RuleFiring
 from .thresholds import ThresholdRegistry, DEFAULT_THRESHOLDS
 
@@ -217,8 +236,8 @@ class ClassificationTrace:
                 {
                     "lens_name": t.lens_name,
                     "activated": t.activated,
-                    "boost": round(t.boost, 6),
-                    "details": t.details,
+                    "boost": round(float(t.boost), 6),
+                    "details": _json_safe(t.details),
                 }
                 for t in self.lens_traces
             ],

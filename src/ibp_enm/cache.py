@@ -62,6 +62,8 @@ def _numpy_safe(obj: Any) -> Any:
         return {k: _numpy_safe(v) for k, v in obj.items()}
     if isinstance(obj, list):
         return [_numpy_safe(v) for v in obj]
+    if isinstance(obj, tuple):
+        return [_numpy_safe(v) for v in obj]
     if isinstance(obj, np.integer):
         return int(obj)
     if isinstance(obj, np.floating):

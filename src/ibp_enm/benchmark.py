@@ -298,6 +298,7 @@ class BenchmarkReport:
 
     def to_dict(self) -> Dict[str, Any]:
         """Serialise to a JSON-compatible dict."""
+        from .cache import _numpy_safe
         return {
             "timestamp": self.timestamp,
             "total_time_s": self.total_time_s,
@@ -312,7 +313,7 @@ class BenchmarkReport:
                     "expected": r.entry.archetype,
                     "predicted": r.predicted,
                     "correct": r.correct,
-                    "scores": r.scores,
+                    "scores": _numpy_safe(r.scores),
                     "time_s": r.time_s,
                     "error": r.error,
                     "n_residues": r.n_residues,
@@ -321,6 +322,8 @@ class BenchmarkReport:
                     "barrel_penalty_activated": r.barrel_penalty_activated,
                     "initial_diagnosis": r.initial_diagnosis,
                     "true_rank": r.true_rank,
+                    "trace": (r.trace.to_dict()
+                              if hasattr(r.trace, "to_dict") else None),
                 }
                 for r in self.results
             ],
@@ -328,8 +331,9 @@ class BenchmarkReport:
 
     def save(self, path: str | Path) -> None:
         """Save report to JSON file."""
+        from .cache import _numpy_safe
         Path(path).write_text(
-            json.dumps(self.to_dict(), indent=2),
+            json.dumps(_numpy_safe(self.to_dict()), indent=2),
             encoding="utf-8")
 
     @classmethod
@@ -633,7 +637,11 @@ class BenchmarkRunner:
             metadata["per_instrument"] = per_inst
             metadata["identity_result"] = {
                 k: v for k, v in identity.items()
-                if k != "per_carver_votes"  # redundant with per_inst
+                if k not in ("per_carver_votes", "trace", "lens_traces")
+                # per_carver_votes is redundant with per_inst;
+                # trace contains ClassificationTrace objects;
+                # lens_traces contains LensTrace objects —
+                # none of these are JSON-serializable.
             }
 
             self.cache.save(
