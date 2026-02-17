@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ibp-enm"
-version = "0.3.0"
-description = "Spectral Elastic Network Model for protein structural analysis — 7-instrument thermodynamic band classification with profile caching, 52-protein benchmark harness, and structured reporting."
+version = "0.4.0"
+description = "Spectral Elastic Network Model for protein structural analysis — 7-instrument thermodynamic band with decomposed ArchetypeRule registry, per-rule tracing, programmatic threshold sweeps, profile caching, and 52-protein benchmark harness."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"

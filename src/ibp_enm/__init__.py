@@ -15,6 +15,11 @@ from .baselines import gnm_predict
 # D109 Thermodynamic Band — public API
 from .band import ThermodynamicBand, run_single_protein
 from .instruments import ThermoReactionProfile, ThermoInstrumentCarver, steps_for_protein
+from .rules import (
+    ArchetypeRule, CompoundArchetypeRule, RuleFiring,
+    ARCHETYPE_RULES, apply_rules, apply_rules_traced,
+    get_rules, replace_rules,
+)
 from .synthesis import MetaFickBalancer, EnzymeLensSynthesis, HingeLensSynthesis, SizeAwareHingeLens
 from .archetypes import (
     ProteinArchetype, ARCHETYPES, ARCHETYPE_EXPECTATIONS,
@@ -43,6 +48,9 @@ __all__ = [
     # Thermodynamic Band (D109)
     "ThermodynamicBand", "run_single_protein",
     "ThermoReactionProfile", "ThermoInstrumentCarver",
+    "ArchetypeRule", "CompoundArchetypeRule", "RuleFiring",
+    "ARCHETYPE_RULES", "apply_rules", "apply_rules_traced",
+    "get_rules", "replace_rules",
     "MetaFickBalancer", "EnzymeLensSynthesis", "HingeLensSynthesis", "SizeAwareHingeLens",
     "ProteinArchetype", "ARCHETYPES", "ARCHETYPE_EXPECTATIONS",
     "SurgeonsHandbook", "PROTEINS", "GROUND_TRUTH",

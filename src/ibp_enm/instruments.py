@@ -33,9 +33,10 @@ from __future__ import annotations
 import numpy as np
 from collections import Counter
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 from .archetypes import ARCHETYPE_EXPECTATIONS
+from .rules import apply_rules, apply_rules_traced, ARCHETYPE_RULES
 from .carving import (
     CarvingIntent,
     ShadowInspector,
@@ -279,8 +280,21 @@ class ThermoReactionProfile:
 
     # ── Data-calibrated archetype vote ──────────────────────────
 
-    def archetype_vote(self) -> Dict[str, float]:
+    def archetype_vote(
+        self,
+        rules: Optional[Sequence] = None,
+    ) -> Dict[str, float]:
         """Data-calibrated archetype vote using thermodynamic fingerprints.
+
+        Delegates to :func:`~ibp_enm.rules.apply_rules` which evaluates
+        the :data:`~ibp_enm.rules.ARCHETYPE_RULES` registry against this
+        profile.
+
+        Parameters
+        ----------
+        rules : sequence of ArchetypeRule, optional
+            Override the default rule set (for sweeps / experiments).
+            When *None*, uses the full ``ARCHETYPE_RULES`` registry.
 
         Thresholds are derived from D109 Run 1 empirical analysis with
         Cohen's d effect sizes ranging from d = 1.0 to d = 3.4.
@@ -299,238 +313,18 @@ class ThermoReactionProfile:
         ENZYME    : IPR HIGH (>0.025)    across most instruments (d=1.3–1.5)
         ALLOSTERIC: radius HIGH (>30)    under propagative       (d=2.8)
         """
-        votes: Dict[str, float] = {}
-        sn = self.scatter_normalised   # D113: size-aware scatter
+        return apply_rules(self, rules)
 
-        for arch_name in ARCHETYPE_EXPECTATIONS:
-            score = 0.0
+    def archetype_vote_traced(
+        self,
+        rules: Optional[Sequence] = None,
+    ) -> tuple:
+        """Archetype vote with full audit trail.
 
-            if self.instrument == "algebraic":
-                if arch_name == "barrel":
-                    # D113: use normalised scatter, primary barrel voter
-                    if sn < 1.5:
-                        score += 2.0
-                    if self.mean_bus_mass < 0.5:
-                        score += 1.0
-                    if self.mean_delta_beta < 0.03:
-                        score += 0.8
-                    if self.gap_flatness > 0.95:
-                        score += 0.5
-                elif arch_name == "dumbbell":
-                    if self.mean_delta_beta > 0.1:
-                        score += 2.0
-                    if self.mean_scatter > 4.0:
-                        score += 1.0
-                    if self.mean_bus_mass > 0.85:
-                        score += 0.5
-                elif arch_name == "globin":
-                    if self.gap_flatness < 0.75:
-                        score += 2.5
-                    elif self.gap_flatness < 0.85:
-                        score += 1.0
-                    if self.reversible_frac < 0.3:
-                        score += 0.5
-                elif arch_name == "enzyme_active":
-                    if self.mean_ipr > 0.025:
-                        score += 1.5
-                    if 2.0 < self.mean_scatter < 5.0:
-                        score += 0.5
-                    if self.reversible_frac < 0.5:
-                        score += 0.4
-                elif arch_name == "allosteric":
-                    if self.reversible_frac > 0.7:
-                        score += 1.5
-                    if self.mean_scatter > 2.0:
-                        score += 0.5
-                    # D113: allosteric bonus for large-protein signals
-                    if self.mean_spatial_radius > 20.0:
-                        score += 0.5
-
-            elif self.instrument == "musical":
-                if arch_name == "barrel":
-                    # D113: use normalised scatter (was raw in D109)
-                    if sn < 1.5:
-                        score += 1.0  # reduced from 1.5
-                elif arch_name == "dumbbell":
-                    if self.mean_scatter > 4.0:
-                        score += 1.5
-                    if self.mean_delta_beta > 0.1:
-                        score += 0.8
-                elif arch_name == "enzyme_active":
-                    if self.mean_ipr > 0.025:
-                        score += 1.5
-                    if 1.5 < self.mean_scatter < 4.0:
-                        score += 0.5
-                elif arch_name == "allosteric":
-                    if self.mean_scatter > 2.0:
-                        score += 0.8
-                    if self.entropy_volatility > 0.02:
-                        score += 0.5
-                    # D113: allosteric cross-instrument signal
-                    if self.mean_spatial_radius > 15.0:
-                        score += 0.5
-                elif arch_name == "globin":
-                    if 1.0 < self.mean_scatter < 3.5:
-                        score += 0.5
-
-            elif self.instrument == "fick":
-                if arch_name == "barrel":
-                    # D113: use normalised scatter
-                    if sn < 1.5:
-                        score += 0.8
-                    if self.mean_delta_beta < 0.03:
-                        score += 0.8
-                elif arch_name == "dumbbell":
-                    if self.mean_delta_beta > 0.1:
-                        score += 1.5
-                elif arch_name == "enzyme_active":
-                    if self.mean_ipr > 0.025:
-                        score += 1.5
-                elif arch_name == "globin":
-                    if self.gap_flatness < 0.85:
-                        score += 1.0
-                elif arch_name == "allosteric":
-                    if self.reversible_frac > 0.7:
-                        score += 0.8
-                    # D113: fick allosteric signal
-                    if self.mean_spatial_radius > 15.0:
-                        score += 0.5
-
-            elif self.instrument == "thermal":
-                if arch_name == "barrel":
-                    # D113: primary barrel voter (with algebraic)
-                    if self.mean_bus_mass < 0.45:
-                        score += 2.0
-                    if sn < 1.5:  # normalised scatter
-                        score += 1.5
-                    if self.mean_delta_beta < 0.03:
-                        score += 0.8
-                elif arch_name == "dumbbell":
-                    if self.mean_delta_beta > 0.15:
-                        score += 2.0
-                    if self.mean_bus_mass > 0.85:
-                        score += 0.8
-                    if self.reversible_frac < 0.3:
-                        score += 0.5
-                elif arch_name == "globin":
-                    if self.gap_flatness < 0.75:
-                        score += 2.5
-                    elif self.gap_flatness < 0.85:
-                        score += 1.0
-                elif arch_name == "enzyme_active":
-                    if self.mean_ipr > 0.025:
-                        score += 1.5
-                    if 1.5 < self.mean_scatter < 4.5:
-                        score += 0.5
-                elif arch_name == "allosteric":
-                    if self.reversible_frac < 0.5 and self.gap_flatness > 0.85:
-                        score += 0.8
-
-            elif self.instrument == "cooperative":
-                if arch_name == "barrel":
-                    if self.mean_delta_beta < 0.03:
-                        score += 2.0
-                    if sn < 1.0:  # D113: normalised, primary voter
-                        score += 1.5
-                elif arch_name == "dumbbell":
-                    if self.mean_delta_beta > 0.15:
-                        score += 2.5
-                    elif self.mean_delta_beta > 0.08:
-                        score += 1.5
-                elif arch_name == "allosteric":
-                    if 0.05 < self.mean_delta_beta < 0.15:
-                        score += 1.0
-                    if self.mean_spatial_radius < 2.0:
-                        score += 0.3
-                    # D113: allosteric boost for moderate delta_beta
-                    if self.mean_delta_beta > 0.03:
-                        score += 0.5
-                elif arch_name == "enzyme_active":
-                    if self.mean_ipr > 0.025:
-                        score += 1.5
-                    if 0.03 < self.mean_delta_beta < 0.1:
-                        score += 0.5
-                elif arch_name == "globin":
-                    if 0.03 < self.mean_delta_beta < 0.1:
-                        score += 0.5
-                    if self.gap_flatness > 0.9:
-                        score += 0.3
-
-            elif self.instrument == "propagative":
-                if arch_name == "barrel":
-                    # D113: use normalised scatter, keep reversibility
-                    if sn < 0.5:
-                        score += 1.0
-                    if self.reversible_frac > 0.9:
-                        score += 1.0
-                elif arch_name == "dumbbell":
-                    if self.mean_delta_beta > 0.05:
-                        score += 1.0
-                    if self.mean_spatial_radius > 28.0:
-                        score += 1.0
-                    if self.mean_scatter > 2.0:
-                        score += 0.5
-                elif arch_name == "allosteric":
-                    if self.mean_spatial_radius > 30.0:
-                        score += 1.5
-                    if self.reversible_frac > 0.9:
-                        score += 0.5
-                    # D113: propagative is THE allosteric instrument
-                    if self.mean_spatial_radius > 20.0:
-                        score += 1.0
-                    if self.mean_delta_beta > 0.03:
-                        score += 0.5
-                elif arch_name == "globin":
-                    if self.gap_flatness < 0.9:
-                        score += 2.0
-                    if self.reversible_frac < 0.5:
-                        score += 0.8
-                elif arch_name == "enzyme_active":
-                    if self.mean_ipr > 0.025:
-                        score += 1.5
-
-            elif self.instrument == "fragile":
-                if arch_name == "barrel":
-                    # D113: use normalised scatter
-                    if sn < 1.0:
-                        score += 1.0
-                    if self.free_energy_cost < -0.25:
-                        score += 1.0
-                    if self.mean_bus_mass < 0.6:
-                        score += 0.5
-                elif arch_name == "dumbbell":
-                    if self.mean_delta_beta > 0.15:
-                        score += 2.5
-                    if self.reversible_frac < 0.5:
-                        score += 1.5
-                elif arch_name == "enzyme_active":
-                    if self.mean_ipr > 0.025:
-                        score += 2.0
-                    if self.reversible_frac > 0.9:
-                        score += 0.5
-                elif arch_name == "allosteric":
-                    if self.entropy_change < 0.35:
-                        score += 0.8
-                    if self.mean_bus_mass > 0.9:
-                        score += 0.3
-                elif arch_name == "globin":
-                    if self.mean_spatial_radius < 1.0:
-                        score += 1.0
-                    if self.mean_bus_mass > 0.9:
-                        score += 0.3
-
-            # Universal signal (weak, all instruments)
-            if self.species_removed:
-                obs_entropy = self.species_entropy
-                expect = ARCHETYPE_EXPECTATIONS[arch_name]
-                div_match = max(0, 1.0 - abs(obs_entropy - expect.species_diversity))
-                score += div_match * 0.3
-
-            votes[arch_name] = max(0.01, score)
-
-        # Normalise
-        total = sum(votes.values())
-        return {k: v / total for k, v in votes.items()}
+        Returns ``(votes, firings)`` — see
+        :func:`~ibp_enm.rules.apply_rules_traced`.
+        """
+        return apply_rules_traced(self, rules)
 
 
 # ═══════════════════════════════════════════════════════════════════
