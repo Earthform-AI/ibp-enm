@@ -313,6 +313,17 @@ class MetaFickBalancer:
             "consensus_scores": consensus_scores,
             "disagreement_scores": disagreement_scores,
             "context_boost": context_boost,
+            "context_signals": {
+                "all_scatter": all_scatter,
+                "all_db": all_db,
+                "all_ipr": all_ipr,
+                "all_mass": all_mass,
+                "all_scatter_norm": all_scatter_norm,
+                "all_radius": all_radius,
+                "n_residues": n_residues,
+                "propagative_radius": propagative_radius,
+                "propagative_scatter_norm": propagative_scatter_norm,
+            },
             "alpha_meta": alpha_meta,
             "per_carver_votes": {
                 p.instrument: p.archetype_vote()

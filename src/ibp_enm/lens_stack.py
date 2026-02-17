@@ -793,4 +793,51 @@ class LensStackSynthesizer:
         result.setdefault("enzyme_lens", {})
         result.setdefault("barrel_penalty_signals", {})
 
+        # ── Build ClassificationTrace ───────────────────────────
+        from .trace import ClassificationTrace, ContextSignals
+
+        ctx_raw = result.get("context_signals", {})
+        ctx_sig = ContextSignals(
+            all_scatter=ctx_raw.get("all_scatter", 0.0),
+            all_db=ctx_raw.get("all_db", 0.0),
+            all_ipr=ctx_raw.get("all_ipr", 0.0),
+            all_mass=ctx_raw.get("all_mass", 0.0),
+            all_scatter_norm=ctx_raw.get("all_scatter_norm", 0.0),
+            all_radius=ctx_raw.get("all_radius", 0.0),
+            n_residues=int(ctx_raw.get("n_residues", 0)),
+            propagative_radius=ctx_raw.get("propagative_radius", 0.0),
+            propagative_scatter_norm=ctx_raw.get(
+                "propagative_scatter_norm", 0.0),
+        )
+
+        # Gather per-instrument rule firings (traced votes)
+        rule_firings: dict = {}
+        per_instrument_votes: dict = result.get("per_carver_votes", {})
+        for p in carver_profiles:
+            votes, firings = p.archetype_vote_traced()
+            rule_firings[p.instrument] = list(firings)
+
+        n_res = (
+            carver_profiles[0].n_residues
+            if carver_profiles else 0
+        )
+
+        trace = ClassificationTrace(
+            identity=result["identity"],
+            scores=dict(result["scores"]),
+            per_instrument_votes=per_instrument_votes,
+            rule_firings=rule_firings,
+            consensus_scores=result.get("consensus_scores", {}),
+            disagreement_scores=result.get("disagreement_scores", {}),
+            context_boost=result.get("context_boost", {}),
+            context_signals=ctx_sig,
+            alpha_meta=result.get("alpha_meta", 0.5),
+            meta_state=dict(meta_state),
+            lens_traces=list(traces),
+            thresholds_name=self._t.name,
+            n_residues=n_res,
+            n_instruments=len(carver_profiles),
+        )
+        result["trace"] = trace
+
         return result

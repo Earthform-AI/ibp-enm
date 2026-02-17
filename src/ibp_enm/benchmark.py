@@ -90,6 +90,9 @@ class ProteinResult:
     initial_diagnosis: Optional[str] = None
     true_rank: int = 0
 
+    # Full audit trail (v0.7.0)
+    trace: Any = None
+
     @property
     def archetype(self) -> str:
         return self.entry.archetype
@@ -554,6 +557,8 @@ class BenchmarkRunner:
                     initial_diagnosis=pr.get(
                         "initial_diagnosis", {}).get("archetype"),
                     true_rank=true_rank,
+                    trace=pr.get("band_result", {}).get(
+                        "identity", {}).get("trace"),
                 )
 
                 if verbose:
