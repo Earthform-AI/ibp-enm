@@ -24,6 +24,8 @@ from ibp_enm.lens_stack import (
     EnzymeLens,
     HingeLens,
     BarrelPenaltyLens,
+    AllostericLens,
+    FlowGrammarLens,
     LensStackSynthesizer,
     build_default_stack,
 )
@@ -134,12 +136,13 @@ class TestLensStack:
 
     def test_default_stack_has_three_lenses(self):
         stack = build_default_stack()
-        assert len(stack) == 3
+        assert len(stack) == 5
 
     def test_default_stack_order(self):
         stack = build_default_stack()
         names = [l.name for l in stack]
-        assert names == ["enzyme_lens", "hinge_lens", "barrel_penalty"]
+        assert names == ["enzyme_lens", "hinge_lens", "barrel_penalty",
+                         "flow_grammar_lens", "allosteric_lens"]
 
     def test_stack_repr(self):
         stack = build_default_stack()
@@ -161,14 +164,14 @@ class TestLensStack:
                   "enzyme_active": 0.15, "allosteric": 0.15}
         stack = build_default_stack()
         _, traces = stack.apply(scores, seven_profiles, default_context)
-        assert len(traces) == 3
+        assert len(traces) == 5
         for t in traces:
             assert isinstance(t, LensTrace)
 
     def test_stack_iteration(self):
         stack = build_default_stack()
         lenses = list(stack)
-        assert len(lenses) == 3
+        assert len(lenses) == 5
 
     def test_stack_lenses_property_immutable(self):
         stack = build_default_stack()
@@ -290,7 +293,7 @@ class TestBarrelPenaltyLens:
 class TestLensStackSynthesizer:
     def test_default_constructor(self):
         synth = LensStackSynthesizer()
-        assert len(synth.stack) == 3
+        assert len(synth.stack) == 5
 
     def test_custom_stack(self):
         stack = LensStack([EnzymeLens()])
@@ -323,7 +326,7 @@ class TestLensStackSynthesizer:
         meta = synth.compute_meta_fick_state(votes)
         result = synth.synthesize_identity(seven_profiles, meta)
         assert "lens_traces" in result
-        assert len(result["lens_traces"]) == 3
+        assert len(result["lens_traces"]) == 5
 
     def test_empty_stack_same_as_base(self, seven_profiles):
         """LensStackSynthesizer with no lenses = plain MetaFickBalancer."""
@@ -353,7 +356,7 @@ class TestStackManipulation:
     def test_without(self):
         stack = build_default_stack()
         new_stack = stack.without("hinge_lens")
-        assert len(new_stack) == 2
+        assert len(new_stack) == 4
         names = [l.name for l in new_stack]
         assert "hinge_lens" not in names
 
@@ -361,7 +364,7 @@ class TestStackManipulation:
         stack = build_default_stack()
         new_enzyme = EnzymeLens()
         new_stack = stack.replace("enzyme_lens", new_enzyme)
-        assert len(new_stack) == 3
+        assert len(new_stack) == 5
         assert new_stack.lenses[0] is new_enzyme
 
     def test_with_lens_does_not_mutate_original(self):
@@ -466,3 +469,152 @@ class TestLensTrace:
         t = LensTrace(lens_name="test", activated=True,
                       details={"key": "value"})
         assert t.details["key"] == "value"
+
+
+# ═══════════════════════════════════════════════════════════════════
+# 10. FlowGrammarLens — pre-carving TE flow vocabulary (D130)
+# ═══════════════════════════════════════════════════════════════════
+
+class TestFlowGrammarLens:
+    """Tests for FlowGrammarLens integration."""
+
+    def test_flow_grammar_lens_is_lens(self):
+        lens = FlowGrammarLens()
+        assert isinstance(lens, Lens)
+
+    def test_flow_grammar_lens_name(self):
+        lens = FlowGrammarLens()
+        assert lens.name == "flow_grammar_lens"
+
+    def test_no_activation_without_evals(self, seven_profiles, default_context):
+        """FlowGrammarLens should not activate without evals."""
+        scores = {"barrel": 0.2, "dumbbell": 0.2, "globin": 0.2,
+                  "enzyme_active": 0.2, "allosteric": 0.2}
+        lens = FlowGrammarLens()
+        assert not lens.should_activate(scores, seven_profiles, default_context)
+
+    def test_no_activation_allosteric_not_top3(self, seven_profiles):
+        """FlowGrammarLens should not activate if allosteric not in top 3."""
+        N = 50
+        evals = np.sort(np.abs(np.random.RandomState(42).rand(N)))
+        evals[0] = 0.0
+        evecs = np.linalg.qr(np.random.RandomState(42).rand(N, N))[0]
+        scores = {"barrel": 0.35, "dumbbell": 0.25, "globin": 0.20,
+                  "enzyme_active": 0.15, "allosteric": 0.05}
+        context = {"evals": evals, "evecs": evecs, "n_residues": N}
+        lens = FlowGrammarLens(evals=evals, evecs=evecs)
+        assert not lens.should_activate(scores, seven_profiles, context)
+
+    def test_activation_confused_scores(self, seven_profiles):
+        """FlowGrammarLens should activate when allosteric in top 3 and
+        scores are confused."""
+        N = 50
+        evals = np.sort(np.abs(np.random.RandomState(42).rand(N)))
+        evals[0] = 0.0
+        evecs = np.linalg.qr(np.random.RandomState(42).rand(N, N))[0]
+        # Allosteric is close to winner → should activate
+        scores = {"barrel": 0.22, "dumbbell": 0.18, "globin": 0.18,
+                  "enzyme_active": 0.21, "allosteric": 0.21}
+        context = {"evals": evals, "evecs": evecs, "n_residues": N}
+        lens = FlowGrammarLens(evals=evals, evecs=evecs)
+        assert lens.should_activate(scores, seven_profiles, context)
+
+    def test_apply_returns_scores_and_trace(self, seven_profiles):
+        """apply() should return modified scores and a LensTrace."""
+        N = 50
+        evals = np.sort(np.abs(np.random.RandomState(42).rand(N)))
+        evals[0] = 0.0
+        evecs = np.linalg.qr(np.random.RandomState(42).rand(N, N))[0]
+        scores = {"barrel": 0.22, "dumbbell": 0.18, "globin": 0.18,
+                  "enzyme_active": 0.21, "allosteric": 0.21}
+        context = {"evals": evals, "evecs": evecs, "n_residues": N}
+        lens = FlowGrammarLens(evals=evals, evecs=evecs)
+        new_scores, trace = lens.apply(scores, seven_profiles, context)
+        assert isinstance(new_scores, dict)
+        assert len(new_scores) == 5
+        assert isinstance(trace, LensTrace)
+        assert trace.lens_name == "flow_grammar_lens"
+        assert trace.activated is True
+        assert "flow_signals" in trace.details
+        signals = trace.details["flow_signals"]
+        assert "te_asymmetry" in signals
+        assert "cross_enrichment" in signals
+        assert "driver_sensor_ratio" in signals
+        assert signals["flow_word"] in ("DIRECTING", "CHANNELING", "DIFFUSING")
+
+    def test_flow_signals_computation(self):
+        """_compute_flow_signals should return valid features from
+        synthetic spectral data."""
+        N = 30
+        rng = np.random.RandomState(99)
+        # Build a symmetric positive-definite Laplacian-like matrix
+        A = rng.rand(N, N)
+        A = (A + A.T) / 2
+        np.fill_diagonal(A, 0)
+        L = np.diag(A.sum(axis=1)) - A
+        evals, evecs = np.linalg.eigh(L)
+        signals = FlowGrammarLens._compute_flow_signals(evals, evecs, N)
+        assert signals["te_asymmetry"] >= 0
+        assert signals["cross_enrichment"] >= 0
+        assert signals["driver_sensor_ratio"] >= 0
+        assert signals["flow_word"] in ("DIRECTING", "CHANNELING", "DIFFUSING")
+
+    def test_flow_boost_directing(self):
+        """High cross_enrichment + high te_asymmetry should produce
+        positive allosteric boost."""
+        from ibp_enm.thresholds import DEFAULT_THRESHOLDS
+        signals = {
+            "te_asymmetry": 1.15,
+            "cross_enrichment": 1.07,
+            "driver_sensor_ratio": 1.25,
+            "flow_word": "DIRECTING",
+        }
+        boost = FlowGrammarLens._compute_flow_boost(signals, DEFAULT_THRESHOLDS)
+        assert boost > 0  # should be positive
+        assert boost <= 0.18  # within cap
+
+    def test_flow_boost_anti_allosteric(self):
+        """Low cross_enrichment + low driver_sensor_ratio should produce
+        negative allosteric penalty."""
+        from ibp_enm.thresholds import DEFAULT_THRESHOLDS
+        signals = {
+            "te_asymmetry": 0.7,
+            "cross_enrichment": 0.50,
+            "driver_sensor_ratio": 0.80,
+            "flow_word": "DIFFUSING",
+        }
+        boost = FlowGrammarLens._compute_flow_boost(signals, DEFAULT_THRESHOLDS)
+        assert boost < 0  # should be negative (anti-allosteric)
+
+    def test_flow_boost_neutral(self):
+        """Mid-range flow features should produce near-zero boost."""
+        from ibp_enm.thresholds import DEFAULT_THRESHOLDS
+        signals = {
+            "te_asymmetry": 0.85,
+            "cross_enrichment": 0.80,
+            "driver_sensor_ratio": 1.10,
+            "flow_word": "CHANNELING",
+        }
+        boost = FlowGrammarLens._compute_flow_boost(signals, DEFAULT_THRESHOLDS)
+        assert abs(boost) < 0.10  # should be small/neutral
+
+    def test_build_default_stack_includes_flow_grammar(self):
+        """Default stack should include FlowGrammarLens."""
+        stack = build_default_stack()
+        names = [l.name for l in stack]
+        assert "flow_grammar_lens" in names
+
+    def test_build_default_stack_exclude_flow_grammar(self):
+        """include_flow_grammar=False should omit FlowGrammarLens."""
+        stack = build_default_stack(include_flow_grammar=False)
+        names = [l.name for l in stack]
+        assert "flow_grammar_lens" not in names
+        assert len(stack) == 4  # enzyme + hinge + barrel + allosteric
+
+    def test_build_default_stack_exclude_both(self):
+        """Both disabled should give 3 lenses."""
+        stack = build_default_stack(
+            include_flow_grammar=False, include_allosteric=False)
+        names = [l.name for l in stack]
+        assert len(stack) == 3
+        assert names == ["enzyme_lens", "hinge_lens", "barrel_penalty"]

@@ -221,7 +221,8 @@ class TestDefaultThresholds:
     def test_has_expected_sections(self):
         expected = {
             "meta_fick", "ctx_boost", "enzyme_lens",
-            "hinge_lens", "barrel_penalty", "renorm",
+            "hinge_lens", "barrel_penalty",
+            "allosteric_lens", "flow_grammar_lens", "renorm",
         }
         assert set(DEFAULT_THRESHOLDS.sections) == expected
 
@@ -305,7 +306,7 @@ class TestRegistryIntegration:
             {"enzyme_lens.close_call_gap": 0.50}
         )
         stack = build_default_stack(thresholds=custom)
-        assert len(stack) == 3
+        assert len(stack) == 5
 
     def test_lens_stack_synthesizer_accepts_thresholds(self):
         """LensStackSynthesizer can be constructed with custom thresholds."""

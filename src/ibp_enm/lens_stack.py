@@ -69,6 +69,7 @@ __all__ = [
     "HingeLens",
     "BarrelPenaltyLens",
     "AllostericLens",
+    "FlowGrammarLens",
     "LensStackSynthesizer",
     "build_default_stack",
     "DEFAULT_THRESHOLDS",
@@ -1127,6 +1128,372 @@ class AllostericLens:
 
 
 # ═══════════════════════════════════════════════════════════════════
+# Shared TE helpers (used by AllostericLens + FlowGrammarLens)
+# ═══════════════════════════════════════════════════════════════════
+
+def _gnm_correlation_matrix(
+    evals: np.ndarray,
+    evecs: np.ndarray,
+    t: float,
+) -> np.ndarray:
+    """GNM cross-correlation at pseudo-time *t*.
+
+    C_ij(t) = Σ_k (1/λ_k) · exp(-λ_k·t) · u_ki · u_kj
+
+    Only uses positive eigenvalues (rigid-body zero modes excluded).
+    """
+    pos = evals > 1e-8
+    lam = evals[pos]
+    U = evecs[:, pos]
+    if t > 0:
+        weights = (1.0 / lam) * np.exp(-lam * t)
+    else:
+        weights = 1.0 / lam
+    return (U * weights[None, :]) @ U.T
+
+
+def _te_and_net_matrices(
+    C0: np.ndarray,
+    Ct: np.ndarray,
+    N: int,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Vectorised transfer entropy and net flow matrices.
+
+    TE_{j→i}(t) = -½ ln(1 - α²/β)  where
+      α_ij = C_ij(t) - C_ij(0)·C_jj(t)/C_jj(0)
+      β_ij = C_ii(t)·(1 - r₀²)
+      r₀   = C_ij(0) / √(C_ii(0)·C_jj(0))
+
+    Returns ``(TE, NET)`` where ``NET(i,j) = TE(i→j) - TE(j→i)``.
+    """
+    diag0 = np.diag(C0).copy()
+    diag0[diag0 < 1e-12] = 1e-12
+    diagt = np.diag(Ct).copy()
+    diagt[diagt < 1e-12] = 1e-12
+
+    alpha = Ct - (C0 / diag0[None, :]) * diagt[:, None]
+
+    r0 = C0 / np.sqrt(np.outer(diag0, diag0))
+    r0 = np.clip(r0, -0.999, 0.999)
+    beta = diagt[:, None] * (1.0 - r0 ** 2)
+    beta = np.maximum(beta, 1e-15)
+
+    ratio = np.clip(alpha ** 2 / beta, 0, 0.999)
+    TE = -0.5 * np.log(1.0 - ratio)
+    np.fill_diagonal(TE, 0)
+
+    NET = TE.T - TE
+    return TE, NET
+
+
+# ═══════════════════════════════════════════════════════════════════
+# FlowGrammarLens — Pre-Carving TE Flow Vocabulary (D130)
+# ═══════════════════════════════════════════════════════════════════
+
+def _flow_word(te_asymmetry: float, cross_enrichment: float) -> str:
+    """Classify flow pattern into an NLP word.
+
+    Returns one of: ``DIRECTING``, ``CHANNELING``, ``DIFFUSING``.
+    """
+    if cross_enrichment > 1.0 and te_asymmetry > 0.9:
+        return "DIRECTING"
+    elif cross_enrichment > 0.85:
+        return "CHANNELING"
+    return "DIFFUSING"
+
+
+class FlowGrammarLens:
+    """Pre-carving information flow lens (D130).
+
+    Computes transfer entropy features from the *intact*
+    eigendecomposition to detect allosteric-like information flow
+    patterns **before** carving.
+
+    Unlike :class:`AllostericLens` (which requires functional site
+    annotations from PDB), ``FlowGrammarLens`` works on raw spectral
+    data using the Fiedler partition to define domain structure.
+
+    Three flow observables:
+
+    1. **TE asymmetry** — ``std(NET) / mean(TE)``: directed information
+       bias across the entire network.
+    2. **Cross-domain enrichment** — ``|NET|_cross / |NET|_intra``:
+       how much information flow crosses the Fiedler partition vs
+       stays within domains.
+    3. **Driver-sensor ratio** — ``n_drivers / n_sensors``: whether
+       the network has a clear driving core.
+
+    Three NLP flow words:
+
+    * **DIRECTING** — asymmetric cross-domain flow (allosteric
+      indicator).
+    * **CHANNELING** — strong driver hierarchy.
+    * **DIFFUSING** — symmetric or weak flow (default).
+
+    The lens applies a targeted boost to the allosteric score only
+    (positive for DIRECTING flow, negative for anti-allosteric
+    DIFFUSING patterns).  Other archetype scores are not directly
+    modified.  This implements a key D130 finding: flow features
+    work as *targeted signals*, not symmetric archetype
+    discriminators.
+
+    Physics
+    -------
+    Allosteric proteins route information **across** their domain
+    boundary (high cross-enrichment) with directional bias (high TE
+    asymmetry).  Non-allosteric proteins with similar structural
+    profiles (e.g., CheY looks like enzyme_active structurally) lack
+    this cross-domain information routing.
+
+    NLP semantic mapping
+    --------------------
+    The flow vocabulary extends the existing NLP layers:
+
+    * **Bus vectors** describe WHAT the protein looks like.
+    * **Fick α** describes HOW it diffuses.
+    * **Flow words** describe WHERE information goes in the intact
+      network.
+
+    Together they compose the diagnostic sentence::
+
+        "This [archetype] protein [DIRECTS/CHANNELS/DIFFUSES]
+         information [across/within] domain boundaries."
+
+    Activation gate
+    ---------------
+    1. Allosteric in top 3 (it's on the radar).
+    2. Score confusion: top-2 gap < threshold **or** allosteric
+       close to winner.
+    3. Eigendecomposition available.
+
+    Historical notes
+    ----------------
+    D130 — FlowGrammar experiment, CheY rescued from
+    ``enzyme_active`` via DIRECTING flow (X/I=1.066, asym=1.129).
+    Key finding: flow features work as targeted signals, not
+    symmetric archetype discriminators.
+    """
+
+    def __init__(
+        self,
+        evals: Optional[np.ndarray] = None,
+        evecs: Optional[np.ndarray] = None,
+        thresholds: Optional[ThresholdRegistry] = None,
+    ):
+        self.initial_evals = evals
+        self.initial_evecs = evecs
+        self._t = thresholds or DEFAULT_THRESHOLDS
+
+    @property
+    def name(self) -> str:
+        return "flow_grammar_lens"
+
+    # ── Gate ────────────────────────────────────────────────────
+
+    def should_activate(
+        self,
+        scores: Dict[str, float],
+        profiles: List[ThermoReactionProfile],
+        context: Dict[str, Any],
+    ) -> bool:
+        """Gate: allosteric in top 3, evals available, scores confused."""
+        sorted_scores = sorted(scores.items(), key=lambda x: -x[1])
+        top3_archs = [a for a, _ in sorted_scores[:3]]
+
+        if "allosteric" not in top3_archs:
+            return False
+
+        evals = context.get("evals", self.initial_evals)
+        evecs = context.get("evecs", self.initial_evecs)
+        if evals is None or evecs is None:
+            return False
+
+        t = self._t
+
+        top2_gap = (sorted_scores[0][1] - sorted_scores[1][1]
+                    if len(sorted_scores) >= 2 else 1.0)
+        allo_score = scores.get("allosteric", 0)
+        winner_score = sorted_scores[0][1] if sorted_scores else 0
+        allo_proximity = (winner_score - allo_score
+                          if winner_score > allo_score else 0)
+
+        is_confused = top2_gap < t["flow_grammar_lens.confusion_gap"]
+        is_close = allo_proximity < t["flow_grammar_lens.proximity_gap"]
+
+        return is_confused or is_close
+
+    # ── Apply ───────────────────────────────────────────────────
+
+    def apply(
+        self,
+        scores: Dict[str, float],
+        profiles: List[ThermoReactionProfile],
+        context: Dict[str, Any],
+    ) -> Tuple[Dict[str, float], LensTrace]:
+        """Compute pre-carving flow features and adjust allosteric score."""
+        scores = dict(scores)
+        t = self._t
+
+        evals = context.get("evals", self.initial_evals)
+        evecs = context.get("evecs", self.initial_evecs)
+        N = context.get("n_residues")
+        if N is None and evecs is not None:
+            N = evecs.shape[0]
+
+        flow_signals = self._compute_flow_signals(evals, evecs, N)
+        boost = self._compute_flow_boost(flow_signals, t)
+
+        if abs(boost) > 1e-6:
+            scores["allosteric"] += boost
+            if boost > 0:
+                sorted_scores = sorted(
+                    scores.items(), key=lambda x: -x[1])
+                current_winner = sorted_scores[0][0]
+                if current_winner != "allosteric":
+                    scores[current_winner] -= boost * t[
+                        "flow_grammar_lens.counter_suppress_ratio"]
+            scores = _renormalise(scores, t["renorm.floor"])
+
+        trace = LensTrace(
+            lens_name=self.name,
+            activated=True,
+            boost=boost,
+            details={"flow_signals": flow_signals},
+        )
+        return scores, trace
+
+    # ── Signal computation ──────────────────────────────────────
+
+    @staticmethod
+    def _compute_flow_signals(
+        evals: Optional[np.ndarray],
+        evecs: Optional[np.ndarray],
+        N: Optional[int],
+    ) -> Dict[str, Any]:
+        """Compute pre-carving TE flow observables.
+
+        Returns a dict with:
+        - ``te_asymmetry``: std(NET) / mean(TE)
+        - ``cross_enrichment``: |NET|_cross / |NET|_intra  (Fiedler)
+        - ``driver_sensor_ratio``: n_drivers / n_sensors
+        - ``flow_word``: DIRECTING / CHANNELING / DIFFUSING
+        """
+        signals: Dict[str, Any] = {
+            "te_asymmetry": 0.0,
+            "cross_enrichment": 0.0,
+            "driver_sensor_ratio": 0.0,
+            "flow_word": "DIFFUSING",
+        }
+
+        if evals is None or evecs is None or N is None or N < 3:
+            return signals
+
+        pos_idx = np.where(evals > 1e-8)[0]
+        if len(pos_idx) < 2:
+            return signals
+
+        try:
+            lambda2 = evals[pos_idx[0]]
+            t_star = 1.0 / lambda2
+
+            C0 = _gnm_correlation_matrix(evals, evecs, 0.0)
+            Ct = _gnm_correlation_matrix(evals, evecs, t_star)
+            TE, NET = _te_and_net_matrices(C0, Ct, N)
+
+            # 1. TE asymmetry: std(NET) / mean(TE)
+            te_positive = TE[TE > 0]
+            te_mean = (float(np.mean(te_positive))
+                       if len(te_positive) > 0 else 1e-15)
+            te_asym = float(np.std(NET)) / (te_mean + 1e-15)
+
+            # 2. Cross-domain enrichment via Fiedler partition
+            fiedler = evecs[:, pos_idx[0]]
+            signs = np.sign(fiedler)
+            cross_mask = signs[:, None] != signs[None, :]
+            triu_i, triu_j = np.triu_indices(N, k=1)
+            net_abs_triu = np.abs(NET[triu_i, triu_j])
+            cross_triu = cross_mask[triu_i, triu_j]
+
+            cross_mean = (float(np.mean(net_abs_triu[cross_triu]))
+                          if np.any(cross_triu) else 0.0)
+            intra_mean = (float(np.mean(net_abs_triu[~cross_triu]))
+                          if np.any(~cross_triu) else 1e-15)
+            cross_enrich = cross_mean / (intra_mean + 1e-15)
+
+            # 3. Driver-sensor ratio
+            row_sums = NET.sum(axis=1)
+            n_drv = int(np.sum(row_sums > 0.01))
+            n_sns = int(np.sum(row_sums < -0.01))
+            drv_ratio = n_drv / (n_sns + 1e-10)
+
+            signals["te_asymmetry"] = te_asym
+            signals["cross_enrichment"] = cross_enrich
+            signals["driver_sensor_ratio"] = drv_ratio
+            signals["flow_word"] = _flow_word(te_asym, cross_enrich)
+
+        except Exception:
+            pass  # TE computation failure is non-fatal
+
+        return signals
+
+    # ── Boost computation ───────────────────────────────────────
+
+    @staticmethod
+    def _compute_flow_boost(
+        signals: Dict[str, Any],
+        t: ThresholdRegistry,
+    ) -> float:
+        """Compute allosteric boost/penalty from flow signals.
+
+        Returns a signed value:
+
+        * ``> 0`` → evidence FOR allosteric (DIRECTING flow).
+        * ``< 0`` → evidence AGAINST allosteric (anti-allosteric).
+        * ``= 0`` → neutral / insufficient signal.
+
+        NLP interpretation:
+
+        * DIRECTING + cross-domain → *"This protein DIRECTS
+          information across its domain boundary — a hallmark of
+          allosteric coupling."*
+        * DIFFUSING + intra-domain → *"Information DIFFUSES
+          symmetrically; no allosteric signal detected."*
+        """
+        boost = 0.0
+        cross_enrich = signals.get("cross_enrichment", 0.0)
+        te_asym = signals.get("te_asymmetry", 0.0)
+        ds_ratio = signals.get("driver_sensor_ratio", 0.0)
+
+        # Cross-domain enrichment: strongest allosteric signal
+        if cross_enrich > t["flow_grammar_lens.cross_enrich_boost_thresh"]:
+            boost += t["flow_grammar_lens.cross_enrich_boost"]
+        elif cross_enrich < t[
+                "flow_grammar_lens.cross_enrich_penalty_thresh"]:
+            boost += t["flow_grammar_lens.cross_enrich_penalty"]
+
+        # TE asymmetry: directed information flow
+        if te_asym > t["flow_grammar_lens.te_asym_boost_thresh"]:
+            boost += t["flow_grammar_lens.te_asym_boost"]
+
+        # Driver-sensor ratio: passive ≠ allosteric
+        if ds_ratio < t["flow_grammar_lens.ds_penalty_thresh"]:
+            boost += t["flow_grammar_lens.ds_penalty"]
+
+        # Compound: BOTH cross-domain AND high asymmetry
+        if (cross_enrich > t[
+                "flow_grammar_lens.compound_enrich_thresh"]
+                and te_asym > t[
+                    "flow_grammar_lens.compound_asym_thresh"]):
+            boost += t["flow_grammar_lens.compound_bonus"]
+
+        # Clamp
+        boost = max(t["flow_grammar_lens.penalty_floor"], boost)
+        boost = min(t["flow_grammar_lens.boost_cap"], boost)
+
+        return boost
+
+
+# ═══════════════════════════════════════════════════════════════════
 # Factory — default stack
 # ═══════════════════════════════════════════════════════════════════
 
@@ -1143,8 +1510,9 @@ def build_default_stack(
     resolver: Optional[FunctionalSiteResolver] = None,
     annotation: Optional[FunctionalAnnotation] = None,
     include_allosteric: bool = True,
+    include_flow_grammar: bool = True,
 ) -> LensStack:
-    """Build the default lens stack (D110 + D111 + D113 + D129).
+    """Build the default lens stack (D110 + D111 + D113 + D130 + D129).
 
     Equivalent to the old ``SizeAwareHingeLens`` inheritance tower
     but composable.
@@ -1152,7 +1520,8 @@ def build_default_stack(
     Parameters
     ----------
     evals, evecs : ndarray, optional
-        Laplacian eigenvalues/eigenvectors (enables enzyme + hinge lenses).
+        Laplacian eigenvalues/eigenvectors (enables enzyme, hinge,
+        flow grammar, and allosteric lenses).
     domain_labels : ndarray, optional
         Domain assignment per residue (enables hinge + barrel lenses).
     contacts : dict, optional
@@ -1171,11 +1540,14 @@ def build_default_stack(
         Pre-resolved annotation (skips API lookup).
     include_allosteric : bool
         Include the AllostericLens in the stack (default True).
+    include_flow_grammar : bool
+        Include the FlowGrammarLens in the stack (default True).
 
     Returns
     -------
     LensStack
-        ``[EnzymeLens, HingeLens, BarrelPenaltyLens, AllostericLens]``
+        ``[EnzymeLens, HingeLens, BarrelPenaltyLens,
+        FlowGrammarLens, AllostericLens]``
     """
     t = thresholds
     lenses: list = [
@@ -1185,6 +1557,10 @@ def build_default_stack(
                   thresholds=t),
         BarrelPenaltyLens(domain_labels=domain_labels, thresholds=t),
     ]
+    if include_flow_grammar:
+        lenses.append(FlowGrammarLens(
+            evals=evals, evecs=evecs, thresholds=t,
+        ))
     if include_allosteric:
         lenses.append(AllostericLens(
             evals=evals, evecs=evecs, contacts=contacts,

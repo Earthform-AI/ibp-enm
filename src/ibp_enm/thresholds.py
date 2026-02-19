@@ -394,7 +394,38 @@ _DEFAULT_DATA: Dict[str, float] = {
     "allosteric_lens.counter_suppress_ratio": 0.4,
     # Minimum site count per category (reg/chem) for reliable TE
     "allosteric_lens.min_site_count": 3.0,
+    # ── flow_grammar_lens — pre-carving TE flow vocabulary (D130) ──
+    # Activation gates (more relaxed than allosteric_lens — no
+    # propagative-radius check, operates on raw spectral data)
+    "flow_grammar_lens.confusion_gap": 0.15,
+    "flow_grammar_lens.proximity_gap": 0.15,
 
+    # Cross-domain enrichment (strongest allosteric signal)
+    # Calibrated from D130: CheY=1.066, AdK=0.79, GroEL=0.52
+    "flow_grammar_lens.cross_enrich_boost_thresh": 1.0,
+    "flow_grammar_lens.cross_enrich_boost": 0.08,
+    "flow_grammar_lens.cross_enrich_penalty_thresh": 0.60,
+    "flow_grammar_lens.cross_enrich_penalty": -0.06,
+
+    # TE asymmetry (directed information flow)
+    # Calibrated from D130: CheY=1.129, AdK=1.148, GroEL=1.000
+    "flow_grammar_lens.te_asym_boost_thresh": 1.0,
+    "flow_grammar_lens.te_asym_boost": 0.05,
+
+    # Driver-sensor ratio (passive != allosteric)
+    # Calibrated from D130: GroEL=0.86, CheY=1.25
+    "flow_grammar_lens.ds_penalty_thresh": 0.90,
+    "flow_grammar_lens.ds_penalty": -0.04,
+
+    # Compound: cross-domain AND high asymmetry together
+    "flow_grammar_lens.compound_enrich_thresh": 0.95,
+    "flow_grammar_lens.compound_asym_thresh": 0.95,
+    "flow_grammar_lens.compound_bonus": 0.05,
+
+    # Cap & floor
+    "flow_grammar_lens.boost_cap": 0.18,
+    "flow_grammar_lens.penalty_floor": -0.15,
+    "flow_grammar_lens.counter_suppress_ratio": 0.3,
     # ── renorm — shared renormalisation ─────────────────────────
     "renorm.floor": 0.01,
 }

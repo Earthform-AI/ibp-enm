@@ -485,7 +485,9 @@ class TestThresholdSensitivity:
         assert len(result.sections) > 0
         # Should have at least the main sections
         expected_sections = {"meta_fick", "ctx_boost", "enzyme_lens",
-                           "hinge_lens", "barrel_penalty", "renorm"}
+                           "hinge_lens", "barrel_penalty",
+                           "allosteric_lens", "flow_grammar_lens",
+                           "renorm"}
         assert set(result.sections.keys()) == expected_sections
 
 

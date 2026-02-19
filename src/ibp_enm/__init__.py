@@ -37,6 +37,7 @@ from .thermodynamics import (
 from .lens_stack import (
     Lens, LensTrace, LensStack,
     EnzymeLens, HingeLens, BarrelPenaltyLens, AllostericLens,
+    FlowGrammarLens,
     LensStackSynthesizer, build_default_stack,
 )
 
@@ -87,6 +88,7 @@ __all__ = [
     # LensStack composition (v0.5.0)
     "Lens", "LensTrace", "LensStack",
     "EnzymeLens", "HingeLens", "BarrelPenaltyLens", "AllostericLens",
+    "FlowGrammarLens",
     "LensStackSynthesizer", "build_default_stack",
     # ThresholdRegistry (v0.6.0)
     "ThresholdRegistry", "DEFAULT_THRESHOLDS",
