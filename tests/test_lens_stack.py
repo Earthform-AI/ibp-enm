@@ -134,15 +134,21 @@ class TestLensStack:
         stack = LensStack()
         assert len(stack) == 0
 
-    def test_default_stack_has_three_lenses(self):
+    def test_default_stack_has_four_lenses(self):
         stack = build_default_stack()
-        assert len(stack) == 5
+        assert len(stack) == 4
 
     def test_default_stack_order(self):
         stack = build_default_stack()
         names = [l.name for l in stack]
         assert names == ["enzyme_lens", "hinge_lens", "barrel_penalty",
-                         "flow_grammar_lens", "allosteric_lens"]
+                         "allosteric_lens"]
+
+    def test_default_stack_with_flow_grammar(self):
+        stack = build_default_stack(include_flow_grammar=True)
+        assert len(stack) == 5
+        names = [l.name for l in stack]
+        assert "flow_grammar_lens" in names
 
     def test_stack_repr(self):
         stack = build_default_stack()
@@ -164,14 +170,14 @@ class TestLensStack:
                   "enzyme_active": 0.15, "allosteric": 0.15}
         stack = build_default_stack()
         _, traces = stack.apply(scores, seven_profiles, default_context)
-        assert len(traces) == 5
+        assert len(traces) == 4
         for t in traces:
             assert isinstance(t, LensTrace)
 
     def test_stack_iteration(self):
         stack = build_default_stack()
         lenses = list(stack)
-        assert len(lenses) == 5
+        assert len(lenses) == 4
 
     def test_stack_lenses_property_immutable(self):
         stack = build_default_stack()
@@ -293,7 +299,7 @@ class TestBarrelPenaltyLens:
 class TestLensStackSynthesizer:
     def test_default_constructor(self):
         synth = LensStackSynthesizer()
-        assert len(synth.stack) == 5
+        assert len(synth.stack) == 4
 
     def test_custom_stack(self):
         stack = LensStack([EnzymeLens()])
@@ -326,7 +332,7 @@ class TestLensStackSynthesizer:
         meta = synth.compute_meta_fick_state(votes)
         result = synth.synthesize_identity(seven_profiles, meta)
         assert "lens_traces" in result
-        assert len(result["lens_traces"]) == 5
+        assert len(result["lens_traces"]) == 4
 
     def test_empty_stack_same_as_base(self, seven_profiles):
         """LensStackSynthesizer with no lenses = plain MetaFickBalancer."""
@@ -356,7 +362,7 @@ class TestStackManipulation:
     def test_without(self):
         stack = build_default_stack()
         new_stack = stack.without("hinge_lens")
-        assert len(new_stack) == 4
+        assert len(new_stack) == 3
         names = [l.name for l in new_stack]
         assert "hinge_lens" not in names
 
@@ -364,7 +370,7 @@ class TestStackManipulation:
         stack = build_default_stack()
         new_enzyme = EnzymeLens()
         new_stack = stack.replace("enzyme_lens", new_enzyme)
-        assert len(new_stack) == 5
+        assert len(new_stack) == 4
         assert new_stack.lenses[0] is new_enzyme
 
     def test_with_lens_does_not_mutate_original(self):
@@ -598,18 +604,19 @@ class TestFlowGrammarLens:
         boost = FlowGrammarLens._compute_flow_boost(signals, DEFAULT_THRESHOLDS)
         assert abs(boost) < 0.10  # should be small/neutral
 
-    def test_build_default_stack_includes_flow_grammar(self):
-        """Default stack should include FlowGrammarLens."""
+    def test_build_default_stack_excludes_flow_grammar(self):
+        """Default stack should NOT include FlowGrammarLens (D132: causes regressions)."""
         stack = build_default_stack()
-        names = [l.name for l in stack]
-        assert "flow_grammar_lens" in names
-
-    def test_build_default_stack_exclude_flow_grammar(self):
-        """include_flow_grammar=False should omit FlowGrammarLens."""
-        stack = build_default_stack(include_flow_grammar=False)
         names = [l.name for l in stack]
         assert "flow_grammar_lens" not in names
         assert len(stack) == 4  # enzyme + hinge + barrel + allosteric
+
+    def test_build_default_stack_include_flow_grammar(self):
+        """include_flow_grammar=True should opt-in FlowGrammarLens."""
+        stack = build_default_stack(include_flow_grammar=True)
+        names = [l.name for l in stack]
+        assert "flow_grammar_lens" in names
+        assert len(stack) == 5
 
     def test_build_default_stack_exclude_both(self):
         """Both disabled should give 3 lenses."""

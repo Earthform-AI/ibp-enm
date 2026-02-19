@@ -1510,9 +1510,14 @@ def build_default_stack(
     resolver: Optional[FunctionalSiteResolver] = None,
     annotation: Optional[FunctionalAnnotation] = None,
     include_allosteric: bool = True,
-    include_flow_grammar: bool = True,
+    include_flow_grammar: bool = False,
 ) -> LensStack:
-    """Build the default lens stack (D110 + D111 + D113 + D130 + D129).
+    """Build the default lens stack (D110 + D111 + D113 + D129).
+
+    .. note:: FlowGrammarLens (D130) is disabled by default.
+       D132 showed it causes 7 regressions (all non-allosteric proteins
+       incorrectly flipped to allosteric) with 0 independent improvements.
+       Pass ``include_flow_grammar=True`` to re-enable for experimentation.
 
     Equivalent to the old ``SizeAwareHingeLens`` inheritance tower
     but composable.
@@ -1541,13 +1546,14 @@ def build_default_stack(
     include_allosteric : bool
         Include the AllostericLens in the stack (default True).
     include_flow_grammar : bool
-        Include the FlowGrammarLens in the stack (default True).
+        Include the FlowGrammarLens in the stack (default False).
+        D132 showed FGL causes net-negative accuracy.
 
     Returns
     -------
     LensStack
         ``[EnzymeLens, HingeLens, BarrelPenaltyLens,
-        FlowGrammarLens, AllostericLens]``
+        AllostericLens]``  (FlowGrammarLens excluded by default)
     """
     t = thresholds
     lenses: list = [

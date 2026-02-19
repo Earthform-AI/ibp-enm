@@ -306,7 +306,7 @@ class TestRegistryIntegration:
             {"enzyme_lens.close_call_gap": 0.50}
         )
         stack = build_default_stack(thresholds=custom)
-        assert len(stack) == 5
+        assert len(stack) == 4  # FGL off by default (D132)
 
     def test_lens_stack_synthesizer_accepts_thresholds(self):
         """LensStackSynthesizer can be constructed with custom thresholds."""

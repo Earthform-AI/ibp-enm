@@ -308,7 +308,7 @@ class TestTraceIntegration:
         result = synth.synthesize_identity(seven_profiles, meta_state)
 
         trace = result["trace"]
-        assert len(trace.lens_traces) == 5  # enzyme, hinge, barrel, flow_grammar, allosteric
+        assert len(trace.lens_traces) == 4  # enzyme, hinge, barrel, allosteric (FGL off D132)
 
     def test_trace_thresholds_name(self, seven_profiles):
         synth = LensStackSynthesizer()
