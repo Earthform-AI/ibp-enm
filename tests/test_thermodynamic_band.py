@@ -456,6 +456,124 @@ class TestSynthesis:
         assert abs(boost - 0.35) < 1e-6
 
 
+# ── AllostericLens wiring through ThermodynamicBand ──────────────
+
+class TestAllostericLensWiring:
+    """Verify pdb_id/chain/n_residues propagate from ThermodynamicBand
+    through LensStackSynthesizer to AllostericLens (Priority-1 fix)."""
+
+    def test_band_stores_pdb_id_and_chain(self):
+        """ThermodynamicBand should store pdb_id and chain."""
+        from ibp_enm.band import ThermodynamicBand
+        N = 30
+        contacts = {(i, i + 1): 3.8 for i in range(N - 1)}
+        coords = np.random.randn(N, 3)
+        bfactors = np.ones(N)
+        L = np.zeros((N, N))
+        for (i, j) in contacts:
+            L[i, j] = L[j, i] = -1
+            L[i, i] += 1
+            L[j, j] += 1
+        evals, evecs = np.linalg.eigh(L)
+        fiedler = evecs[:, 1]
+        domain_labels = (fiedler > 0).astype(int)
+        sg = float(evals[1] / evals[2]) if evals[2] > 0 else 0
+
+        band = ThermodynamicBand(
+            N, contacts, coords, bfactors, fiedler,
+            domain_labels, sg, evals, evecs,
+            pdb_id="2LZM", chain="A",
+        )
+        assert band._pdb_id == "2LZM"
+        assert band._chain == "A"
+
+    def test_band_passes_params_to_synthesizer(self):
+        """LensStackSynthesizer context should contain pdb_id, chain,
+        n_residues when constructed via ThermodynamicBand."""
+        from ibp_enm.band import ThermodynamicBand
+        N = 30
+        contacts = {(i, i + 1): 3.8 for i in range(N - 1)}
+        coords = np.random.randn(N, 3)
+        bfactors = np.ones(N)
+        L = np.zeros((N, N))
+        for (i, j) in contacts:
+            L[i, j] = L[j, i] = -1
+            L[i, i] += 1
+            L[j, j] += 1
+        evals, evecs = np.linalg.eigh(L)
+        fiedler = evecs[:, 1]
+        domain_labels = (fiedler > 0).astype(int)
+        sg = float(evals[1] / evals[2]) if evals[2] > 0 else 0
+
+        band = ThermodynamicBand(
+            N, contacts, coords, bfactors, fiedler,
+            domain_labels, sg, evals, evecs,
+            pdb_id="2LZM", chain="A",
+        )
+
+        ctx = band.meta_fick._context
+        assert ctx["pdb_id"] == "2LZM"
+        assert ctx["chain"] == "A"
+        assert ctx["n_residues"] == N
+
+    def test_allosteric_lens_receives_resolver(self):
+        """AllostericLens in the default stack should have a resolver."""
+        from ibp_enm.band import ThermodynamicBand
+        N = 30
+        contacts = {(i, i + 1): 3.8 for i in range(N - 1)}
+        coords = np.random.randn(N, 3)
+        bfactors = np.ones(N)
+        L = np.zeros((N, N))
+        for (i, j) in contacts:
+            L[i, j] = L[j, i] = -1
+            L[i, i] += 1
+            L[j, j] += 1
+        evals, evecs = np.linalg.eigh(L)
+        fiedler = evecs[:, 1]
+        domain_labels = (fiedler > 0).astype(int)
+        sg = float(evals[1] / evals[2]) if evals[2] > 0 else 0
+
+        band = ThermodynamicBand(
+            N, contacts, coords, bfactors, fiedler,
+            domain_labels, sg, evals, evecs,
+            pdb_id="2LZM", chain="A",
+        )
+
+        # The AllostericLens is the last lens in the stack
+        allo_lens = band.meta_fick.stack.lenses[-1]
+        assert allo_lens.name == "allosteric_lens"
+        assert allo_lens._pdb_id == "2LZM"
+        assert allo_lens._chain == "A"
+        assert allo_lens._n_residues == N
+        assert allo_lens._resolver is not None
+
+    def test_band_default_chain_is_A(self):
+        """When chain is omitted, it should default to 'A'."""
+        from ibp_enm.band import ThermodynamicBand
+        N = 20
+        contacts = {(i, i + 1): 3.8 for i in range(N - 1)}
+        coords = np.random.randn(N, 3)
+        bfactors = np.ones(N)
+        L = np.zeros((N, N))
+        for (i, j) in contacts:
+            L[i, j] = L[j, i] = -1
+            L[i, i] += 1
+            L[j, j] += 1
+        evals, evecs = np.linalg.eigh(L)
+        fiedler = evecs[:, 1]
+        domain_labels = (fiedler > 0).astype(int)
+        sg = float(evals[1] / evals[2]) if evals[2] > 0 else 0
+
+        band = ThermodynamicBand(
+            N, contacts, coords, bfactors, fiedler,
+            domain_labels, sg, evals, evecs,
+        )
+        assert band._chain == "A"
+        ctx = band.meta_fick._context
+        assert ctx["chain"] == "A"
+        assert ctx["n_residues"] == N
+
+
 # ── top-level imports ────────────────────────────────────────────
 
 class TestPackageImports:

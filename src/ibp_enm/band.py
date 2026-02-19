@@ -70,6 +70,7 @@ from .instruments import (
 )
 from .synthesis import MetaFickBalancer, HingeLensSynthesis, SizeAwareHingeLens
 from .lens_stack import LensStackSynthesizer, build_default_stack
+from .functional_sites import FunctionalSiteResolver
 from .cache import ProfileCache, profiles_to_json, profiles_from_json
 from .thermodynamics import (
     heat_capacity,
@@ -133,6 +134,9 @@ class ThermodynamicBand:
         handbook: Optional[SurgeonsHandbook] = None,
         predicted_bfactors: Optional[np.ndarray] = None,
         thresholds=None,
+        *,
+        pdb_id: Optional[str] = None,
+        chain: Optional[str] = None,
     ):
         self.N = N
         self.contacts = contacts
@@ -145,6 +149,8 @@ class ThermodynamicBand:
         self.evecs = evecs
         self.handbook = handbook or SurgeonsHandbook()
         self.predicted_bfactors = predicted_bfactors
+        self._pdb_id = pdb_id
+        self._chain = chain or "A"
 
         # One carver per instrument
         self.carvers: Dict[str, ThermoInstrumentCarver] = {}
@@ -164,10 +170,15 @@ class ThermodynamicBand:
                 predicted_bfactors=predicted_bfactors,
             )
 
+        # Create a resolver so AllostericLens can look up
+        # functional annotations for binding-site-aware TE.
+        self._resolver = FunctionalSiteResolver()
         self.meta_fick = LensStackSynthesizer(
             evals=evals, evecs=evecs,
             domain_labels=domain_labels, contacts=contacts,
             thresholds=thresholds,
+            pdb_id=pdb_id, chain=chain or "A",
+            n_residues=N, resolver=self._resolver,
         )
         self.initial_diagnosis: Optional[Dict] = None
 
@@ -474,6 +485,7 @@ def run_single_protein(
         handbook=handbook,
         predicted_bfactors=predicted_bfactors,
         thresholds=thresholds,
+        pdb_id=pdb_id, chain=chain,
     )
 
     initial_diag = band.diagnose_initial(max_probes=80)
