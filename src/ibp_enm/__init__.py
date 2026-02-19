@@ -63,7 +63,9 @@ from .analysis import (
 from .cache import ProfileCache, profile_to_dict, profile_from_dict
 from .benchmark import (
     ProteinEntry, ProteinResult, BenchmarkReport, BenchmarkRunner,
-    ORIGINAL_CORPUS, EXPANDED_CORPUS,
+    ORIGINAL_CORPUS, EXPANDED_CORPUS, LARGE_CORPUS,
+    CrossValidationResult, CrossValidator,
+    ParameterUsefulnessResult, ParameterUsefulnessAnalyzer,
 )
 
 __all__ = [
@@ -105,5 +107,7 @@ __all__ = [
     # Profile caching & benchmark (v0.3.0)
     "ProfileCache", "profile_to_dict", "profile_from_dict",
     "ProteinEntry", "ProteinResult", "BenchmarkReport", "BenchmarkRunner",
-    "ORIGINAL_CORPUS", "EXPANDED_CORPUS",
+    "ORIGINAL_CORPUS", "EXPANDED_CORPUS", "LARGE_CORPUS",
+    "CrossValidationResult", "CrossValidator",
+    "ParameterUsefulnessResult", "ParameterUsefulnessAnalyzer",
 ]

@@ -381,37 +381,71 @@ class ThermodynamicBand:
 # ═══════════════════════════════════════════════════════════════════
 
 def _fetch_ca(pdb_id: str, chain: str = "A"):
-    """Fetch Cα coordinates from RCSB mmCIF (same as D106 helper)."""
+    """Fetch Cα coordinates from RCSB mmCIF.
+
+    Robust parsing with fallbacks:
+    1. Match ``label_asym_id`` first (column 6), then ``auth_asym_id``
+       (column 18) if no CAs found — handles PDBs where label ≠ auth.
+    2. Accept ``HETATM`` records for standard amino acid CAs as fallback
+       if ``ATOM`` records yield 0 results — handles ancient PDB entries
+       where all polymer atoms are classified as HETATM.
+    """
     import requests
     url = f"https://files.rcsb.org/download/{pdb_id}.cif"
     resp = requests.get(url, timeout=30)
     resp.raise_for_status()
-    coords, bfactors = [], []
-    seen: set = set()
-    for line in resp.text.split("\n"):
-        if not line.startswith("ATOM"):
-            continue
-        parts = line.split()
-        if len(parts) < 15:
-            continue
-        atom_name, chain_id, res_seq = parts[3], parts[6], parts[8]
-        alt_id = parts[4] if len(parts) > 4 else "."
-        if atom_name != "CA" or chain_id != chain:
-            continue
-        if alt_id not in (".", "?", "A", ""):
-            continue
-        key = (chain_id, res_seq)
-        if key in seen:
-            continue
-        seen.add(key)
-        try:
-            x, y, z = float(parts[10]), float(parts[11]), float(parts[12])
-            b = float(parts[14])
-            coords.append([x, y, z])
-            bfactors.append(b)
-        except (ValueError, IndexError):
-            continue
-    return np.array(coords), np.array(bfactors)
+    cif_lines = resp.text.split("\n")
+
+    def _extract_ca(lines, chain_id, record_types=("ATOM",), chain_col=6):
+        """Extract CA atoms matching *chain_id* at column *chain_col*."""
+        coords, bfactors = [], []
+        seen: set = set()
+        for line in lines:
+            if not any(line.startswith(rt) for rt in record_types):
+                continue
+            parts = line.split()
+            if len(parts) < 15:
+                continue
+            atom_name = parts[3]
+            cid = parts[chain_col] if len(parts) > chain_col else ""
+            res_seq = parts[8]
+            alt_id = parts[4] if len(parts) > 4 else "."
+            if atom_name != "CA" or cid != chain_id:
+                continue
+            if alt_id not in (".", "?", "A", ""):
+                continue
+            # Dedup: use atom serial (col 1) when res_seq is missing
+            dedup_key = (cid, res_seq) if res_seq not in (".", "?") else parts[1]
+            if dedup_key in seen:
+                continue
+            seen.add(dedup_key)
+            try:
+                x, y, z = float(parts[10]), float(parts[11]), float(parts[12])
+                b = float(parts[14])
+                coords.append([x, y, z])
+                bfactors.append(b)
+            except (ValueError, IndexError):
+                continue
+        return np.array(coords) if coords else np.empty((0, 3)), np.array(bfactors)
+
+    # Strategy 1: ATOM records, label_asym_id (column 6) — standard case
+    coords, bfactors = _extract_ca(cif_lines, chain, ("ATOM",), chain_col=6)
+    if len(coords) >= 20:
+        return coords, bfactors
+
+    # Strategy 2: ATOM records, auth_asym_id (column 18) — label≠auth
+    coords, bfactors = _extract_ca(cif_lines, chain, ("ATOM",), chain_col=18)
+    if len(coords) >= 20:
+        return coords, bfactors
+
+    # Strategy 3: ATOM+HETATM, label_asym_id — ancient PDB entries
+    coords, bfactors = _extract_ca(cif_lines, chain, ("ATOM", "HETATM"), chain_col=6)
+    if len(coords) >= 20:
+        return coords, bfactors
+
+    # Strategy 4: ATOM+HETATM, auth_asym_id — last resort
+    coords, bfactors = _extract_ca(cif_lines, chain, ("ATOM", "HETATM"), chain_col=18)
+    return coords, bfactors
 
 
 def run_single_protein(
