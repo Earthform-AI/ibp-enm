@@ -59,6 +59,7 @@ from .thermodynamics import (
     hinge_occupation_ratio,
     domain_stiffness_asymmetry,
 )
+from .functional_sites import FunctionalSiteResolver, FunctionalAnnotation
 
 __all__ = [
     "Lens",
@@ -67,6 +68,7 @@ __all__ = [
     "EnzymeLens",
     "HingeLens",
     "BarrelPenaltyLens",
+    "AllostericLens",
     "LensStackSynthesizer",
     "build_default_stack",
     "DEFAULT_THRESHOLDS",
@@ -670,6 +672,461 @@ class BarrelPenaltyLens:
 
 
 # ═══════════════════════════════════════════════════════════════════
+# AllostericLens — Binding-Site-Aware TE (D128/D129)
+# ═══════════════════════════════════════════════════════════════════
+
+class AllostericLens:
+    """Allosteric-specific lens using binding-site-aware transfer entropy.
+
+    The allosteric archetype is the hardest to classify because its
+    NLP sentence is *"signal-coupled domains; cuts propagate
+    unexpectedly"* — it LOOKS like other things until you measure
+    directed information flow between functional sites.
+
+    This lens activates when the base synthesis produces an ambiguous
+    result involving allosteric (e.g., allosteric scored but not winning,
+    or allosteric close to the winner).  It then resolves functional
+    annotations (regulatory, chemical, mechanical sites) and computes
+    directed TE between them.
+
+    Physics:
+      - Allosteric proteins have NET information flow FROM regulatory
+        sites TO active/chemical sites (regulatory drives catalysis).
+      - Top TE drivers concentrate at regulatory/signalling sites.
+      - The TE pathway is asymmetric (reg→act >> act→reg).
+
+    Activation gate:
+      1. Allosteric in top 3 (it's on the radar)
+      2. Score confusion: top-2 gap < gate threshold, OR allosteric
+         close to winner
+      3. Eigendecomposition available (need TE computation)
+
+    Signals (from D128):
+      1. site_te_regulatory_to_active — TE from reg → chem sites
+      2. site_net_reg_to_active — NET flow (should be positive)
+      3. site_driver_enrichment_regulatory — drivers at reg sites
+      4. site_te_pathway_asymmetry — directional flow
+      5. site_functional_te_ratio — TE at sites vs everywhere
+
+    NLP semantic mapping:
+      Intent RELATING (protect domain boundaries) +
+      Intent BECOMING (sculpt toward separation) =
+      Fano line 5 (GROWTH) — the allosteric narrative arc.
+      When RELATING amplitude is high in the QuantumCarvingState,
+      the system already suspects signal-coupled domains.
+      This lens makes that suspicion concrete.
+
+    Historical notes:
+      D128 — showed 5/7 allosteric correct with solo 12-feature classifier
+      D129 — integration as composable lens in the LensStack
+    """
+
+    def __init__(
+        self,
+        evals: Optional[np.ndarray] = None,
+        evecs: Optional[np.ndarray] = None,
+        contacts: Optional[dict] = None,
+        pdb_id: Optional[str] = None,
+        chain: Optional[str] = None,
+        n_residues: Optional[int] = None,
+        resolver: Optional[FunctionalSiteResolver] = None,
+        annotation: Optional[FunctionalAnnotation] = None,
+        thresholds: Optional[ThresholdRegistry] = None,
+    ):
+        self.initial_evals = evals
+        self.initial_evecs = evecs
+        self.initial_contacts = contacts
+        self._pdb_id = pdb_id
+        self._chain = chain or "A"
+        self._n_residues = n_residues
+        self._resolver = resolver
+        self._annotation = annotation   # pre-resolved, if available
+        self._t = thresholds or DEFAULT_THRESHOLDS
+
+    @property
+    def name(self) -> str:
+        return "allosteric_lens"
+
+    def should_activate(
+        self,
+        scores: Dict[str, float],
+        profiles: List[ThermoReactionProfile],
+        context: Dict[str, Any],
+    ) -> bool:
+        """Gate: allosteric in top 3 and scores are ambiguous."""
+        sorted_scores = sorted(scores.items(), key=lambda x: -x[1])
+        top3_archs = [a for a, _ in sorted_scores[:3]]
+
+        if "allosteric" not in top3_archs:
+            return False
+
+        # Need eigendecomposition for TE computation
+        evals = context.get("evals", self.initial_evals)
+        if evals is None:
+            return False
+
+        t = self._t
+
+        # Confusion check: is the classification ambiguous?
+        top2_gap = (sorted_scores[0][1] - sorted_scores[1][1]
+                    if len(sorted_scores) >= 2 else 1.0)
+        allo_score = scores.get("allosteric", 0)
+        winner_score = sorted_scores[0][1] if sorted_scores else 0
+
+        # Gate 1: top-2 gap is small (genuine confusion)
+        is_confused = top2_gap < t["allosteric_lens.confusion_gap"]
+
+        # Gate 2: allosteric is close to the winner
+        allo_proximity = (winner_score - allo_score
+                          if winner_score > allo_score else 0)
+        is_close = allo_proximity < t["allosteric_lens.proximity_gap"]
+
+        # Gate 3: propagative instrument shows high spatial radius
+        # (allosteric signature: perturbations propagate far)
+        prop_high = False
+        for p in profiles:
+            if p.instrument == "propagative":
+                if p.mean_spatial_radius > t[
+                        "allosteric_lens.propagative_radius_gate"]:
+                    prop_high = True
+                break
+
+        # Activate if confused/close AND has allosteric propagation signal
+        return (is_confused or is_close) and prop_high
+
+    def apply(
+        self,
+        scores: Dict[str, float],
+        profiles: List[ThermoReactionProfile],
+        context: Dict[str, Any],
+    ) -> Tuple[Dict[str, float], LensTrace]:
+        """Compute binding-site-aware TE and boost allosteric if confirmed."""
+        scores = dict(scores)
+        t = self._t
+
+        signals = self._compute_allosteric_signals(profiles, context)
+
+        boost = self._compute_boost(signals, t)
+
+        if boost > 0:
+            scores["allosteric"] += boost
+            # Counter-suppress the current winner if it's not allosteric
+            sorted_scores = sorted(scores.items(), key=lambda x: -x[1])
+            current_winner = sorted_scores[0][0]
+            if current_winner != "allosteric":
+                scores[current_winner] -= boost * t[
+                    "allosteric_lens.counter_suppress_ratio"]
+            scores = _renormalise(scores, t["renorm.floor"])
+
+        trace = LensTrace(
+            lens_name=self.name,
+            activated=True,
+            boost=boost,
+            details={"allosteric_signals": signals},
+        )
+        return scores, trace
+
+    def _compute_allosteric_signals(
+        self,
+        profiles: List[ThermoReactionProfile],
+        context: Dict[str, Any],
+    ) -> Dict[str, Any]:
+        """Compute binding-site-aware TE signals.
+
+        Uses FunctionalSiteResolver to get annotations, then computes
+        GNM transfer entropy between functional site categories.
+        """
+        evals = context.get("evals", self.initial_evals)
+        evecs = context.get("evecs", self.initial_evecs)
+        contacts = context.get("contacts", self.initial_contacts)
+        N = context.get("n_residues", self._n_residues)
+        pdb_id = context.get("pdb_id", self._pdb_id)
+        chain = context.get("chain", self._chain)
+
+        signals: Dict[str, Any] = {
+            "has_annotation": False,
+            "n_regulatory": 0,
+            "n_chemical": 0,
+            "coverage": 0.0,
+            "te_reg_to_active": 0.0,
+            "te_active_to_reg": 0.0,
+            "net_reg_to_active": 0.0,
+            "driver_enrichment_reg": 0.0,
+            "te_pathway_asymmetry": 0.0,
+            "functional_te_ratio": 0.0,
+        }
+
+        if evals is None or evecs is None or N is None:
+            return signals
+
+        # ── Resolve functional annotation ──
+        ann = self._annotation
+        if ann is None and pdb_id and self._resolver:
+            try:
+                ann = self._resolver.resolve(pdb_id, chain=chain,
+                                             n_residues=N)
+            except Exception:
+                pass  # annotation failure is non-fatal
+        if ann is None:
+            return signals
+
+        # Functional site sets (clamped to valid range)
+        reg_set = {r for r in ann.signalling if r < N}
+        chem_set = {r for r in ann.chemical if r < N}
+
+        signals["has_annotation"] = True
+        signals["n_regulatory"] = len(reg_set)
+        signals["n_chemical"] = len(chem_set)
+        signals["coverage"] = ann.coverage
+
+        # Minimum site count gate: need enough residues in BOTH
+        # categories for statistically meaningful TE computation.
+        # With < 3 sites in either set, the mean TE is based on
+        # too few residue pairs to be reliable.
+        min_sites = int(self._t.get("allosteric_lens.min_site_count", 3))
+        if len(reg_set) < min_sites or len(chem_set) < min_sites:
+            return signals
+
+        # ── Compute GNM correlation and TE ──
+        pos_mask = evals > 1e-8
+        pos_evals = evals[pos_mask]
+        if len(pos_evals) < 3:
+            return signals
+
+        try:
+            from .carving import build_laplacian
+            lambda2 = pos_evals[0]
+            t_star = 1.0 / lambda2
+
+            # GNM correlation at t=0 and t=t*
+            C0 = self._gnm_correlation(N, evals, evecs, 0.0)
+            Ct = self._gnm_correlation(N, evals, evecs, t_star)
+
+            # Transfer entropy matrix
+            TE, NET = self._transfer_entropy_matrix(C0, Ct, N)
+
+            # Driver scores
+            driver_scores = np.abs(np.sum(NET, axis=1))
+
+            # ── Site-specific TE signals ──
+
+            # 1. Mean TE from regulatory → chemical
+            te_reg_act = self._mean_te_between(TE, reg_set, chem_set)
+            signals["te_reg_to_active"] = te_reg_act
+
+            # 2. Mean TE from chemical → regulatory
+            te_act_reg = self._mean_te_between(TE, chem_set, reg_set)
+            signals["te_active_to_reg"] = te_act_reg
+
+            # 3. NET flow from regulatory → chemical
+            net_r2a = self._mean_net_between(NET, reg_set, chem_set)
+            signals["net_reg_to_active"] = net_r2a
+
+            # 4. Driver enrichment at regulatory sites
+            n_top = max(N // 10, 3)
+            top_drivers = set(np.argsort(driver_scores)[-n_top:])
+            obs_reg = (len(top_drivers & reg_set)
+                       / max(len(top_drivers), 1))
+            exp_reg = len(reg_set) / N
+            signals["driver_enrichment_reg"] = (
+                obs_reg / max(exp_reg, 1e-10)
+            )
+
+            # 5. TE pathway asymmetry
+            te_sum = te_reg_act + te_act_reg
+            if te_sum > 1e-15:
+                signals["te_pathway_asymmetry"] = (
+                    abs(te_reg_act - te_act_reg) / te_sum
+                )
+
+            # 6. Functional TE ratio
+            all_func = {r for r in ann.all_functional if r < N}
+            if len(all_func) >= 2:
+                triu_i, triu_j = np.triu_indices(N, k=1)
+                mean_te_all = float(np.mean(
+                    0.5 * (TE[triu_i, triu_j] + TE[triu_j, triu_i])))
+                if mean_te_all > 1e-15:
+                    func_list = sorted(all_func)
+                    func_vals = []
+                    for ii in range(len(func_list)):
+                        for jj in range(ii + 1, len(func_list)):
+                            a, b = func_list[ii], func_list[jj]
+                            func_vals.append(
+                                0.5 * (TE[a, b] + TE[b, a]))
+                    if func_vals:
+                        signals["functional_te_ratio"] = (
+                            float(np.mean(func_vals)) / mean_te_all
+                        )
+
+        except Exception:
+            pass  # TE computation failure is non-fatal
+
+        return signals
+
+    @staticmethod
+    def _gnm_correlation(N: int, evals: np.ndarray,
+                         evecs: np.ndarray, t: float) -> np.ndarray:
+        """GNM cross-correlation at pseudo-time t.
+
+        C_ij(t) = Σ_k (1/λ_k) · exp(-λ_k·t) · u_ki · u_kj
+        """
+        pos = evals > 1e-8
+        lam = evals[pos]
+        U = evecs[:, pos]
+        if t > 0:
+            weights = (1.0 / lam) * np.exp(-lam * t)
+        else:
+            weights = 1.0 / lam
+        C = (U * weights[None, :]) @ U.T
+        return C
+
+    @staticmethod
+    def _transfer_entropy_matrix(C0: np.ndarray, Ct: np.ndarray,
+                                 N: int) -> Tuple[np.ndarray, np.ndarray]:
+        """Vectorised TE and NET matrices.
+
+        TE_{j→i}(t) = -½ ln(1 - α_ij²/β_ij)
+        where α_ij = C_ij(t) - C_ij(0) · C_jj(t)/C_jj(0)
+              β_ij = C_ii(t) · (1 - C_ij(0)²/(C_ii(0)·C_jj(0)))
+        """
+        diag0 = np.diag(C0).copy()
+        diag0[diag0 < 1e-12] = 1e-12
+        diagt = np.diag(Ct).copy()
+        diagt[diagt < 1e-12] = 1e-12
+
+        alpha = Ct - (C0 / diag0[None, :]) * diagt[:, None]
+
+        r0 = C0 / np.sqrt(np.outer(diag0, diag0))
+        r0 = np.clip(r0, -0.999, 0.999)
+        beta = diagt[:, None] * (1.0 - r0 ** 2)
+        beta = np.maximum(beta, 1e-15)
+
+        ratio = np.clip(alpha ** 2 / beta, 0, 0.999)
+        TE = -0.5 * np.log(1.0 - ratio)
+        np.fill_diagonal(TE, 0)
+
+        NET = TE.T - TE  # NET(i,j) = TE_{i→j} - TE_{j→i}
+        return TE, NET
+
+    @staticmethod
+    def _mean_te_between(TE: np.ndarray,
+                         src: set, dst: set) -> float:
+        """Mean TE from src → dst (directed)."""
+        if not src or not dst:
+            return 0.0
+        total = 0.0
+        count = 0
+        for i in src:
+            for j in dst:
+                if i != j:
+                    total += TE[j, i]
+                    count += 1
+        return total / max(count, 1)
+
+    @staticmethod
+    def _mean_net_between(NET: np.ndarray,
+                          src: set, dst: set) -> float:
+        """Mean NET flow from src → dst."""
+        if not src or not dst:
+            return 0.0
+        total = 0.0
+        count = 0
+        for i in src:
+            for j in dst:
+                if i != j:
+                    total += NET[i, j]
+                    count += 1
+        return total / max(count, 1)
+
+    @staticmethod
+    def _compute_boost(signals: Dict[str, Any],
+                       t: ThresholdRegistry) -> float:
+        """Compute allosteric boost from binding-site-aware TE signals.
+
+        We use a multi-signal approach calibrated on D128 empirical data:
+        each signal that exceeds its threshold contributes to the boost.
+        The compound effect of multiple positive signals gives higher
+        confidence.
+
+        NLP interpretation:
+          Each signal is a "word" in the allosteric sentence.
+          Multiple positive signals compose a "phrase" that affirms:
+          "This protein has directed regulatory → catalytic information flow."
+        """
+        if not signals.get("has_annotation"):
+            return 0.0
+
+        # ── NET direction gate ──
+        # The strongest single discriminator from D129 calibration:
+        # allosteric proteins have POSITIVE NET (regulatory drives
+        # chemical), enzymes have NEGATIVE NET.  If NET is solidly
+        # negative, this is NOT allosteric — abort immediately.
+        net = signals.get("net_reg_to_active", 0.0)
+        if net < -t["allosteric_lens.net_negative_gate"]:
+            return 0.0
+
+        boost = 0.0
+
+        # Signal 1: TE from regulatory → chemical sites
+        # (allosteric: high, others: low/zero)
+        if signals["te_reg_to_active"] > t[
+                "allosteric_lens.te_reg_act_strong"]:
+            boost += t["allosteric_lens.te_reg_act_strong_boost"]
+        elif signals["te_reg_to_active"] > t[
+                "allosteric_lens.te_reg_act_weak"]:
+            boost += t["allosteric_lens.te_reg_act_weak_boost"]
+
+        # Signal 2: Positive NET flow regulatory → chemical
+        # (allosteric: positive = regulatory DRIVES catalysis)
+        if signals["net_reg_to_active"] > t[
+                "allosteric_lens.net_positive_thresh"]:
+            boost += t["allosteric_lens.net_positive_boost"]
+
+        # Signal 3: Driver enrichment at regulatory sites
+        # (allosteric: TE drivers concentrate at regulatory residues)
+        if signals["driver_enrichment_reg"] > t[
+                "allosteric_lens.driver_enrich_strong"]:
+            boost += t["allosteric_lens.driver_enrich_strong_boost"]
+        elif signals["driver_enrichment_reg"] > t[
+                "allosteric_lens.driver_enrich_weak"]:
+            boost += t["allosteric_lens.driver_enrich_weak_boost"]
+
+        # Signal 4: Pathway asymmetry
+        # (allosteric: strongly directional, reg→act >> act→reg)
+        if signals["te_pathway_asymmetry"] > t[
+                "allosteric_lens.asymmetry_thresh"]:
+            boost += t["allosteric_lens.asymmetry_boost"]
+
+        # Signal 5: Functional TE ratio
+        # (allosteric: TE concentrated at functional sites relative
+        #  to the overall TE — functional sites are the information
+        #  highway, not random background)
+        if signals["functional_te_ratio"] > t[
+                "allosteric_lens.func_te_ratio_thresh"]:
+            boost += t["allosteric_lens.func_te_ratio_boost"]
+
+        # Compound bonus: if ≥3 signals fire, this is a strong
+        # allosteric sentence — boost further
+        signal_count = sum([
+            signals["te_reg_to_active"] > t[
+                "allosteric_lens.te_reg_act_weak"],
+            signals["net_reg_to_active"] > t[
+                "allosteric_lens.net_positive_thresh"],
+            signals["driver_enrichment_reg"] > t[
+                "allosteric_lens.driver_enrich_weak"],
+            signals["te_pathway_asymmetry"] > t[
+                "allosteric_lens.asymmetry_thresh"],
+        ])
+        if signal_count >= int(t["allosteric_lens.compound_min_signals"]):
+            boost += t["allosteric_lens.compound_bonus"]
+
+        # Cap total boost
+        boost = min(boost, t["allosteric_lens.boost_cap"])
+
+        return boost
+
+
+# ═══════════════════════════════════════════════════════════════════
 # Factory — default stack
 # ═══════════════════════════════════════════════════════════════════
 
@@ -679,8 +1136,15 @@ def build_default_stack(
     domain_labels: Optional[np.ndarray] = None,
     contacts: Optional[dict] = None,
     thresholds: Optional[ThresholdRegistry] = None,
+    *,
+    pdb_id: Optional[str] = None,
+    chain: Optional[str] = None,
+    n_residues: Optional[int] = None,
+    resolver: Optional[FunctionalSiteResolver] = None,
+    annotation: Optional[FunctionalAnnotation] = None,
+    include_allosteric: bool = True,
 ) -> LensStack:
-    """Build the default lens stack (D110 + D111 + D113).
+    """Build the default lens stack (D110 + D111 + D113 + D129).
 
     Equivalent to the old ``SizeAwareHingeLens`` inheritance tower
     but composable.
@@ -695,20 +1159,40 @@ def build_default_stack(
         Contact map (enables hinge lens domain stiffness).
     thresholds : ThresholdRegistry, optional
         Override threshold values (defaults to :data:`DEFAULT_THRESHOLDS`).
+    pdb_id : str, optional
+        PDB identifier (enables allosteric lens annotation lookup).
+    chain : str, optional
+        Chain identifier (default "A").
+    n_residues : int, optional
+        Number of residues (enables allosteric lens).
+    resolver : FunctionalSiteResolver, optional
+        Pre-built resolver (avoids re-creation per protein).
+    annotation : FunctionalAnnotation, optional
+        Pre-resolved annotation (skips API lookup).
+    include_allosteric : bool
+        Include the AllostericLens in the stack (default True).
 
     Returns
     -------
     LensStack
-        ``[EnzymeLens, HingeLens, BarrelPenaltyLens]``
+        ``[EnzymeLens, HingeLens, BarrelPenaltyLens, AllostericLens]``
     """
     t = thresholds
-    return LensStack([
+    lenses: list = [
         EnzymeLens(evals=evals, evecs=evecs, thresholds=t),
         HingeLens(evals=evals, evecs=evecs,
                   domain_labels=domain_labels, contacts=contacts,
                   thresholds=t),
         BarrelPenaltyLens(domain_labels=domain_labels, thresholds=t),
-    ])
+    ]
+    if include_allosteric:
+        lenses.append(AllostericLens(
+            evals=evals, evecs=evecs, contacts=contacts,
+            pdb_id=pdb_id, chain=chain, n_residues=n_residues,
+            resolver=resolver, annotation=annotation,
+            thresholds=t,
+        ))
+    return LensStack(lenses)
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -740,6 +1224,12 @@ class LensStackSynthesizer:
         domain_labels: Optional[np.ndarray] = None,
         contacts: Optional[dict] = None,
         thresholds: Optional[ThresholdRegistry] = None,
+        *,
+        pdb_id: Optional[str] = None,
+        chain: Optional[str] = None,
+        n_residues: Optional[int] = None,
+        resolver: Optional[FunctionalSiteResolver] = None,
+        annotation: Optional[FunctionalAnnotation] = None,
         **balancer_kwargs,
     ):
         self._t = thresholds or DEFAULT_THRESHOLDS
@@ -749,12 +1239,17 @@ class LensStackSynthesizer:
             evals=evals, evecs=evecs,
             domain_labels=domain_labels, contacts=contacts,
             thresholds=self._t,
+            pdb_id=pdb_id, chain=chain, n_residues=n_residues,
+            resolver=resolver, annotation=annotation,
         )
         self._context: Dict[str, Any] = {
             "evals": evals,
             "evecs": evecs,
             "domain_labels": domain_labels,
             "contacts": contacts,
+            "pdb_id": pdb_id,
+            "chain": chain,
+            "n_residues": n_residues,
         }
 
     @property

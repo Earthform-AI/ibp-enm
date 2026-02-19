@@ -36,7 +36,7 @@ from .thermodynamics import (
 # LensStack composition (v0.5.0)
 from .lens_stack import (
     Lens, LensTrace, LensStack,
-    EnzymeLens, HingeLens, BarrelPenaltyLens,
+    EnzymeLens, HingeLens, BarrelPenaltyLens, AllostericLens,
     LensStackSynthesizer, build_default_stack,
 )
 
@@ -86,7 +86,7 @@ __all__ = [
     "multimode_ipr", "hinge_occupation_ratio", "domain_stiffness_asymmetry",
     # LensStack composition (v0.5.0)
     "Lens", "LensTrace", "LensStack",
-    "EnzymeLens", "HingeLens", "BarrelPenaltyLens",
+    "EnzymeLens", "HingeLens", "BarrelPenaltyLens", "AllostericLens",
     "LensStackSynthesizer", "build_default_stack",
     # ThresholdRegistry (v0.6.0)
     "ThresholdRegistry", "DEFAULT_THRESHOLDS",

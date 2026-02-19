@@ -351,6 +351,50 @@ _DEFAULT_DATA: Dict[str, float] = {
     # Boost allocation
     "barrel_penalty.boost_target_ratio": 0.7,
 
+    # ── allosteric_lens — binding-site-aware TE (D129) ──────────
+    # Activation gates
+    "allosteric_lens.confusion_gap": 0.12,
+    "allosteric_lens.proximity_gap": 0.10,
+    "allosteric_lens.propagative_radius_gate": 6.0,
+
+    # Signal 1: TE regulatory → chemical
+    # Calibrated from D129 debug: AdK=0.0087, CheY=0.0007,
+    # T4_lysozyme=0.0036, TIM=0.0005
+    "allosteric_lens.te_reg_act_strong": 0.005,
+    "allosteric_lens.te_reg_act_strong_boost": 0.12,
+    "allosteric_lens.te_reg_act_weak": 0.0005,
+    "allosteric_lens.te_reg_act_weak_boost": 0.06,
+
+    # Signal 2: NET flow (positive = reg drives chem)
+    # KEY DISCRIMINATOR: allosteric → positive, enzyme → negative
+    # AdK=+0.0035, CheY=+0.0003, T4=-0.0030, TIM=-0.0001
+    "allosteric_lens.net_negative_gate": 0.0001,
+    "allosteric_lens.net_positive_thresh": 0.0001,
+    "allosteric_lens.net_positive_boost": 0.10,
+
+    # Signal 3: driver enrichment at regulatory sites
+    # AdK=1.80, CheY=1.52, T4=0.59, TIM=0.00
+    "allosteric_lens.driver_enrich_strong": 1.5,
+    "allosteric_lens.driver_enrich_strong_boost": 0.10,
+    "allosteric_lens.driver_enrich_weak": 1.0,
+    "allosteric_lens.driver_enrich_weak_boost": 0.05,
+
+    # Signal 4: pathway asymmetry
+    "allosteric_lens.asymmetry_thresh": 0.15,
+    "allosteric_lens.asymmetry_boost": 0.06,
+
+    # Signal 5: functional TE ratio
+    "allosteric_lens.func_te_ratio_thresh": 1.0,
+    "allosteric_lens.func_te_ratio_boost": 0.06,
+
+    # Compound & cap
+    "allosteric_lens.compound_min_signals": 2.0,
+    "allosteric_lens.compound_bonus": 0.10,
+    "allosteric_lens.boost_cap": 0.40,
+    "allosteric_lens.counter_suppress_ratio": 0.4,
+    # Minimum site count per category (reg/chem) for reliable TE
+    "allosteric_lens.min_site_count": 3.0,
+
     # ── renorm — shared renormalisation ─────────────────────────
     "renorm.floor": 0.01,
 }

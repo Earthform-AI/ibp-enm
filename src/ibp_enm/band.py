@@ -305,6 +305,13 @@ class ThermodynamicBand:
         domain_labels=None,
         contacts=None,
         thresholds=None,
+        *,
+        pdb_id=None,
+        chain=None,
+        n_residues=None,
+        resolver=None,
+        annotation=None,
+        stack=None,
     ) -> dict:
         """Re-score pre-computed profiles without re-carving.
 
@@ -326,6 +333,18 @@ class ThermodynamicBand:
         thresholds : ThresholdRegistry, optional
             Custom thresholds for the lens stack.  If ``None``,
             uses ``DEFAULT_THRESHOLDS``.
+        pdb_id : str, optional
+            PDB identifier (enables allosteric lens annotation lookup).
+        chain : str, optional
+            Chain identifier.
+        n_residues : int, optional
+            Number of residues.
+        resolver : FunctionalSiteResolver, optional
+            Pre-built resolver.
+        annotation : FunctionalAnnotation, optional
+            Pre-resolved annotation.
+        stack : LensStack, optional
+            Custom lens stack.  If ``None``, builds default.
 
         Returns
         -------
@@ -333,9 +352,12 @@ class ThermodynamicBand:
             Same structure as :meth:`play`'s ``identity`` sub-dict.
         """
         synth = LensStackSynthesizer(
+            stack=stack,
             evals=evals, evecs=evecs,
             domain_labels=domain_labels, contacts=contacts,
             thresholds=thresholds,
+            pdb_id=pdb_id, chain=chain, n_residues=n_residues,
+            resolver=resolver, annotation=annotation,
         )
         final_votes = [p.archetype_vote() for p in profiles]
         meta_state = synth.compute_meta_fick_state(final_votes)
