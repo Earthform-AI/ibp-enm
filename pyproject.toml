@@ -40,6 +40,12 @@ dependencies = [
     "requests>=2.28",
 ]
 
+[project.optional-dependencies]
+gnca = [
+    "torch>=2.0",
+    "torch-geometric>=2.4",
+]
+
 [project.urls]
 Homepage = "https://earthform.ai"
 Repository = "https://github.com/Earthform-AI/ibp-enm"

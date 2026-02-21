@@ -157,6 +157,101 @@ ThermodynamicBand           ← 7-instrument orchestrator
 | `hinge_occupation_ratio(evecs, hinge_indices)` | Mode participation at hinge sites |
 | `domain_stiffness_asymmetry(evals_d1, evals_d2)` | Stiffness asymmetry between domains |
 
+### Graph Data Pipeline (v0.9.0)
+
+Converts proteins into PyTorch Geometric `Data` objects for
+Graph Neural Cellular Automata (GNCA) training.
+
+```python
+# Single protein → PyG graph
+from ibp_enm.graph_data import protein_to_pyg_data
+data = protein_to_pyg_data("2LZM", "A", archetype="globin")
+# data.x: (N, 15)  node features
+# data.edge_index: (2, 2E)  bidirectional edges
+# data.edge_attr: (2, E)  distance + cross-domain flag
+# data.pos: (N, 3)  Cα coordinates
+
+# Full corpus → dataset + DataLoader
+from ibp_enm.graph_data import corpus_to_dataset, dataset_to_loader, stratified_split
+from ibp_enm.benchmark import LARGE_CORPUS
+dataset = corpus_to_dataset(LARGE_CORPUS)
+train, val, test = stratified_split(dataset)
+loader = dataset_to_loader(train, batch_size=16)
+```
+
+| Symbol | Description |
+|--------|-------------|
+| `protein_to_pyg_data(pdb_id, chain, archetype)` | Convert one protein to PyG `Data` |
+| `corpus_to_dataset(corpus)` | Batch-convert a `ProteinEntry` list |
+| `dataset_to_loader(dataset, batch_size)` | Wrap in PyG `DataLoader` |
+| `stratified_split(dataset)` | Archetype-stratified train/val/test split |
+| `compute_dataset_stats(dataset)` | Summary statistics (`DatasetStats`) |
+| `ARCHETYPE_NAMES`, `ARCHETYPE_TO_IDX` | Label mapping (5 classes) |
+| `NODE_FEATURE_DIM` (15), `EDGE_FEATURE_DIM` (2) | Feature dimensions |
+
+**Node features (15):** B-factor (exp + 3 predicted), Fiedler vector,
+domain label, hinge score, stabiliser profiles (2), degree, spectral gap,
+per-residue entropy, Cα coordinates (x, y, z) *or* rotationally-invariant
+spatial features (centroid distance, local density, contact density) when
+`include_coords=False`.
+
+**Edge features (2):** Contact distance (Å), cross-domain flag.
+
+Requires: `pip install ibp-enm[gnca]` (adds `torch`, `torch-geometric`).
+
+### Graph NCA Classifier (v0.9.0)
+
+Graph Neural Cellular Automata for protein archetype classification,
+following Grattarola et al. 2021 (Graph NCA architecture) and Walker et al.
+2022 (classification readout).  Operates directly on the protein contact
+graph without hand-crafted global features.
+
+```python
+from ibp_enm.gnca import GNCAConfig, GNCAClassifier
+from ibp_enm.gnca_trainer import cross_validate_gnca
+from ibp_enm.graph_data import corpus_to_dataset
+from ibp_enm.benchmark import LARGE_CORPUS
+
+import torch
+
+dataset = corpus_to_dataset(LARGE_CORPUS, normalize_features=False, include_coords=False)
+# Dataset-level z-normalization (critical — per-protein norm destroys global features)
+all_x = torch.cat([d.x for d in dataset], dim=0)
+mean, std = all_x.mean(0, keepdim=True), all_x.std(0, keepdim=True)
+std[std < 1e-6] = 1.0
+for d in dataset:
+    d.x = (d.x - mean) / std
+
+config = GNCAConfig(state_dim=48, hidden_dim=32, t_min=1, t_max=8)
+result = cross_validate_gnca(dataset, n_folds=10, config=config)
+print(result.summary())  # ~55% accuracy (10-fold CV)
+```
+
+| Symbol | Description |
+|--------|-------------|
+| `GNCAConfig` | Hyperparameter dataclass (state/hidden dims, NCA steps, LR, etc.) |
+| `GNCAClassifier` | Encoder → T×GNCACell → mean-pool readout classifier |
+| `GNCACell` | Single NCA step (message-passing + additive residual update) |
+| `GNCATrainer` | Training loop with early stopping, class weighting, gradient clipping |
+| `cross_validate_gnca(dataset, n_folds)` | Stratified k-fold cross-validation |
+| `TrainResult` / `CVResult` | Structured result objects with confusion matrices |
+
+**Key findings (D137c–h):**
+- **64.1% ± 4.5%** (10-fold CV, 865 proteins) — current high-water mark (D137h)
+- **55.5% ± 10.1%** (10-fold CV, 200 proteins) — baseline with proper normalization
+- **Dataset-level z-normalization** is critical: per-protein normalization
+  destroys cross-protein discriminative signal in global features (spectral gap,
+  per-residue entropy scale), dropping accuracy from 55% → 50.5%
+- Expanding corpus from 200 → 865 proteins gave +9pp accuracy and
+  halved the variance (±10.7% → ±4.5%)
+- Rotationally-invariant spatial features (`include_coords=False`) were
+  critical: 22.5% → 46–50%
+- NCA dynamics genuinely help over static GNN: 39.5% (T=1) → 50.5% (T=[1,8])
+- Virtual node and thermodynamic band features did not improve over the
+  plain 15-feature baseline with proper normalization
+- Barrel accuracy nearly doubled with expanded corpus: 25% → 53%
+- Model: 6,576 parameters (deliberately tiny for the data regime)
+
 ## Testing
 
 ```bash
@@ -164,7 +259,7 @@ pip install pytest
 pytest tests/ -v
 ```
 
-All 50 tests pass on Python 3.10–3.12.
+All 402 tests pass on Python 3.10–3.12.
 
 ## Citation
 

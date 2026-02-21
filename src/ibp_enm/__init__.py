@@ -59,6 +59,31 @@ from .analysis import (
     AnalysisReport, analyse_traces, compare_reports,
 )
 
+# Graph data pipeline for GNCA (v0.9.0, Phase B)
+# Lazy-loaded to avoid hard dep on torch/PyG
+try:
+    from .graph_data import (  # noqa: F401
+        protein_to_pyg_data, corpus_to_dataset, dataset_to_loader,
+        stratified_split, compute_dataset_stats, DatasetStats,
+        ARCHETYPE_NAMES, ARCHETYPE_TO_IDX, NUM_CLASSES,
+        NODE_FEATURE_DIM, THERMO_FEATURE_DIM, EDGE_FEATURE_DIM,
+        get_input_dim,
+    )
+    _GRAPH_DATA_AVAILABLE = True
+except ImportError:
+    _GRAPH_DATA_AVAILABLE = False
+
+# GNCA model & trainer (v0.9.0, Phase C)
+# Lazy-loaded to avoid hard dep on torch/PyG
+try:
+    from .gnca import GNCAConfig, GNCAClassifier, GNCACell  # noqa: F401
+    from .gnca_trainer import (  # noqa: F401
+        GNCATrainer, TrainResult, CVResult, cross_validate_gnca,
+    )
+    _GNCA_AVAILABLE = True
+except ImportError:
+    _GNCA_AVAILABLE = False
+
 # Profile caching & benchmark (v0.3.0)
 from .cache import ProfileCache, profile_to_dict, profile_from_dict
 from .benchmark import (
