@@ -47,6 +47,9 @@ from .thresholds import ThresholdRegistry, DEFAULT_THRESHOLDS
 # ClassificationTrace (v0.7.0)
 from .trace import ClassificationTrace, ContextSignals
 
+# Hamming bridge protocol (D153)
+from .belief_algebra import HammingBridge, HAMMING_H, SYNDROME_RETENTION
+
 # Algebraic structure analysis & deep result analysis (v0.8.0)
 from .algebra import (
     Fingerprint, fingerprint_from_trace, hamming_distance, distance_matrix,
@@ -128,6 +131,8 @@ __all__ = [
     "InstrumentCollinearity", "check_collinearity",
     "FiringLattice", "build_firing_lattice",
     "ThresholdSensitivity", "threshold_sensitivity",
+    # Hamming bridge protocol (D153)
+    "HammingBridge", "HAMMING_H", "SYNDROME_RETENTION",
     # Fano plane constants & D150 isomorphism
     "INSTRUMENT_NAMES", "FANO_LINES",
     "OCTO_TO_CARVING", "CARVING_TO_OCTO",

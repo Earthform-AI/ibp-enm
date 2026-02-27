@@ -32,6 +32,7 @@ from typing import Dict, List
 
 from .archetypes import ARCHETYPE_EXPECTATIONS
 from .algebra import FANO_LINES
+from .belief_algebra import HammingBridge
 from .instruments import ThermoReactionProfile
 from .thresholds import ThresholdRegistry, DEFAULT_THRESHOLDS
 from .thermodynamics import (
@@ -819,6 +820,7 @@ class AlgebraicFickBalancer(MetaFickBalancer):
         # Initialise parent — the w1/w2/w3/beta0 defaults are set
         # but ignored since we override compute_meta_fick_state.
         super().__init__(thresholds=thresholds)
+        self._hamming_bridge = HammingBridge()
 
     # ── meta-fick state (dual-α) ───────────────────────────────
 
@@ -958,9 +960,10 @@ class AlgebraicFickBalancer(MetaFickBalancer):
         alpha_8 = meta_state.get("alpha_8", 0.0)
         all_archs = list(ARCHETYPE_EXPECTATIONS.keys())
 
-        # Fano-coherent bridge scores
+        # Fano-coherent bridge scores (D153: syndrome-corrected)
         carver_votes = [p.archetype_vote() for p in carver_profiles]
-        fano_bridge = self._compute_fano_bridge(carver_votes, all_archs)
+        fano_bridge = self._hamming_bridge.bridge_scores(
+            carver_votes, all_archs)
 
         # ── Algebraic combination (D152b: α₈-gated bridge) ──
         # bridge_weight = 0.5 × (1 − α₀) × α₈
