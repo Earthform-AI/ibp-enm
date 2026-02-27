@@ -47,8 +47,8 @@ from .thresholds import ThresholdRegistry, DEFAULT_THRESHOLDS
 # ClassificationTrace (v0.7.0)
 from .trace import ClassificationTrace, ContextSignals
 
-# Hamming bridge protocol (D153)
-from .belief_algebra import HammingBridge, HAMMING_H, SYNDROME_RETENTION
+# Hamming bridge protocol (D153) + ZD pair selection (D157)
+from .belief_algebra import HammingBridge, HAMMING_H, SYNDROME_RETENTION, ZDPairSelector
 
 # Algebraic structure analysis & deep result analysis (v0.8.0)
 from .algebra import (
