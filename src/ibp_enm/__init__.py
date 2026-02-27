@@ -20,7 +20,7 @@ from .rules import (
     ARCHETYPE_RULES, apply_rules, apply_rules_traced,
     get_rules, replace_rules,
 )
-from .synthesis import MetaFickBalancer, EnzymeLensSynthesis, HingeLensSynthesis, SizeAwareHingeLens
+from .synthesis import MetaFickBalancer, AlgebraicFickBalancer, EnzymeLensSynthesis, HingeLensSynthesis, SizeAwareHingeLens
 from .archetypes import (
     ProteinArchetype, ARCHETYPES, ARCHETYPE_EXPECTATIONS,
     SurgeonsHandbook, PROTEINS, GROUND_TRUTH,
@@ -53,6 +53,8 @@ from .algebra import (
     InstrumentCollinearity, check_collinearity,
     FiringLattice, build_firing_lattice,
     ThresholdSensitivity, threshold_sensitivity,
+    INSTRUMENT_NAMES, FANO_LINES,
+    OCTO_TO_CARVING, CARVING_TO_OCTO,
 )
 from .analysis import (
     ArchetypeProfile, ConfusionCluster, RuleCoFiringMatrix,
@@ -104,7 +106,7 @@ __all__ = [
     "ArchetypeRule", "CompoundArchetypeRule", "RuleFiring",
     "ARCHETYPE_RULES", "apply_rules", "apply_rules_traced",
     "get_rules", "replace_rules",
-    "MetaFickBalancer", "EnzymeLensSynthesis", "HingeLensSynthesis", "SizeAwareHingeLens",
+    "MetaFickBalancer", "AlgebraicFickBalancer", "EnzymeLensSynthesis", "HingeLensSynthesis", "SizeAwareHingeLens",
     "ProteinArchetype", "ARCHETYPES", "ARCHETYPE_EXPECTATIONS",
     "SurgeonsHandbook", "PROTEINS", "GROUND_TRUTH",
     "CarvingIntent", "ReactionSignature", "FickBalancer",
@@ -126,6 +128,9 @@ __all__ = [
     "InstrumentCollinearity", "check_collinearity",
     "FiringLattice", "build_firing_lattice",
     "ThresholdSensitivity", "threshold_sensitivity",
+    # Fano plane constants & D150 isomorphism
+    "INSTRUMENT_NAMES", "FANO_LINES",
+    "OCTO_TO_CARVING", "CARVING_TO_OCTO",
     # Deep result analysis (v0.8.0)
     "ArchetypeProfile", "ConfusionCluster", "RuleCoFiringMatrix",
     "AnalysisReport", "analyse_traces", "compare_reports",

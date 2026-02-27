@@ -115,17 +115,28 @@ NUM_CLASSES: int = len(ARCHETYPE_NAMES)
 NODE_FEATURE_DIM: int = 15
 THERMO_FEATURE_DIM: int = 7
 EDGE_FEATURE_DIM: int = 2
+TOPO_FEATURE_DIM: int = 5
 CONTACT_CUTOFF: float = 8.0  # Ångströms — matches IBPProteinAnalyzer default
 
 
-def get_input_dim(thermo_features: bool = False) -> int:
+def get_input_dim(
+    thermo_features: bool = False,
+    topo_features: bool = False,
+) -> int:
     """Return the node feature dimension for the given configuration.
 
     Base features: 15 (B-factors, Fiedler, hinge, stabilisers, etc.)
     Thermo features (+7): vibrational entropy, heat capacity, spectral
     entropy, mean IPR, entropy Gini, entropy CV, hinge occupation ratio.
+    Topo features (+5): betweenness centrality, clustering coefficient,
+    closeness centrality, mean neighbor degree, hinge distance.
     """
-    return NODE_FEATURE_DIM + (THERMO_FEATURE_DIM if thermo_features else 0)
+    dim = NODE_FEATURE_DIM
+    if thermo_features:
+        dim += THERMO_FEATURE_DIM
+    if topo_features:
+        dim += TOPO_FEATURE_DIM
+    return dim
 
 
 __all__ = [
@@ -134,6 +145,7 @@ __all__ = [
     "NUM_CLASSES",
     "NODE_FEATURE_DIM",
     "THERMO_FEATURE_DIM",
+    "TOPO_FEATURE_DIM",
     "EDGE_FEATURE_DIM",
     "get_input_dim",
     "protein_to_pyg_data",
@@ -161,6 +173,7 @@ def protein_to_pyg_data(
     include_coords: bool = True,
     virtual_node: bool = False,
     thermo_features: bool = False,
+    topo_features: bool = False,
 ) -> "torch_geometric.data.Data":
     """Convert a single protein into a PyG ``Data`` object.
 
@@ -201,6 +214,11 @@ def protein_to_pyg_data(
         capacity, spectral entropy, mean IPR, entropy Gini, entropy CV,
         and hinge occupation ratio.  Increases node feature dim from
         15 to 22.
+    topo_features : bool
+        If ``True``, append 5 local graph-topology features per node:
+        betweenness centrality, local clustering coefficient, closeness
+        centrality, mean neighbor degree, and distance to nearest hinge
+        residue.  Increases node feature dim by 5.
 
     Returns
     -------
@@ -408,6 +426,60 @@ def protein_to_pyg_data(
         ])
         feature_matrix = np.hstack([feature_matrix, thermo_cols])
 
+    # ── Strategy 3: Topology features ──────────────────────────
+    # Append 5 local graph-topology features per node.  These capture
+    # the role of each residue within the contact network and help
+    # distinguish enzyme active-site topology from other archetypes.
+    if topo_features:
+        import networkx as nx
+
+        # Build undirected NetworkX graph from contact map
+        G = nx.Graph()
+        G.add_nodes_from(range(N))
+        for (i, j) in contacts.keys():
+            G.add_edge(i, j)
+
+        # 1. Betweenness centrality — active site bottlenecks
+        bc = nx.betweenness_centrality(G)
+        bc_arr = np.array([bc.get(i, 0.0) for i in range(N)])
+
+        # 2. Local clustering coefficient — cleft/cavity patterns
+        cc = nx.clustering(G)
+        cc_arr = np.array([cc.get(i, 0.0) for i in range(N)])
+
+        # 3. Closeness centrality — communication centrality
+        cl = nx.closeness_centrality(G)
+        cl_arr = np.array([cl.get(i, 0.0) for i in range(N)])
+
+        # 4. Mean neighbor degree — local topology structure
+        nd = nx.average_neighbor_degree(G)
+        nd_arr = np.array([nd.get(i, 0.0) for i in range(N)])
+        # Normalise by max degree to keep scale comparable
+        max_deg = max(nd_arr.max(), 1.0)
+        nd_arr = nd_arr / max_deg
+
+        # 5. Distance to nearest hinge residue
+        hinge_threshold = 0.5
+        hinge_residues = np.where(hinge > hinge_threshold)[0]
+        if len(hinge_residues) > 0:
+            # Sequence distance to nearest hinge (normalised by chain length)
+            hinge_dist = np.min(
+                np.abs(np.arange(N)[:, None] - hinge_residues[None, :]),
+                axis=1,
+            ).astype(float)
+            hinge_dist = hinge_dist / max(N, 1)
+        else:
+            hinge_dist = np.ones(N)  # no hinges → maximal distance
+
+        topo_cols = np.column_stack([
+            bc_arr,      # betweenness centrality
+            cc_arr,      # clustering coefficient
+            cl_arr,      # closeness centrality
+            nd_arr,      # mean neighbor degree (normalised)
+            hinge_dist,  # distance to nearest hinge (normalised)
+        ])
+        feature_matrix = np.hstack([feature_matrix, topo_cols])
+
     # ── Strategy 1: Virtual global node ────────────────────────
     # Append node N with graph-level discriminative features, connected
     # bidirectionally to all residue nodes.  Enables local message-passing
@@ -487,6 +559,7 @@ def protein_to_pyg_data(
     data.spectral_gap = float(sg)
     data.has_virtual_node = virtual_node
     data.has_thermo_features = thermo_features
+    data.has_topo_features = topo_features
 
     return data
 
@@ -512,6 +585,7 @@ def corpus_to_dataset(
     include_coords: bool = True,
     virtual_node: bool = False,
     thermo_features: bool = False,
+    topo_features: bool = False,
     max_proteins: Optional[int] = None,
     skip_errors: bool = True,
     verbose: bool = False,
@@ -535,6 +609,8 @@ def corpus_to_dataset(
         If True, add a virtual global node connected to all residues.
     thermo_features : bool
         If True, append 7 thermodynamic band features as extra columns.
+    topo_features : bool
+        If True, append 5 topology features as extra node columns.
     max_proteins : int or None
         Process at most this many proteins (useful for debugging).
     skip_errors : bool
@@ -590,6 +666,7 @@ def corpus_to_dataset(
                 include_coords=include_coords,
                 virtual_node=virtual_node,
                 thermo_features=thermo_features,
+                topo_features=topo_features,
             )
             dataset.append(data)
         except Exception as exc:

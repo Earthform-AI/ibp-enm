@@ -100,13 +100,15 @@ INSTRUMENT_CALIBRATION: Dict[str, Dict[str, float]] = {
 }
 
 INSTRUMENTS: List[Tuple[str, int]] = [
-    ("algebraic",   CarvingIntent.DOING),       # max |Δgap|
-    ("musical",     CarvingIntent.FEELING),      # max mode_scatter
-    ("fick",        CarvingIntent.KNOWING),      # FickBalancer
-    ("thermal",     CarvingIntent.BECOMING),     # max |Δτ| ∝ ΔS
-    ("cooperative", CarvingIntent.RELATING),     # max |Δβ|
-    ("propagative", CarvingIntent.DOING),        # max spatial_radius
-    ("fragile",     CarvingIntent.FEELING),      # max bus_mass
+    # D150 canonical isomorphism: OCTO_TO_CARVING = [3,2,5,4,6,1,0]
+    # Each instrument now maps to a unique CarvingIntent (bijection).
+    ("algebraic",   CarvingIntent.KNOWING),      # e₁ — max |Δgap|
+    ("musical",     CarvingIntent.FEELING),       # e₂ — max mode_scatter
+    ("fick",        CarvingIntent.RELATING),      # e₃ — FickBalancer
+    ("thermal",     CarvingIntent.DOING),         # e₄ — max |Δτ| ∝ ΔS
+    ("cooperative", CarvingIntent.BECOMING),      # e₅ — max |Δβ|
+    ("propagative", CarvingIntent.WANTING),       # e₆ — max spatial_radius
+    ("fragile",     CarvingIntent.BEING),         # e₇ — max bus_mass
 ]
 
 STEPS_PER_INSTRUMENT: int = 5

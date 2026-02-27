@@ -53,6 +53,11 @@ __all__ = [
     "build_firing_lattice",
     "ThresholdSensitivity",
     "threshold_sensitivity",
+    # Fano plane constants & D150 isomorphism (v0.8.1)
+    "INSTRUMENT_NAMES",
+    "FANO_LINES",
+    "OCTO_TO_CARVING",
+    "CARVING_TO_OCTO",
 ]
 
 
@@ -246,6 +251,23 @@ FANO_LINES: Tuple[Tuple[int, int, int], ...] = (
     (5, 6, 1),
     (6, 0, 2),
 )
+
+# ── D150 Fano-plane isomorphism tables ──────────────────────────────
+# The octonionic Fano plane (algebra.py / octonion.py, 1-indexed e₁…e₇)
+# and the CarvingIntent Fano plane (carving.py, 0-indexed cyclic) are
+# isomorphic but labelled differently.  These tables convert between them.
+#
+#   OCTO_TO_CARVING[i]  =  CarvingIntent index for octonionic point i
+#   CARVING_TO_OCTO[j]  =  octonionic point index for CarvingIntent j
+#
+# Canonical mapping (D150 Exp 2, rank-1, semantic affinity score 20/20):
+#   e₁ algebraic  → KNOWING(3)    e₅ cooperative  → BECOMING(6)
+#   e₂ musical    → FEELING(2)    e₆ propagative  → WANTING(1)
+#   e₃ fick       → RELATING(5)   e₇ fragile      → BEING(0)
+#   e₄ thermal    → DOING(4)
+
+OCTO_TO_CARVING: Tuple[int, ...] = (3, 2, 5, 4, 6, 1, 0)
+CARVING_TO_OCTO: Tuple[int, ...] = (6, 5, 1, 0, 3, 2, 4)
 
 
 @dataclass(frozen=True)
