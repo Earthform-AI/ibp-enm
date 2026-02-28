@@ -1,0 +1,256 @@
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:753: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_lap, _ = spearmanr(b_lap, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:754: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_cont, _ = spearmanr(b_cont, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:755: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_uni, _ = spearmanr(b_uni, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:767: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  result.rho_consensus, _ = spearmanr(b_cons, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:753: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_lap, _ = spearmanr(b_lap, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:754: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_cont, _ = spearmanr(b_cont, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:755: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_uni, _ = spearmanr(b_uni, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:767: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  result.rho_consensus, _ = spearmanr(b_cons, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:753: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_lap, _ = spearmanr(b_lap, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:754: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_cont, _ = spearmanr(b_cont, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:755: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_uni, _ = spearmanr(b_uni, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:767: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  result.rho_consensus, _ = spearmanr(b_cons, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:753: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_lap, _ = spearmanr(b_lap, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:754: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_cont, _ = spearmanr(b_cont, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:755: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_uni, _ = spearmanr(b_uni, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:767: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  result.rho_consensus, _ = spearmanr(b_cons, b_factors)
+D161: Pivot Instrument Validation — Cooperative (BECOMING)
+  Corpus: 52 proteins
+  Cooperative = instrument 4 (cooperative)
+  Fano lines: [1, 3, 4] = L1={1, 2, 4}, L3={3, 4, 6}, L4={0, 4, 5}
+  Variants: A (production), B (cooperative ablated)
+
+========================================================================
+PHASE 1: LOADING PROFILES & STRUCTURAL DATA
+========================================================================
+  [1/52] ✓ T4_lysozyme (N=164)
+  [2/52] ✓ HEWL (N=129)
+  [3/52] ✓ CaM_Ca_bound (N=143)
+  [4/52] ✓ Myoglobin (N=153)
+  [5/52] ✓ AdK_open (N=214)
+  [6/52] ✓ DHFR (N=162)
+  [7/52] ✓ Streptavidin (N=121)
+  [8/52] ✓ TIM_barrel (N=247)
+  [9/52] ✓ LAO_binding (N=238)
+  [10/52] ✓ HIV_protease (N=99)
+  [11/52] ✓ Hemoglobin_alpha (N=141)
+  [12/52] ✓ Citrate_synthase (N=429)
+  [13/52] ✓ Chymotrypsin (N=245)
+  [14/52] ✓ Trypsin (N=223)
+  [15/52] ✓ RNase_A (N=124)
+  [16/52] ✓ Carbonic_anhyd_II (N=258)
+  [17/52] ✓ Subtilisin (N=275)
+  [18/52] ✓ Thermolysin (N=316)
+  [19/52] ✓ Papain (N=211)
+  [20/52] ✓ Elastase (N=240)
+  [21/52] ✓ Aldolase_A (N=363)
+  [22/52] ✓ Enolase (N=436)
+  [23/52] ✓ Xylose_isomerase (N=386)
+  [24/52] ✓ Rubisco_large (N=467)
+  [25/52] ✓ Glycolate_oxidase (N=350)
+  [26/52] ✓ Tryptophan_synth (N=148)
+  [27/52] ✓ KDPG_aldolase (N=213)
+  [28/52] ✓ Mandelate_racemase (N=357)
+  [29/52] ✓ Leghemoglobin (N=143)
+  [30/52] ✓ Neuroglobin (N=147)
+  [31/52] ✓ Cytochrome_b5 (N=108)
+  [32/52] ✓ Cytochrome_c (N=104)
+  [33/52] ✓ Hemoglobin_beta (N=146)
+  [34/52] ✓ Erythrocruorin (N=136)
+  [35/52] ✓ Myoglobin_whale (N=151)
+  [36/52] ✓ Truncated_Hb (N=116)
+  [37/52] ✓ Lactoferrin (N=691)
+  [38/52] ✓ Transferrin (N=329)
+  [39/52] ✓ Pyruvate_kinase (N=514)
+  [40/52] ✓ Immunoglobulin (N=214)
+  [41/52] ✓ MBP (N=370)
+  [42/52] ✓ Phosphoglycerate_k (N=415)
+  [43/52] ✓ HSP70_NBD (N=380)
+  [44/52] ✓ Glutamine_BP (N=220)
+  [45/52] ✓ ATCase_cat (N=310)
+  [46/52] ✓ Hemoglobin_T (N=141)
+  [47/52] ✓ Phosphofructokinase (N=319)
+  [48/52] ✓ Glycogen_phosph (N=823)
+  [49/52] ✓ Protein_kinase_A (N=334)
+  [50/52] ✓ ABP_open (N=305)
+  [51/52] ✓ CheY (N=128)
+  [52/52] ✓ GroEL_subunit (N=518)
+
+  Loaded: 52/52 (55.4s)
+
+========================================================================
+PHASE 2: COOPERATIVE DIAGNOSTIC + ABLATION
+========================================================================
+  [1/52] ✓ T4_lysozyme               truth=enzyme_active   A=enzyme_active   B=enzyme_active   coop→allosteric(✗) CONFLICT
+  [2/52] ✓ HEWL                      truth=enzyme_active   A=enzyme_active   B=enzyme_active   coop→enzyme_active(✓)
+  [3/52] ✓ CaM_Ca_bound              truth=dumbbell        A=dumbbell        B=dumbbell        coop→dumbbell(✓)
+  [4/52] ✓ Myoglobin                 truth=globin          A=globin          B=globin          coop→barrel(✗) CONFLICT
+  [5/52] ✓ AdK_open                  truth=allosteric      A=allosteric      B=allosteric      coop→allosteric(✓) CONFLICT
+  [6/52] ✓ DHFR                      truth=enzyme_active   A=enzyme_active   B=enzyme_active   coop→allosteric(✗) CONFLICT
+  [7/52] ✓ Streptavidin              truth=enzyme_active   A=enzyme_active   B=enzyme_active   coop→barrel(✗) CONFLICT
+  [8/52] ✓ TIM_barrel                truth=barrel          A=barrel          B=barrel          coop→barrel(✓)
+  [9/52] ✓ LAO_binding               truth=dumbbell        A=dumbbell        B=dumbbell        coop→dumbbell(✓)
+  [10/52] ✓ HIV_protease              truth=enzyme_active   A=enzyme_active   B=enzyme_active   coop→enzyme_active(✓) CONFLICT
+  [11/52] ✓ Hemoglobin_alpha          truth=globin          A=globin          B=globin          coop→dumbbell(✗) CONFLICT
+  [12/52] ✓ Citrate_synthase          truth=barrel          A=barrel          B=barrel          coop→barrel(✓)
+  [13/52] ✗ Chymotrypsin              truth=enzyme_active   A=barrel          B=barrel          coop→barrel(✗)
+  [14/52] ✗ Trypsin                   truth=enzyme_active   A=barrel          B=barrel          coop→barrel(✗)
+  [15/52] ✓ RNase_A                   truth=enzyme_active   A=enzyme_active   B=enzyme_active   coop→enzyme_active(✓)
+  [16/52] ✗ Carbonic_anhyd_II         truth=enzyme_active   A=globin          B=globin          coop→globin(✗) CONFLICT
+  [17/52] ✗ Subtilisin                truth=enzyme_active   A=barrel          B=barrel          coop→barrel(✗)
+  [18/52] ✓ Thermolysin               truth=enzyme_active   A=enzyme_active   B=enzyme_active   coop→globin(✗) CONFLICT
+  [19/52] ✓ Papain                    truth=enzyme_active   A=enzyme_active   B=enzyme_active   coop→globin(✗) CONFLICT
+  [20/52] ✓ Elastase                  truth=enzyme_active   A=enzyme_active   B=enzyme_active   coop→enzyme_active(✓) CONFLICT
+  [21/52] ✓ Aldolase_A                truth=barrel          A=barrel          B=enzyme_active   coop→barrel(✓) PIVOT-SAVES ✓
+  [22/52] ✓ Enolase                   truth=barrel          A=barrel          B=barrel          coop→barrel(✓)
+  [23/52] ✗ Xylose_isomerase          truth=barrel          A=allosteric      B=allosteric      coop→allosteric(✗)
+  [24/52] ✓ Rubisco_large             truth=barrel          A=barrel          B=allosteric      coop→barrel(✓) PIVOT-SAVES ✓
+  [25/52] ✓ Glycolate_oxidase         truth=barrel          A=barrel          B=barrel          coop→barrel(✓)
+  [26/52] ✓ Tryptophan_synth          truth=barrel          A=barrel          B=barrel          coop→barrel(✓)
+  [27/52] ✗ KDPG_aldolase             truth=barrel          A=enzyme_active   B=enzyme_active   coop→barrel(✓)
+  [28/52] ✓ Mandelate_racemase        truth=barrel          A=barrel          B=barrel          coop→barrel(✓)
+  [29/52] ✓ Leghemoglobin             truth=globin          A=globin          B=globin          coop→allosteric(✗) CONFLICT
+  [30/52] ✗ Neuroglobin               truth=globin          A=barrel          B=barrel          coop→globin(✓)
+  [31/52] ✗ Cytochrome_b5             truth=globin          A=enzyme_active   B=enzyme_active   coop→dumbbell(✗)
+  [32/52] ✗ Cytochrome_c              truth=globin          A=dumbbell        B=dumbbell        coop→dumbbell(✗)
+  [33/52] ✓ Hemoglobin_beta           truth=globin          A=globin          B=globin          coop→dumbbell(✗) CONFLICT
+  [34/52] ✗ Erythrocruorin            truth=globin          A=allosteric      B=allosteric      coop→allosteric(✗) CONFLICT
+  [35/52] ✓ Myoglobin_whale           truth=globin          A=globin          B=globin          coop→allosteric(✗) CONFLICT
+  [36/52] ✗ Truncated_Hb              truth=globin          A=enzyme_active   B=enzyme_active   coop→enzyme_active(✗)
+  [37/52] ✓ Lactoferrin               truth=dumbbell        A=dumbbell        B=dumbbell        coop→allosteric(✗) CONFLICT
+  [38/52] ✗ Transferrin               truth=dumbbell        A=enzyme_active   B=enzyme_active   coop→allosteric(✗) CONFLICT
+  [39/52] ✗ Pyruvate_kinase           truth=dumbbell        A=barrel          B=barrel          coop→barrel(✗)
+  [40/52] ✓ Immunoglobulin            truth=dumbbell        A=dumbbell        B=dumbbell        coop→dumbbell(✓)
+  [41/52] ✗ MBP                       truth=dumbbell        A=enzyme_active   B=enzyme_active   coop→barrel(✗)
+  [42/52] ✓ Phosphoglycerate_k        truth=dumbbell        A=dumbbell        B=dumbbell        coop→barrel(✗)
+  [43/52] ✗ HSP70_NBD                 truth=dumbbell        A=barrel          B=barrel          coop→barrel(✗)
+  [44/52] ✓ Glutamine_BP              truth=dumbbell        A=dumbbell        B=dumbbell        coop→dumbbell(✓)
+  [45/52] ✗ ATCase_cat                truth=allosteric      A=enzyme_active   B=enzyme_active   coop→globin(✗)
+  [46/52] ✓ Hemoglobin_T              truth=allosteric      A=allosteric      B=allosteric      coop→dumbbell(✗)
+  [47/52] ✓ Phosphofructokinase       truth=allosteric      A=allosteric      B=allosteric      coop→allosteric(✓) CONFLICT
+  [48/52] ✗ Glycogen_phosph           truth=allosteric      A=barrel          B=barrel          coop→barrel(✗)
+  [49/52] ✗ Protein_kinase_A          truth=allosteric      A=globin          B=globin          coop→globin(✗) CONFLICT
+  [50/52] ✗ ABP_open                  truth=allosteric      A=enzyme_active   B=enzyme_active   coop→dumbbell(✗)
+  [51/52] ✗ CheY                      truth=allosteric      A=enzyme_active   B=enzyme_active   coop→enzyme_active(✗)
+  [52/52] ✗ GroEL_subunit             truth=allosteric      A=enzyme_active   B=enzyme_active   coop→allosteric(✓) CONFLICT
+
+  Pivot summary: 2 pivots (2 save, 0 hurt, 0 neutral)
+  Line conflicts: 20/52
+
+========================================================================
+PHASE 3: ACCURACY COMPARISON
+========================================================================
+  A (production):         31/52 (59.6%)
+  B (coop ablated):       29/52 (55.8%)
+  Delta (A - B):          +2
+
+  → Cooperative net value: POSITIVE
+
+========================================================================
+PHASE 4: FANO LINE CONFLICT ANALYSIS
+========================================================================
+
+  Proteins WITH line conflict: 20
+  Proteins WITHOUT conflict:   32
+
+  CONFLICT group accuracy:
+    A (production):     15/20 (75.0%)
+    B (coop ablated):   15/20 (75.0%)
+    Coop net:           +0
+
+  NO-CONFLICT group accuracy:
+    A (production):     16/32 (50.0%)
+    B (coop ablated):   14/32 (43.8%)
+    Coop net:           +2
+
+  --- Conflict proteins detail ---
+    ✓→✓ T4_lysozyme               truth=enzyme_active   same     coop→allosteric  L1(musi,fick,coop)→allosteric  L3(ther,coop,frag)→allosteric  L4(coop,prop,alge)→dumbbell
+    ✓→✓ Myoglobin                 truth=globin          same     coop→barrel  L1(musi,fick,coop)→barrel  L3(ther,coop,frag)→barrel  L4(coop,prop,alge)→globin
+    ✓→✓ AdK_open                  truth=allosteric      same     coop→allosteric  L1(musi,fick,coop)→dumbbell  L3(ther,coop,frag)→allosteric  L4(coop,prop,alge)→allosteric
+    ✓→✓ DHFR                      truth=enzyme_active   same     coop→allosteric  L1(musi,fick,coop)→dumbbell  L3(ther,coop,frag)→dumbbell  L4(coop,prop,alge)→barrel
+    ✓→✓ Streptavidin              truth=enzyme_active   same     coop→barrel  L1(musi,fick,coop)→dumbbell  L3(ther,coop,frag)→enzyme_active  L4(coop,prop,alge)→barrel
+    ✓→✓ HIV_protease              truth=enzyme_active   same     coop→enzyme_active  L1(musi,fick,coop)→dumbbell  L3(ther,coop,frag)→enzyme_active  L4(coop,prop,alge)→enzyme_active
+    ✓→✓ Hemoglobin_alpha          truth=globin          same     coop→dumbbell  L1(musi,fick,coop)→dumbbell  L3(ther,coop,frag)→globin  L4(coop,prop,alge)→globin
+    ✗→✗ Carbonic_anhyd_II         truth=enzyme_active   same     coop→globin  L1(musi,fick,coop)→barrel  L3(ther,coop,frag)→globin  L4(coop,prop,alge)→globin
+    ✓→✓ Thermolysin               truth=enzyme_active   same     coop→globin  L1(musi,fick,coop)→dumbbell  L3(ther,coop,frag)→globin  L4(coop,prop,alge)→dumbbell
+    ✓→✓ Papain                    truth=enzyme_active   same     coop→globin  L1(musi,fick,coop)→dumbbell  L3(ther,coop,frag)→globin  L4(coop,prop,alge)→barrel
+    ✓→✓ Elastase                  truth=enzyme_active   same     coop→enzyme_active  L1(musi,fick,coop)→enzyme_active  L3(ther,coop,frag)→enzyme_active  L4(coop,prop,alge)→barrel
+    ✓→✓ Leghemoglobin             truth=globin          same     coop→allosteric  L1(musi,fick,coop)→dumbbell  L3(ther,coop,frag)→barrel  L4(coop,prop,alge)→globin
+    ✓→✓ Hemoglobin_beta           truth=globin          same     coop→dumbbell  L1(musi,fick,coop)→dumbbell  L3(ther,coop,frag)→globin  L4(coop,prop,alge)→globin
+    ✗→✗ Erythrocruorin            truth=globin          same     coop→allosteric  L1(musi,fick,coop)→dumbbell  L3(ther,coop,frag)→dumbbell  L4(coop,prop,alge)→allosteric
+    ✓→✓ Myoglobin_whale           truth=globin          same     coop→allosteric  L1(musi,fick,coop)→dumbbell  L3(ther,coop,frag)→globin  L4(coop,prop,alge)→globin
+    ✓→✓ Lactoferrin               truth=dumbbell        same     coop→allosteric  L1(musi,fick,coop)→dumbbell  L3(ther,coop,frag)→barrel  L4(coop,prop,alge)→barrel
+    ✗→✗ Transferrin               truth=dumbbell        same     coop→allosteric  L1(musi,fick,coop)→allosteric  L3(ther,coop,frag)→barrel  L4(coop,prop,alge)→allosteric
+    ✓→✓ Phosphofructokinase       truth=allosteric      same     coop→allosteric  L1(musi,fick,coop)→dumbbell  L3(ther,coop,frag)→allosteric  L4(coop,prop,alge)→allosteric
+    ✗→✗ Protein_kinase_A          truth=allosteric      same     coop→globin  L1(musi,fick,coop)→globin  L3(ther,coop,frag)→dumbbell  L4(coop,prop,alge)→globin
+    ✗→✗ GroEL_subunit             truth=allosteric      same     coop→allosteric  L1(musi,fick,coop)→allosteric  L3(ther,coop,frag)→globin  L4(coop,prop,alge)→dumbbell
+
+========================================================================
+PHASE 5: PIVOT SCORECARD
+========================================================================
+
+  Cooperative agrees with truth: 21/52 (40.4%)
+
+  Pivot proteins (classification changes on ablation):
+    Total pivots:  2
+    SAVES (coop→correct):   2
+      Aldolase_A                truth=barrel          A=barrel          B(no_coop)=enzyme_active
+      Rubisco_large             truth=barrel          A=barrel          B(no_coop)=allosteric
+    HURTS (coop→wrong):     0
+    NEUTRAL (both wrong):   0
+
+  NET PIVOT VALUE: +2 proteins
+
+  --- Route score shifts (truth archetype) ---
+  Top-10 largest route_score shifts (truth archetype):
+    Neuroglobin               full=0.3030 ablated=0.0000 Δ=+0.3030
+    Transferrin               full=0.0000 ablated=0.3030 Δ=-0.3030
+    Pyruvate_kinase           full=0.0000 ablated=0.3030 Δ=-0.3030
+    MBP                       full=0.0000 ablated=0.3030 Δ=-0.3030
+    Phosphoglycerate_k        full=0.0000 ablated=0.3030 Δ=-0.3030
+    HSP70_NBD                 full=0.0000 ablated=0.3030 Δ=-0.3030
+    Lactoferrin               full=0.3030 ablated=0.5469 Δ=-0.2439
+    GroEL_subunit             full=0.5469 ablated=0.3030 Δ=+0.2439
+    AdK_open                  full=0.7316 ablated=0.5469 Δ=+0.1847
+    Elastase                  full=0.7316 ablated=0.5469 Δ=+0.1847
+
+========================================================================
+PHASE 6: SUMMARY & ACTIONABLE FINDINGS
+========================================================================
+
+  COOPERATIVE (instrument 4 / BECOMING / e₅) PIVOT ANALYSIS:
+
+  1. Agreement rate:      21/52 (40.4%) proteins
+  2. Line conflicts:      20/52 (38.5%) proteins
+  3. Classification pivots: 2 proteins changed on ablation
+     - Saves (coop→correct):  2
+     - Hurts (coop→wrong):    0
+     - Neutral (both wrong):  0
+  4. Net pivot value:     +2
+  5. Accuracy A (prod):   31/52
+  6. Accuracy B (ablated): 29/52
+
+  CONCLUSION: Cooperative is A NET POSITIVE PIVOT (+2).
+
+
+  VALIDATES: Proteins where cooperative SAVES classification:
+    - Aldolase_A: coop→barrel, truth=barrel, conflict=no
+    - Rubisco_large: coop→barrel, truth=barrel, conflict=no
+
+  Results saved to /mnt/projects/ibp_enm/experiments/results/d161_pivot_validation.json

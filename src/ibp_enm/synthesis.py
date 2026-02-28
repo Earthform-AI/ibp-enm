@@ -32,7 +32,7 @@ from typing import Dict, List
 
 from .archetypes import ARCHETYPE_EXPECTATIONS
 from .algebra import FANO_LINES
-from .belief_algebra import HammingBridge, SedenonBridge
+from .belief_algebra import HammingBridge, SedenonBridge, ZDPairSelector
 from .instruments import ThermoReactionProfile
 from .thresholds import ThresholdRegistry, DEFAULT_THRESHOLDS
 from .thermodynamics import (
@@ -797,6 +797,9 @@ class AlgebraicFickBalancer(MetaFickBalancer):
        (protects Thermolysin/Papain-type failures from D152).
     5. **Fano-coherent bridge pathway** — boosts archetypes whose
        top instrument voters form complete Fano triples.
+    6. **Route-score gated context boost** (D160) — per-archetype
+       Fano route_score damps context_boost for archetypes lacking
+       instrument-level support.  Fixes Rubisco_large, Aldolase_A.
 
     Free parameters: **0** (vs 5 in MetaFickBalancer).
 
@@ -942,8 +945,22 @@ class AlgebraicFickBalancer(MetaFickBalancer):
 
         1. **Strong** (consensus, weight √2/(√2+1) × α₀)
         2. **Weak** (disagreement, weight 1/(√2+1) × (1−α₀))
-        3. **Bridge** (context boost + Fano coherence,
-           weight 0.5 × (1−α₀))
+        3. **Bridge** (route-gated context boost + Fano coherence,
+           weight 0.5 × (1−α₀) × α₈)
+
+        D160 change: context_boost is now gated by per-archetype
+        route score (ZDPairSelector.route_score), damping structurally-
+        unmotivated boosts.  0 new free parameters.
+
+        For each archetype, the route score is the mean Fano-line
+        activation of the binary support vector (1 = instrument's
+        top vote is that archetype).  Archetypes well-supported on
+        Fano lines get their full context_boost; poorly-supported
+        archetypes get damped.
+
+        This fixes Rubisco_large (was allosteric→barrel, margin 0.005)
+        and Aldolase_A (was enzyme_active→barrel) by damping the
+        allosteric/enzyme context boosts that lacked route support.
         """
         # Delegate to MetaFickBalancer to compute all intermediate
         # values (consensus, disagreement, context boost) without
@@ -965,6 +982,19 @@ class AlgebraicFickBalancer(MetaFickBalancer):
         fano_bridge = self._hamming_bridge.bridge_scores(
             carver_votes, all_archs)
 
+        # ── D160: per-archetype route scores for context gating ──
+        # For each archetype, build binary support (1 = instrument's
+        # top vote is that archetype) and compute route_score.
+        zdp = ZDPairSelector()
+        n_inst = min(len(carver_votes), 7)
+        route_scores: Dict[str, float] = {}
+        for arch in all_archs:
+            support = np.zeros(7, dtype=int)
+            for i in range(n_inst):
+                if max(carver_votes[i], key=carver_votes[i].get) == arch:
+                    support[i] = 1
+            route_scores[arch] = zdp.route_score(support)
+
         # ── Algebraic combination (D152b: α₈-gated bridge) ──
         # bridge_weight = 0.5 × (1 − α₀) × α₈
         # α₈ gate protects proteins with no Fano-coherent agreement
@@ -981,8 +1011,11 @@ class AlgebraicFickBalancer(MetaFickBalancer):
             # Main signal with spectral weighting
             main = self.STRONG_WEIGHT * strong + self.WEAK_WEIGHT * weak
 
-            # Bridge: data-calibrated context boost + Fano coherence
-            bridge = (context_boost.get(arch, 0)
+            # Bridge: route-gated context boost + Fano coherence (D160)
+            # Route score damps context_boost for archetypes that lack
+            # instrument-level Fano support, preventing noise boosts.
+            rs = route_scores.get(arch, 0)
+            bridge = (rs * context_boost.get(arch, 0)
                       + alpha_8 * fano_bridge.get(arch, 0))
 
             final_scores[arch] = main_weight * main + bridge_weight * bridge
@@ -1000,6 +1033,7 @@ class AlgebraicFickBalancer(MetaFickBalancer):
         base_result["alpha_8"] = alpha_8
         base_result["bridge_weight"] = bridge_weight
         base_result["fano_bridge"] = fano_bridge
+        base_result["route_scores"] = route_scores
         return base_result
 
     # ── Fano bridge ────────────────────────────────────────────

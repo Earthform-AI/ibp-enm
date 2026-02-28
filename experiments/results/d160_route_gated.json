@@ -1,0 +1,62 @@
+{
+  "variant_accuracy": {
+    "A_baseline": {
+      "correct": 30,
+      "total": 52
+    },
+    "B_route_gated": {
+      "correct": 31,
+      "total": 52
+    },
+    "C_de_doubled": {
+      "correct": 26,
+      "total": 52
+    },
+    "D_combined": {
+      "correct": 31,
+      "total": 52
+    }
+  },
+  "best_variant": "B_route_gated",
+  "predictions": {
+    "P1_route_score_improves": true,
+    "P2_easy_flips": 1,
+    "P3_bridge_blind": 0,
+    "P4_hcw_fixed": 0,
+    "P5_regressions": 1
+  },
+  "changes": {
+    "B_route_gated": {
+      "gains": [
+        "Aldolase_A",
+        "Rubisco_large"
+      ],
+      "losses": [
+        "ATCase_cat"
+      ]
+    },
+    "C_de_doubled": {
+      "gains": [
+        "Cytochrome_b5"
+      ],
+      "losses": [
+        "T4_lysozyme",
+        "Thermolysin",
+        "Papain",
+        "Phosphoglycerate_k",
+        "Hemoglobin_T"
+      ]
+    },
+    "D_combined": {
+      "gains": [
+        "Aldolase_A",
+        "Rubisco_large",
+        "Cytochrome_b5"
+      ],
+      "losses": [
+        "Phosphoglycerate_k",
+        "Hemoglobin_T"
+      ]
+    }
+  }
+}

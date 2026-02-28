@@ -1582,11 +1582,15 @@ def build_default_stack(
 # ═══════════════════════════════════════════════════════════════════
 
 class LensStackSynthesizer:
-    """Flat composition: MetaFickBalancer + configurable LensStack.
+    """Flat composition: AlgebraicFickBalancer + configurable LensStack.
 
     Drop-in replacement for ``SizeAwareHingeLens`` but without the
     4-deep inheritance tower.  Lenses can be swapped, reordered,
     or A/B tested at construction time.
+
+    Uses :class:`AlgebraicFickBalancer` (D152/D160) as the base
+    synthesizer — algebraic spectral fusion with route-score gated
+    context boost and 0 free parameters.
 
     Parameters
     ----------
@@ -1594,8 +1598,6 @@ class LensStackSynthesizer:
         Custom lens stack.  Defaults to :func:`build_default_stack`.
     evals, evecs, domain_labels, contacts :
         Passed to :func:`build_default_stack` if *stack* is None.
-    **balancer_kwargs :
-        Forwarded to :class:`MetaFickBalancer` (w1, w2, w3, beta0).
     """
 
     def __init__(
@@ -1615,8 +1617,8 @@ class LensStackSynthesizer:
         **balancer_kwargs,
     ):
         self._t = thresholds or DEFAULT_THRESHOLDS
-        from .synthesis import MetaFickBalancer
-        self.balancer = MetaFickBalancer(**balancer_kwargs)
+        from .synthesis import AlgebraicFickBalancer
+        self.balancer = AlgebraicFickBalancer(thresholds=self._t)
         self.stack = stack if stack is not None else build_default_stack(
             evals=evals, evecs=evecs,
             domain_labels=domain_labels, contacts=contacts,

@@ -1,0 +1,273 @@
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:753: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_lap, _ = spearmanr(b_lap, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:754: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_cont, _ = spearmanr(b_cont, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:755: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_uni, _ = spearmanr(b_uni, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:767: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  result.rho_consensus, _ = spearmanr(b_cons, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:753: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_lap, _ = spearmanr(b_lap, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:754: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_cont, _ = spearmanr(b_cont, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:755: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_uni, _ = spearmanr(b_uni, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:767: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  result.rho_consensus, _ = spearmanr(b_cons, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:753: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_lap, _ = spearmanr(b_lap, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:754: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_cont, _ = spearmanr(b_cont, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:755: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_uni, _ = spearmanr(b_uni, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:767: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  result.rho_consensus, _ = spearmanr(b_cons, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:753: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_lap, _ = spearmanr(b_lap, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:754: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_cont, _ = spearmanr(b_cont, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:755: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_uni, _ = spearmanr(b_uni, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:767: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  result.rho_consensus, _ = spearmanr(b_cons, b_factors)
+D160: Route-Score Gated Context-Boost Corrections
+  Corpus: 52 proteins
+  Variants: A_baseline, B_route_gated, C_de_doubled, D_combined
+  Cache: /home/josh/.ibp_enm_cache
+
+========================================================================
+PHASE 1: LOADING PROFILES & STRUCTURAL DATA
+========================================================================
+  [1/52] ✓ T4_lysozyme (N=164, α₀=0.131, α₈=0.571)
+  [2/52] ✓ HEWL (N=129, α₀=0.274, α₈=0.857)
+  [3/52] ✓ CaM_Ca_bound (N=143, α₀=0.284, α₈=0.857)
+  [4/52] ✓ Myoglobin (N=153, α₀=0.050, α₈=0.429)
+  [5/52] ✓ AdK_open (N=214, α₀=0.096, α₈=0.429)
+  [6/52] ✓ DHFR (N=162, α₀=0.003, α₈=0.429)
+  [7/52] ✓ Streptavidin (N=121, α₀=0.208, α₈=0.571)
+  [8/52] ✓ TIM_barrel (N=247, α₀=0.397, α₈=1.000)
+  [9/52] ✓ LAO_binding (N=238, α₀=0.203, α₈=0.857)
+  [10/52] ✓ HIV_protease (N=99, α₀=0.294, α₈=0.857)
+  [11/52] ✓ Hemoglobin_alpha (N=141, α₀=0.169, α₈=0.857)
+  [12/52] ✓ Citrate_synthase (N=429, α₀=0.606, α₈=1.000)
+  [13/52] ✓ Chymotrypsin (N=245, α₀=0.563, α₈=1.000)
+  [14/52] ✓ Trypsin (N=223, α₀=0.293, α₈=0.857)
+  [15/52] ✓ RNase_A (N=124, α₀=0.185, α₈=0.857)
+  [16/52] ✓ Carbonic_anhyd_II (N=258, α₀=0.124, α₈=0.857)
+  [17/52] ✓ Subtilisin (N=275, α₀=0.564, α₈=1.000)
+  [18/52] ✓ Thermolysin (N=316, α₀=0.042, α₈=0.000)
+  [19/52] ✓ Papain (N=211, α₀=0.001, α₈=0.000)
+  [20/52] ✓ Elastase (N=240, α₀=0.062, α₈=0.429)
+  [21/52] ✓ Aldolase_A (N=363, α₀=0.078, α₈=0.857)
+  [22/52] ✓ Enolase (N=436, α₀=0.440, α₈=1.000)
+  [23/52] ✓ Xylose_isomerase (N=386, α₀=0.164, α₈=0.857)
+  [24/52] ✓ Rubisco_large (N=467, α₀=0.217, α₈=1.000)
+  [25/52] ✓ Glycolate_oxidase (N=350, α₀=0.421, α₈=1.000)
+  [26/52] ✓ Tryptophan_synth (N=148, α₀=0.265, α₈=1.000)
+  [27/52] ✓ KDPG_aldolase (N=213, α₀=0.099, α₈=0.571)
+  [28/52] ✓ Mandelate_racemase (N=357, α₀=0.205, α₈=0.571)
+  [29/52] ✓ Leghemoglobin (N=143, α₀=0.050, α₈=0.429)
+  [30/52] ✓ Neuroglobin (N=147, α₀=0.013, α₈=0.143)
+  [31/52] ✓ Cytochrome_b5 (N=108, α₀=0.118, α₈=0.000)
+  [32/52] ✓ Cytochrome_c (N=104, α₀=0.196, α₈=0.857)
+  [33/52] ✓ Hemoglobin_beta (N=146, α₀=0.081, α₈=0.857)
+  [34/52] ✓ Erythrocruorin (N=136, α₀=0.020, α₈=0.143)
+  [35/52] ✓ Myoglobin_whale (N=151, α₀=0.150, α₈=0.857)
+  [36/52] ✓ Truncated_Hb (N=116, α₀=0.136, α₈=0.571)
+  [37/52] ✓ Lactoferrin (N=691, α₀=0.027, α₈=0.429)
+  [38/52] ✓ Transferrin (N=329, α₀=0.067, α₈=0.429)
+  [39/52] ✓ Pyruvate_kinase (N=514, α₀=0.342, α₈=1.000)
+  [40/52] ✓ Immunoglobulin (N=214, α₀=0.287, α₈=1.000)
+  [41/52] ✓ MBP (N=370, α₀=0.157, α₈=0.857)
+  [42/52] ✓ Phosphoglycerate_k (N=415, α₀=0.104, α₈=0.143)
+  [43/52] ✓ HSP70_NBD (N=380, α₀=0.241, α₈=0.857)
+  [44/52] ✓ Glutamine_BP (N=220, α₀=0.384, α₈=1.000)
+  [45/52] ✓ ATCase_cat (N=310, α₀=0.049, α₈=0.429)
+  [46/52] ✓ Hemoglobin_T (N=141, α₀=0.077, α₈=0.000)
+  [47/52] ✓ Phosphofructokinase (N=319, α₀=0.094, α₈=0.429)
+  [48/52] ✓ Glycogen_phosph (N=823, α₀=0.622, α₈=1.000)
+  [49/52] ✓ Protein_kinase_A (N=334, α₀=0.036, α₈=0.429)
+  [50/52] ✓ ABP_open (N=305, α₀=0.096, α₈=0.857)
+  [51/52] ✓ CheY (N=128, α₀=0.255, α₈=0.857)
+  [52/52] ✓ GroEL_subunit (N=518, α₀=0.035, α₈=0.143)
+
+  Loaded: 52 cached, 52 structural (74.5s)
+
+========================================================================
+PHASE 2: SCORING ALL VARIANTS
+========================================================================
+  [1/52] ✓ T4_lysozyme               truth=enzyme_active   pred=enzyme_active    [C:-1]
+  [2/52] ✓ HEWL                      truth=enzyme_active   pred=enzyme_active  
+  [3/52] ✓ CaM_Ca_bound              truth=dumbbell        pred=dumbbell       
+  [4/52] ✓ Myoglobin                 truth=globin          pred=globin         
+  [5/52] ✓ AdK_open                  truth=allosteric      pred=allosteric     
+  [6/52] ✓ DHFR                      truth=enzyme_active   pred=enzyme_active  
+  [7/52] ✓ Streptavidin              truth=enzyme_active   pred=enzyme_active  
+  [8/52] ✓ TIM_barrel                truth=barrel          pred=barrel         
+  [9/52] ✓ LAO_binding               truth=dumbbell        pred=dumbbell       
+  [10/52] ✓ HIV_protease              truth=enzyme_active   pred=enzyme_active  
+  [11/52] ✓ Hemoglobin_alpha          truth=globin          pred=globin         
+  [12/52] ✓ Citrate_synthase          truth=barrel          pred=barrel         
+  [13/52] ✗ Chymotrypsin              truth=enzyme_active   pred=barrel         
+  [14/52] ✗ Trypsin                   truth=enzyme_active   pred=barrel         
+  [15/52] ✓ RNase_A                   truth=enzyme_active   pred=enzyme_active  
+  [16/52] ✗ Carbonic_anhyd_II         truth=enzyme_active   pred=globin         
+  [17/52] ✗ Subtilisin                truth=enzyme_active   pred=barrel         
+  [18/52] ✓ Thermolysin               truth=enzyme_active   pred=enzyme_active    [C:-1]
+  [19/52] ✓ Papain                    truth=enzyme_active   pred=enzyme_active    [C:-1]
+  [20/52] ✓ Elastase                  truth=enzyme_active   pred=enzyme_active  
+  [21/52] ✗ Aldolase_A                truth=barrel          pred=enzyme_active    [B:+1, D:+1]
+  [22/52] ✓ Enolase                   truth=barrel          pred=barrel         
+  [23/52] ✗ Xylose_isomerase          truth=barrel          pred=allosteric     
+  [24/52] ✗ Rubisco_large             truth=barrel          pred=allosteric       [B:+1, D:+1]
+  [25/52] ✓ Glycolate_oxidase         truth=barrel          pred=barrel         
+  [26/52] ✓ Tryptophan_synth          truth=barrel          pred=barrel         
+  [27/52] ✗ KDPG_aldolase             truth=barrel          pred=enzyme_active  
+  [28/52] ✓ Mandelate_racemase        truth=barrel          pred=barrel         
+  [29/52] ✓ Leghemoglobin             truth=globin          pred=globin         
+  [30/52] ✗ Neuroglobin               truth=globin          pred=barrel         
+  [31/52] ✗ Cytochrome_b5             truth=globin          pred=enzyme_active    [C:+1, D:+1]
+  [32/52] ✗ Cytochrome_c              truth=globin          pred=dumbbell       
+  [33/52] ✓ Hemoglobin_beta           truth=globin          pred=globin         
+  [34/52] ✗ Erythrocruorin            truth=globin          pred=allosteric     
+  [35/52] ✓ Myoglobin_whale           truth=globin          pred=globin         
+  [36/52] ✗ Truncated_Hb              truth=globin          pred=enzyme_active  
+  [37/52] ✓ Lactoferrin               truth=dumbbell        pred=dumbbell       
+  [38/52] ✗ Transferrin               truth=dumbbell        pred=enzyme_active  
+  [39/52] ✗ Pyruvate_kinase           truth=dumbbell        pred=barrel         
+  [40/52] ✓ Immunoglobulin            truth=dumbbell        pred=dumbbell       
+  [41/52] ✗ MBP                       truth=dumbbell        pred=allosteric     
+  [42/52] ✓ Phosphoglycerate_k        truth=dumbbell        pred=dumbbell         [C:-1, D:-1]
+  [43/52] ✗ HSP70_NBD                 truth=dumbbell        pred=barrel         
+  [44/52] ✓ Glutamine_BP              truth=dumbbell        pred=dumbbell       
+  [45/52] ✓ ATCase_cat                truth=allosteric      pred=allosteric       [B:-1]
+  [46/52] ✓ Hemoglobin_T              truth=allosteric      pred=allosteric       [C:-1, D:-1]
+  [47/52] ✓ Phosphofructokinase       truth=allosteric      pred=allosteric     
+  [48/52] ✗ Glycogen_phosph           truth=allosteric      pred=barrel         
+  [49/52] ✗ Protein_kinase_A          truth=allosteric      pred=globin         
+  [50/52] ✗ ABP_open                  truth=allosteric      pred=enzyme_active  
+  [51/52] ✗ CheY                      truth=allosteric      pred=enzyme_active  
+  [52/52] ✗ GroEL_subunit             truth=allosteric      pred=enzyme_active  
+
+========================================================================
+PHASE 3: VARIANT ACCURACY COMPARISON
+========================================================================
+  A_baseline          : 30/52 (57.7%)
+  B_route_gated       : 31/52 (59.6%)
+  C_de_doubled        : 26/52 (50.0%)
+  D_combined          : 31/52 (59.6%)
+
+  Baseline: 30/52
+  B_route_gated       : 31/52 (Δ=+1)
+  C_de_doubled        : 26/52 (Δ=-4)
+  D_combined          : 31/52 (Δ=+1)
+
+========================================================================
+PHASE 4: PER-PROTEIN CHANGES (vs baseline)
+========================================================================
+
+  --- B_route_gated ---
+  GAINS (2):
+    + Aldolase_A                truth=barrel          was=enzyme_active   now=barrel
+    + Rubisco_large             truth=barrel          was=allosteric      now=barrel
+  LOSSES (1):
+    - ATCase_cat                truth=allosteric      was_correct, now=enzyme_active
+
+  --- C_de_doubled ---
+  GAINS (1):
+    + Cytochrome_b5             truth=globin          was=enzyme_active   now=globin
+  LOSSES (5):
+    - T4_lysozyme               truth=enzyme_active   was_correct, now=allosteric
+    - Thermolysin               truth=enzyme_active   was_correct, now=allosteric
+    - Papain                    truth=enzyme_active   was_correct, now=allosteric
+    - Phosphoglycerate_k        truth=dumbbell        was_correct, now=allosteric
+    - Hemoglobin_T              truth=allosteric      was_correct, now=globin
+
+  --- D_combined ---
+  GAINS (3):
+    + Aldolase_A                truth=barrel          was=enzyme_active   now=barrel
+    + Rubisco_large             truth=barrel          was=allosteric      now=barrel
+    + Cytochrome_b5             truth=globin          was=enzyme_active   now=globin
+  LOSSES (2):
+    - Phosphoglycerate_k        truth=dumbbell        was_correct, now=allosteric
+    - Hemoglobin_T              truth=allosteric      was_correct, now=globin
+
+========================================================================
+PHASE 5: TARGET PROTEIN ANALYSIS
+========================================================================
+
+  === EASY_FLIPS ===
+
+  Rubisco_large:
+    A_baseline          : ✗ pred=allosteric      truth_rank=2 margin=-0.0051 top2=(allosteric:0.321, barrel:0.316)
+    B_route_gated       : ✓ pred=barrel          truth_rank=1 margin=+0.0000 top2=(barrel:0.261, allosteric:0.252)
+    C_de_doubled        : ✗ pred=allosteric      truth_rank=2 margin=-0.0051 top2=(allosteric:0.321, barrel:0.316)
+    D_combined          : ✓ pred=barrel          truth_rank=1 margin=+0.0000 top2=(barrel:0.261, allosteric:0.252)
+  Protein_kinase_A:
+    A_baseline          : ✗ pred=globin          truth_rank=2 margin=-0.0262 top2=(globin:0.318, allosteric:0.292)
+    B_route_gated       : ✗ pred=globin          truth_rank=2 margin=-0.0464 top2=(globin:0.292, allosteric:0.245)
+    C_de_doubled        : ✗ pred=globin          truth_rank=2 margin=-0.0204 top2=(globin:0.424, allosteric:0.404)
+    D_combined          : ✗ pred=globin          truth_rank=2 margin=-0.0694 top2=(globin:0.363, allosteric:0.294)
+
+  === BRIDGE_BLIND ===
+
+  Neuroglobin:
+    A_baseline          : ✗ pred=barrel          truth_rank=3 margin=-0.0429 top2=(barrel:0.252, allosteric:0.225)
+    B_route_gated       : ✗ pred=barrel          truth_rank=3 margin=-0.0466 top2=(barrel:0.249, allosteric:0.228)
+    C_de_doubled        : ✗ pred=barrel          truth_rank=2 margin=-0.0406 top2=(barrel:0.348, globin:0.307)
+    D_combined          : ✗ pred=barrel          truth_rank=2 margin=-0.0845 top2=(barrel:0.326, globin:0.242)
+  Cytochrome_b5:
+    A_baseline          : ✗ pred=enzyme_active   truth_rank=3 margin=-0.2255 top2=(enzyme_active:0.380, dumbbell:0.205)
+    B_route_gated       : ✗ pred=enzyme_active   truth_rank=3 margin=-0.2255 top2=(enzyme_active:0.380, dumbbell:0.205)
+    C_de_doubled        : ✓ pred=globin          truth_rank=1 margin=+0.0000 top2=(globin:0.401, enzyme_active:0.372)
+    D_combined          : ✓ pred=globin          truth_rank=1 margin=+0.0000 top2=(globin:0.351, enzyme_active:0.335)
+  Erythrocruorin:
+    A_baseline          : ✗ pred=allosteric      truth_rank=3 margin=-0.0599 top2=(allosteric:0.261, barrel:0.239)
+    B_route_gated       : ✗ pred=allosteric      truth_rank=3 margin=-0.0595 top2=(allosteric:0.259, barrel:0.231)
+    C_de_doubled        : ✗ pred=barrel          truth_rank=3 margin=-0.1867 top2=(barrel:0.387, allosteric:0.263)
+    D_combined          : ✗ pred=barrel          truth_rank=3 margin=-0.1036 top2=(barrel:0.287, allosteric:0.242)
+  GroEL_subunit:
+    A_baseline          : ✗ pred=enzyme_active   truth_rank=5 margin=-0.3649 top2=(enzyme_active:0.429, globin:0.227)
+    B_route_gated       : ✗ pred=enzyme_active   truth_rank=5 margin=-0.3683 top2=(enzyme_active:0.432, globin:0.227)
+    C_de_doubled        : ✗ pred=dumbbell        truth_rank=3 margin=-0.1083 top2=(dumbbell:0.401, globin:0.309)
+    D_combined          : ✗ pred=enzyme_active   truth_rank=4 margin=-0.3085 top2=(enzyme_active:0.410, globin:0.265)
+
+  === HIGH_CONF_WRONG ===
+
+  Chymotrypsin:
+    A_baseline          : ✗ pred=barrel          truth_rank=4 margin=-0.6692 top2=(barrel:0.715, allosteric:0.142)
+    B_route_gated       : ✗ pred=barrel          truth_rank=4 margin=-0.6351 top2=(barrel:0.678, allosteric:0.134)
+    C_de_doubled        : ✗ pred=barrel          truth_rank=4 margin=-0.6692 top2=(barrel:0.715, allosteric:0.142)
+    D_combined          : ✗ pred=barrel          truth_rank=4 margin=-0.6351 top2=(barrel:0.678, allosteric:0.134)
+  Subtilisin:
+    A_baseline          : ✗ pred=barrel          truth_rank=3 margin=-0.6186 top2=(barrel:0.658, allosteric:0.274)
+    B_route_gated       : ✗ pred=barrel          truth_rank=2 margin=-0.6087 top2=(barrel:0.719, enzyme_active:0.110)
+    C_de_doubled        : ✗ pred=barrel          truth_rank=3 margin=-0.6186 top2=(barrel:0.658, allosteric:0.274)
+    D_combined          : ✗ pred=barrel          truth_rank=2 margin=-0.6087 top2=(barrel:0.719, enzyme_active:0.110)
+  Glycogen_phosph:
+    A_baseline          : ✗ pred=barrel          truth_rank=3 margin=-0.6868 top2=(barrel:0.770, globin:0.094)
+    B_route_gated       : ✗ pred=barrel          truth_rank=3 margin=-0.6317 top2=(barrel:0.708, globin:0.087)
+    C_de_doubled        : ✗ pred=barrel          truth_rank=3 margin=-0.6868 top2=(barrel:0.770, globin:0.094)
+    D_combined          : ✗ pred=barrel          truth_rank=3 margin=-0.6317 top2=(barrel:0.708, globin:0.087)
+
+========================================================================
+PHASE 6: PREDICTION SCORECARD
+========================================================================
+
+  Best variant: B_route_gated (31/52)
+  Baseline: 30/52
+  Net gain: +1
+
+  P1: Route-score gating improves accuracy: CONFIRMED
+      B_route_gated Δ=+1
+
+  P2: Easy flips recovered: 1/2
+
+  P3: Bridge-blind recovered: 0/4
+
+  P4: High-conf wrong (rule-level): 0/3 fixed (EXPECTED)
+
+  P5: Regressions from best variant: 1
+      ATCase_cat: was correct, now=enzyme_active (truth=allosteric)
+
+  Results saved to /mnt/projects/ibp_enm/experiments/results/d160_route_gated.json
