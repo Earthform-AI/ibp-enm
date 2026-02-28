@@ -137,6 +137,39 @@ class ProfileCache:
         """Check whether profiles are cached for this protein."""
         return self._path(pdb_id, chain).exists()
 
+    def is_complete(self, pdb_id: str, chain: str) -> bool:
+        """Check whether the cache entry has actual profile data.
+
+        Returns ``False`` if:
+        * the file does not exist,
+        * the profiles list is empty, or
+        * ``per_instrument`` metadata is missing.
+
+        Use this instead of :meth:`has` to detect stale entries
+        created by older benchmark versions that saved ``profiles=[]``.
+        """
+        path = self._path(pdb_id, chain)
+        if not path.exists():
+            return False
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            return False
+        if payload.get("n_profiles", 0) > 0:
+            return True
+        # Summary-level cache: check metadata completeness
+        meta = payload.get("metadata", {})
+        return bool(meta.get("per_instrument")) and bool(
+            meta.get("identity_result"))
+
+    def list_stale(self) -> list[tuple[str, str]]:
+        """Return ``(pdb_id, chain)`` pairs for incomplete cache entries."""
+        result = []
+        for pdb_id, chain in self.list_cached():
+            if not self.is_complete(pdb_id, chain):
+                result.append((pdb_id, chain))
+        return result
+
     def save(
         self,
         pdb_id: str,
@@ -190,6 +223,103 @@ class ProfileCache:
             count += 1
         return count
 
+    def invalidate(self, pdb_id: str, chain: str) -> bool:
+        """Remove a specific cache entry.  Returns True if file existed."""
+        path = self._path(pdb_id, chain)
+        if path.exists():
+            path.unlink()
+            return True
+        return False
+
+    def repair(self, *, verbose: bool = False) -> int:
+        """Fill in missing ``per_instrument`` metadata from stored profiles.
+
+        Entries that have serialised :class:`ThermoReactionProfile`
+        objects but lack ``per_instrument`` or ``identity_result``
+        get those fields recomputed and written back to disk.
+
+        Returns the number of entries repaired.
+        """
+        from collections import Counter
+
+        repaired = 0
+        for pdb_id, chain in self.list_cached():
+            path = self._path(pdb_id, chain)
+            payload = json.loads(path.read_text(encoding="utf-8"))
+
+            profiles_raw = payload.get("profiles", [])
+            meta = payload.get("metadata", {})
+            has_pi = bool(meta.get("per_instrument"))
+            has_ir = bool(meta.get("identity_result"))
+
+            if not profiles_raw or (has_pi and has_ir):
+                continue  # nothing to repair
+
+            # Deserialise profiles
+            profiles = [profile_from_dict(d) for d in profiles_raw]
+
+            if not has_pi:
+                per_instrument = {}
+                for p in profiles:
+                    per_instrument[p.instrument] = {
+                        "gap_retained": p.gap_retained,
+                        "gap_flatness": p.gap_flatness,
+                        "gap_volatility": p.gap_volatility,
+                        "gap_trend": p.gap_trend,
+                        "species_entropy": p.species_entropy,
+                        "reversible_frac": p.reversible_frac,
+                        "mean_scatter": p.mean_scatter,
+                        "entropy_change": p.entropy_change,
+                        "mean_delta_S": p.mean_delta_entropy,
+                        "entropy_volatility": p.entropy_volatility,
+                        "heat_cap_change": p.heat_cap_change,
+                        "free_energy_cost": p.free_energy_cost,
+                        "mean_ipr": p.mean_ipr,
+                        "mean_spatial_radius": p.mean_spatial_radius,
+                        "max_spatial_radius": p.max_spatial_radius,
+                        "mean_delta_beta": p.mean_delta_beta,
+                        "mean_bus_mass": p.mean_bus_mass,
+                        "intent_switches": p.intent_switches,
+                        "cuts_made": p.cuts_made,
+                        "species": dict(Counter(p.species_removed)),
+                        "vote": p.archetype_vote(),
+                    }
+                meta["per_instrument"] = _numpy_safe(per_instrument)
+
+            if not has_ir:
+                # Re-synthesize identity from profiles
+                try:
+                    from .lens_stack import LensStackSynthesizer
+                    synth = LensStackSynthesizer(
+                        evals=None, evecs=None,
+                        domain_labels=None, contacts=None,
+                    )
+                    final_votes = [p.archetype_vote() for p in profiles]
+                    meta_state = synth.compute_meta_fick_state(final_votes)
+                    identity = synth.synthesize_identity(
+                        profiles, meta_state)
+                    meta["identity_result"] = _numpy_safe({
+                        k: v for k, v in identity.items()
+                        if k not in (
+                            "per_carver_votes", "trace", "lens_traces")
+                    })
+                except Exception:
+                    pass  # leave identity_result empty
+
+            payload["metadata"] = meta
+            path.write_text(
+                json.dumps(payload, indent=2), encoding="utf-8")
+            repaired += 1
+            if verbose:
+                import sys
+                print(f"  [cache] repaired {pdb_id}_{chain}",
+                      file=sys.stderr, flush=True)
+
+        return repaired
+
     def __repr__(self) -> str:
-        n = len(self.list_cached())
-        return f"ProfileCache({self.cache_dir!s}, {n} proteins)"
+        cached = self.list_cached()
+        stale = sum(1 for pid, ch in cached
+                    if not self.is_complete(pid, ch))
+        return (f"ProfileCache({self.cache_dir!s}, "
+                f"{len(cached)} proteins, {stale} stale)")

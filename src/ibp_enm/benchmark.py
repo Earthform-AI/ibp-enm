@@ -672,6 +672,33 @@ class BenchmarkRunner:
         self.cache = ProfileCache(cache_dir) if cache_dir else None
         self.thresholds = thresholds  # None → DEFAULT_THRESHOLDS
 
+    # ── Cache management ─────────────────────────────────────────
+
+    def rebuild_stale(self, *, verbose: bool = False) -> int:
+        """Re-run proteins whose cache entries are incomplete.
+
+        Returns the number of entries rebuilt.
+        """
+        if self.cache is None:
+            return 0
+
+        rebuilt = 0
+        for entry in self.corpus:
+            if self.cache.is_complete(entry.pdb_id, entry.chain):
+                continue
+            if verbose:
+                import sys
+                n_stale = sum(
+                    1 for e in self.corpus
+                    if not self.cache.is_complete(e.pdb_id, e.chain))
+                print(f"  [{rebuilt+1}/{n_stale}] Rebuilding "
+                      f"{entry.name} …", file=sys.stderr, flush=True)
+            self._run_protein(entry)
+            rebuilt += 1
+        return rebuilt
+
+    # ── Benchmark execution ──────────────────────────────────────
+
     def run(
         self,
         *,
@@ -818,15 +845,6 @@ class BenchmarkRunner:
                     "initial_diagnosis", {}).get("archetype"),
             }
 
-            # Extract profiles from the band_result per-instrument
-            # votes.  The full ThermoReactionProfile data is in
-            # the per_instrument summaries, but for cache we need
-            # the actual profile objects.  Since run_single_protein
-            # doesn't expose them directly, we save what we can from
-            # the summary data.
-            #
-            # For true profile caching, we store the per_instrument
-            # dict and the identity result so rescore can replay it.
             metadata["per_instrument"] = per_inst
             metadata["identity_result"] = {
                 k: v for k, v in identity.items()
@@ -837,26 +855,41 @@ class BenchmarkRunner:
                 # none of these are JSON-serializable.
             }
 
+            # Save actual ThermoReactionProfile objects so that
+            # _rescore can re-synthesize identities with new rules.
+            actual_profiles = band_result.get("profiles", [])
+
             self.cache.save(
                 entry.pdb_id, entry.chain,
-                [],  # full profile caching added in step 2 integration
+                actual_profiles,
                 metadata=metadata,
             )
 
         return pr
 
     def _rescore(self, entry: ProteinEntry) -> Dict:
-        """Re-score from cached profiles (no carving)."""
+        """Re-score from cached profiles (no carving).
+
+        Falls back to a full run when the cache entry is stale
+        (empty profiles **and** missing metadata).
+        """
         if self.cache is None:
             raise RuntimeError(
                 "Cannot rescore without a cache. "
                 "Pass cache_dir to BenchmarkRunner.")
 
+        if not self.cache.is_complete(entry.pdb_id, entry.chain):
+            # Stale / incomplete cache — rebuild this entry.
+            import sys
+            print(f"  [cache] stale entry for {entry.name} — "
+                  f"rebuilding …", file=sys.stderr, flush=True)
+            return self._run_protein(entry)
+
         profiles, metadata = self.cache.load(entry.pdb_id, entry.chain)
 
         if not profiles:
-            # If we only have metadata from a summary-level cache,
-            # we can still return the cached identity.
+            # Summary-level cache with valid metadata — return
+            # the cached identity (still usable for accuracy).
             identity = metadata.get("identity_result", {})
             return {
                 "band_identity": identity.get("identity", "unknown"),
@@ -887,7 +920,9 @@ class BenchmarkRunner:
 
         return {
             "band_identity": identity_result["identity"],
-            "band_result": {"identity": identity_result},
+            "band_result": {"identity": identity_result,
+                            "per_instrument": metadata.get(
+                                "per_instrument", {})},
             "N": metadata.get("N", 0),
             "n_contacts": metadata.get("n_contacts", 0),
             "initial_diagnosis": {"archetype": metadata.get(

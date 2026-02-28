@@ -1,14 +1,60 @@
 # Discovery Sprint Log
 
-## Current State — D163 (45° Plane Bridge Signals)
+## Current State — D167 (Sprint 10: Confusion-Pair Resolution)
 
-**Accuracy: 31/52 (59.6%)** on the expanded corpus, 0 free parameters.
+**Accuracy: 32/52 (61.5%)** on the expanded corpus, 0 free parameters.
 
 ### Production changes
 - `AlgebraicFickBalancer` integrated into `LensStackSynthesizer` (was `MetaFickBalancer`)
 - Route-score gated context_boost in bridge pathway (D160)
 - Formula: `bridge = route_score[arch] × context_boost + α₈ × fano_bridge`
-- 474/474 tests pass
+- **ProfileCache.repair()**: fills missing `per_instrument` metadata from stored profiles
+- **ProfileCache.is_complete()**: detects stale/incomplete cache entries
+- **BenchmarkRunner._run_protein**: now saves actual ThermoReactionProfile objects (was `[]`)
+- **BenchmarkRunner._rescore**: auto-rebuilds stale entries on access
+- 54/54 tests pass (cache: 25, benchmark: 29)
+
+### D167: Confusion-Pair Discriminants
+
+**Date**: 2026-02
+**Script**: `experiments/discovery_167_confusion_discriminants.py`
+**Results**: `experiments/results/d167_confusion_discriminants.json`
+
+**Question**: For each confusion axis, which per-instrument features best
+discriminate the confused archetypes?  Are there novel features (not in
+current rules) that could power new lens rules?
+
+**Method**: Build 52×187 feature matrix (17 features × 7 instruments +
+4 cross-instrument aggregates × 17).  Identify 6 confusion axes with ≥2
+crossings.  Compute AUC via Mann–Whitney U for every feature on each axis.
+Near-miss analysis checks if top discriminants favour the correct class.
+
+**Top discriminant per axis:**
+
+| Axis | Best Feature | AUC | Cohen's d |
+|------|-------------|-----|-----------|
+| allosteric↔barrel | fick_mean_delta_beta | **1.000** | 0.84 |
+| allosteric↔globin | propagative_mean_scatter | **0.983** | 2.58 |
+| enzyme_active↔globin | thermal_gap_trend | **0.969** | 2.18 |
+| barrel↔dumbbell | algebraic_mean_delta_beta | **0.960** | 0.65 |
+| barrel↔enzyme_active | agg_min_entropy_change | **0.946** | 1.37 |
+| allosteric↔dumbbell | fragile_mean_delta_entropy | **0.800** | 1.05 |
+
+**Cross-axis champions (base features in top-5 across most axes):**
+1. `gap_retained` — 4 axes — **NOT in current rules**
+2. `mean_delta_beta` — 3 axes — in rules
+3. `gap_flatness` — 3 axes — in rules
+4. `mean_scatter` — 2 axes — in rules
+
+**Near-miss analysis**: 6/7 near-miss proteins rescuable (top discriminant
+features favour correct class on 2+/3 features).  Only Transferrin is stuck.
+
+**Novel features discovered**: `gap_retained`, `mean_delta_entropy`,
+`free_energy_cost`, `entropy_change`, `heat_cap_change` — all absent from
+current archetype rules.  `gap_retained` is the strongest lens candidate.
+
+**Predictions**: 4/5 confirmed (P1 ✓ AUC>0.85, P2 ✗ agg not #1 on ≥2 axes,
+P3 ✓ 6 rescuable, P4 ✓ gap_flatness on 3 axes, P5 ✓ 11 novel features)
 
 ### D163: 45° Plane Bridge Signals
 
@@ -227,7 +273,7 @@ the easy flips without touching bridge_weight.
 
 ---
 
-## Discovery Trail (D148–D160)
+## Discovery Trail (D148–D164)
 
 | ID | Title | Accuracy | Free Params | Key Result |
 |----|-------|----------|-------------|------------|
@@ -245,3 +291,7 @@ the easy flips without touching bridge_weight.
 | **D161** | **Pivot instrument validation** | **31/52** | **0** | **Cooperative is net +2 pivot, 0 hurts** |
 | **D162** | **Bridge benchmark** | **31/52** | **0** | **Hamming=Sedenon (identical classifications), P5 confirmed** |
 | **D163** | **45° plane bridge signals** | **31/52** | **0** | **210 planes, perfect uniformity (30/line, 10/pair), weaker but broader correction (+5 net)** |
+| **D164** | **CD tower n=5 (64-nions)** | **—** | **—** | **53 components = 31 new + 22 inherited. C(n) = 2ⁿ−n−5 closed form. Cumulative recurrence confirmed** |
+| **D165** | **Transitivity decorrelation** | **31/52** | **0** | **Sharing uniform in PG(2,2). LOO correction 42% reduction (0.077→0.045). Root cause: musical instrument low agreement on lines 1,2** |
+| **D166** | **Musical instrument diagnostic** | **31/52** | **0** | **Musical worst instrument (23.1% vs mean 38.2%). 0% globin accuracy (all→dumbbell). NET NEUTRAL on ablation. 5 uniquely-correct allosteric calls. Rule-level fix needed: globin rule + scatter thresholds** |
+| **D166b** | **Musical rule repair** | **31/52** | **0** | **7 variants tested. Pipeline robust (all 31/52). F_combined fixes musical globin 0→4/10 (40%). G_reduce_dumbbell gives +5 musical votes. No single change overcomes dumbbell dominance — combination needed** |

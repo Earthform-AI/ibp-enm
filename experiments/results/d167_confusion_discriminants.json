@@ -1,0 +1,983 @@
+{
+  "experiment": "D167_confusion_pair_discriminants",
+  "timestamp": "2026-02-28T18:16:04",
+  "corpus_size": 52,
+  "n_correct": 32,
+  "n_features": 187,
+  "confusion_axes": {
+    "allosteric_vs_barrel": {
+      "n_a": 9,
+      "n_b": 10,
+      "top_features": [
+        {
+          "feature": "fick_mean_delta_beta",
+          "auc": 1.0,
+          "direction": "A>B",
+          "cohens_d": 0.841077502092463,
+          "mean_a": 0.04483690227086591,
+          "mean_b": 0.013758388734468472,
+          "std_a": 0.04909547744268484,
+          "std_b": 0.004142427290131384
+        },
+        {
+          "feature": "algebraic_mean_delta_beta",
+          "auc": 0.9555555555555556,
+          "direction": "A>B",
+          "cohens_d": 1.521093147857091,
+          "mean_a": 0.05851611261153441,
+          "mean_b": 0.013209863931845114,
+          "std_a": 0.03919087661200432,
+          "std_b": 0.006463267399535985
+        },
+        {
+          "feature": "musical_mean_delta_beta",
+          "auc": 0.9444444444444444,
+          "direction": "A>B",
+          "cohens_d": 1.6439179795871623,
+          "mean_a": 0.02455542930878911,
+          "mean_b": 0.014152550661881532,
+          "std_a": 0.007524674433364595,
+          "std_b": 0.0038408674339553157
+        },
+        {
+          "feature": "agg_mean_mean_delta_beta",
+          "auc": 0.9444444444444444,
+          "direction": "A>B",
+          "cohens_d": 1.4123456875881428,
+          "mean_a": 0.050909194297843005,
+          "mean_b": 0.018477320367277374,
+          "std_a": 0.02913021373068229,
+          "std_b": 0.009485405923911549
+        },
+        {
+          "feature": "propagative_mean_delta_beta",
+          "auc": 0.9111111111111111,
+          "direction": "A>B",
+          "cohens_d": 0.6470578111544926,
+          "mean_a": 0.03934026730755502,
+          "mean_b": 0.02187494559319473,
+          "std_a": 0.029851100149263676,
+          "std_b": 0.02022835419127122
+        },
+        {
+          "feature": "cooperative_gap_volatility",
+          "auc": 0.9,
+          "direction": "A>B",
+          "cohens_d": 1.0499918079909754,
+          "mean_a": 0.01573771467414945,
+          "mean_b": 0.0021660644934861015,
+          "std_a": 0.017192332522653703,
+          "std_b": 0.0012048029286462092
+        },
+        {
+          "feature": "cooperative_mean_delta_beta",
+          "auc": 0.9,
+          "direction": "A>B",
+          "cohens_d": 1.2937886510610792,
+          "mean_a": 0.08769330085920748,
+          "mean_b": 0.028916371881998425,
+          "std_a": 0.05433084322815095,
+          "std_b": 0.026949364805125324
+        },
+        {
+          "feature": "agg_min_gap_retained",
+          "auc": 0.9,
+          "direction": "B>A",
+          "cohens_d": 1.4333652584488934,
+          "mean_a": 0.8455828784753557,
+          "mean_b": 0.9422649296584407,
+          "std_a": 0.08701808772343408,
+          "std_b": 0.022859792240595
+        },
+        {
+          "feature": "thermal_mean_delta_beta",
+          "auc": 0.8888888888888888,
+          "direction": "A>B",
+          "cohens_d": 1.1363139248462524,
+          "mean_a": 0.060206620494881534,
+          "mean_b": 0.019352593474724622,
+          "std_a": 0.04645494386975417,
+          "std_b": 0.011903372786306737
+        },
+        {
+          "feature": "agg_max_mean_delta_beta",
+          "auc": 0.8888888888888888,
+          "direction": "A>B",
+          "cohens_d": 1.2877325979215763,
+          "mean_a": 0.08769330085920748,
+          "mean_b": 0.029208063483459435,
+          "std_a": 0.05433084322815095,
+          "std_b": 0.026910309877602376
+        }
+      ]
+    },
+    "allosteric_vs_dumbbell": {
+      "n_a": 9,
+      "n_b": 10,
+      "top_features": [
+        {
+          "feature": "fragile_mean_delta_entropy",
+          "auc": 0.8,
+          "direction": "B>A",
+          "cohens_d": 1.0503151303679104,
+          "mean_a": 0.08236943796065994,
+          "mean_b": 0.10992063050636551,
+          "std_a": 0.019779591458607308,
+          "std_b": 0.029024624831387673
+        },
+        {
+          "feature": "fragile_free_energy_cost",
+          "auc": 0.7888888888888889,
+          "direction": "A>B",
+          "cohens_d": 1.0988094313378112,
+          "mean_a": -0.2631194059112537,
+          "mean_b": -0.40619925999102335,
+          "std_a": 0.10345066248212983,
+          "std_b": 0.14030038745193488
+        },
+        {
+          "feature": "fragile_gap_retained",
+          "auc": 0.7777777777777778,
+          "direction": "A>B",
+          "cohens_d": 0.8816876743350661,
+          "mean_a": 0.9882950572870143,
+          "mean_b": 0.8786567983320627,
+          "std_a": 0.06556917395240322,
+          "std_b": 0.1532331682845939
+        },
+        {
+          "feature": "agg_std_entropy_volatility",
+          "auc": 0.7777777777777778,
+          "direction": "B>A",
+          "cohens_d": 1.1443275829237354,
+          "mean_a": 0.007391286171345153,
+          "mean_b": 0.015038532159896608,
+          "std_a": 0.002754300836544484,
+          "std_b": 0.008526738687410525
+        },
+        {
+          "feature": "fragile_mean_delta_beta",
+          "auc": 0.7666666666666666,
+          "direction": "B>A",
+          "cohens_d": 0.6746213417654212,
+          "mean_a": 0.04121572723206762,
+          "mean_b": 0.33663296509304624,
+          "std_a": 0.03126412451730015,
+          "std_b": 0.5866627353578269
+        },
+        {
+          "feature": "agg_max_entropy_volatility",
+          "auc": 0.7666666666666666,
+          "direction": "B>A",
+          "cohens_d": 1.1598691378847332,
+          "mean_a": 0.03559586540550335,
+          "mean_b": 0.05941003700423497,
+          "std_a": 0.00922013862248432,
+          "std_b": 0.025936907735727904
+        },
+        {
+          "feature": "algebraic_mean_ipr",
+          "auc": 0.7555555555555555,
+          "direction": "A>B",
+          "cohens_d": 0.9344379006502828,
+          "mean_a": 0.016142434608239845,
+          "mean_b": 0.01134795761515515,
+          "std_a": 0.005364540794855919,
+          "std_b": 0.0042718162943355805
+        },
+        {
+          "feature": "thermal_mean_ipr",
+          "auc": 0.7555555555555555,
+          "direction": "A>B",
+          "cohens_d": 0.9115669175756416,
+          "mean_a": 0.015803436130726784,
+          "mean_b": 0.011091925149850723,
+          "std_a": 0.005690703185862642,
+          "std_b": 0.003911109973690935
+        },
+        {
+          "feature": "propagative_gap_retained",
+          "auc": 0.7555555555555555,
+          "direction": "A>B",
+          "cohens_d": 1.0258397087426894,
+          "mean_a": 0.9908924422190896,
+          "mean_b": 0.9220017922940071,
+          "std_a": 0.022026703315852342,
+          "std_b": 0.08732971690241191
+        },
+        {
+          "feature": "thermal_species_entropy",
+          "auc": 0.75,
+          "direction": "A>B",
+          "cohens_d": 0.9411543660316504,
+          "mean_a": 0.6935938024983719,
+          "mean_b": 0.30847133246641667,
+          "std_a": 0.4304928288488601,
+          "std_b": 0.3372877373276748
+        }
+      ]
+    },
+    "allosteric_vs_globin": {
+      "n_a": 9,
+      "n_b": 10,
+      "top_features": [
+        {
+          "feature": "propagative_mean_scatter",
+          "auc": 0.9833333333333333,
+          "direction": "B>A",
+          "cohens_d": 2.5776435917365537,
+          "mean_a": 0.7482804232804233,
+          "mean_b": 2.96,
+          "std_a": 0.5750505556639216,
+          "std_b": 0.9951884243699782
+        },
+        {
+          "feature": "musical_mean_scatter",
+          "auc": 0.9555555555555556,
+          "direction": "B>A",
+          "cohens_d": 1.7251867025770427,
+          "mean_a": 3.6601851851851857,
+          "mean_b": 6.0600000000000005,
+          "std_a": 1.656597237982464,
+          "std_b": 0.8392854103342914
+        },
+        {
+          "feature": "thermal_mean_scatter",
+          "auc": 0.9555555555555556,
+          "direction": "B>A",
+          "cohens_d": 2.7841711185400486,
+          "mean_a": 1.7046296296296297,
+          "mean_b": 4.4799999999999995,
+          "std_a": 1.1704334564931478,
+          "std_b": 0.6337191807101943
+        },
+        {
+          "feature": "agg_mean_mean_scatter",
+          "auc": 0.9555555555555556,
+          "direction": "B>A",
+          "cohens_d": 2.200709014705807,
+          "mean_a": 1.6320105820105821,
+          "mean_b": 3.44,
+          "std_a": 0.8890736081791557,
+          "std_b": 0.6438658752458638
+        },
+        {
+          "feature": "agg_max_mean_scatter",
+          "auc": 0.9555555555555556,
+          "direction": "B>A",
+          "cohens_d": 1.7251867025770427,
+          "mean_a": 3.6601851851851857,
+          "mean_b": 6.0600000000000005,
+          "std_a": 1.656597237982464,
+          "std_b": 0.8392854103342914
+        },
+        {
+          "feature": "algebraic_mean_scatter",
+          "auc": 0.9444444444444444,
+          "direction": "B>A",
+          "cohens_d": 2.101154816951994,
+          "mean_a": 1.9772486772486775,
+          "mean_b": 4.2,
+          "std_a": 1.2689511320175477,
+          "std_b": 0.6196773353931866
+        },
+        {
+          "feature": "agg_max_mean_delta_entropy",
+          "auc": 0.9333333333333333,
+          "direction": "B>A",
+          "cohens_d": 1.4087080065486002,
+          "mean_a": 0.10840356609392562,
+          "mean_b": 0.14816501042885177,
+          "std_a": 0.016655634165453684,
+          "std_b": 0.033957930092111885
+        },
+        {
+          "feature": "propagative_gap_trend",
+          "auc": 0.9,
+          "direction": "A>B",
+          "cohens_d": 1.2457082290151802,
+          "mean_a": -0.0010434461808126777,
+          "mean_b": -0.02129507651897048,
+          "std_a": 0.002740781929306196,
+          "std_b": 0.02163616022398362
+        },
+        {
+          "feature": "agg_mean_mean_delta_entropy",
+          "auc": 0.9,
+          "direction": "B>A",
+          "cohens_d": 1.9301522801581128,
+          "mean_a": 0.08466697691548991,
+          "mean_b": 0.10925132532719029,
+          "std_a": 0.012323789961603111,
+          "std_b": 0.011757628572385779
+        },
+        {
+          "feature": "agg_std_mean_scatter",
+          "auc": 0.8888888888888888,
+          "direction": "B>A",
+          "cohens_d": 1.5717340502729484,
+          "mean_a": 1.008280080988506,
+          "mean_b": 1.6214243847246792,
+          "std_a": 0.47657995259873664,
+          "std_b": 0.20967249809388563
+        }
+      ]
+    },
+    "barrel_vs_dumbbell": {
+      "n_a": 10,
+      "n_b": 10,
+      "top_features": [
+        {
+          "feature": "algebraic_mean_delta_beta",
+          "auc": 0.96,
+          "direction": "B>A",
+          "cohens_d": 0.6527649440236148,
+          "mean_a": 0.013209863931845114,
+          "mean_b": 0.29950406837883997,
+          "std_a": 0.006463267399535985,
+          "std_b": 0.5883906814322862
+        },
+        {
+          "feature": "thermal_gap_retained",
+          "auc": 0.96,
+          "direction": "A>B",
+          "cohens_d": 1.3953183057286167,
+          "mean_a": 0.9434200777015282,
+          "mean_b": 0.8072914503986335,
+          "std_a": 0.02420648500359386,
+          "std_b": 0.12863400896904015
+        },
+        {
+          "feature": "thermal_gap_flatness",
+          "auc": 0.96,
+          "direction": "A>B",
+          "cohens_d": 1.1929860955616614,
+          "mean_a": 0.9387560364480827,
+          "mean_b": 0.7722632334593709,
+          "std_a": 0.026289004913273867,
+          "std_b": 0.185384290012313
+        },
+        {
+          "feature": "agg_min_gap_retained",
+          "auc": 0.96,
+          "direction": "A>B",
+          "cohens_d": 1.5934513242491775,
+          "mean_a": 0.9422649296584407,
+          "mean_b": 0.7785096641136086,
+          "std_a": 0.022859792240595,
+          "std_b": 0.1359690250463003
+        },
+        {
+          "feature": "agg_mean_mean_delta_beta",
+          "auc": 0.9299999999999999,
+          "direction": "B>A",
+          "cohens_d": 0.6410211763327578,
+          "mean_a": 0.018477320367277374,
+          "mean_b": 0.2759390052428955,
+          "std_a": 0.009485405923911549,
+          "std_b": 0.5387771741760202
+        },
+        {
+          "feature": "thermal_gap_trend",
+          "auc": 0.92,
+          "direction": "A>B",
+          "cohens_d": 1.0590755323350178,
+          "mean_a": -0.007149693941761318,
+          "mean_b": -0.028147599515076033,
+          "std_a": 0.003412616806767106,
+          "std_b": 0.026380408851580772
+        },
+        {
+          "feature": "fragile_mean_delta_beta",
+          "auc": 0.92,
+          "direction": "B>A",
+          "cohens_d": 0.7284697124429463,
+          "mean_a": 0.018076528292828745,
+          "mean_b": 0.33663296509304624,
+          "std_a": 0.005989782535701316,
+          "std_b": 0.5866627353578269
+        },
+        {
+          "feature": "agg_min_gap_trend",
+          "auc": 0.92,
+          "direction": "A>B",
+          "cohens_d": 1.1551962013628196,
+          "mean_a": -0.0074302955165459535,
+          "mean_b": -0.031573672824079975,
+          "std_a": 0.0033494855762872013,
+          "std_b": 0.027839260091645644
+        },
+        {
+          "feature": "agg_min_gap_flatness",
+          "auc": 0.92,
+          "direction": "A>B",
+          "cohens_d": 1.2816600121985002,
+          "mean_a": 0.9257689707333892,
+          "mean_b": 0.737634245423644,
+          "std_a": 0.025091751951197654,
+          "std_b": 0.1953343041837824
+        },
+        {
+          "feature": "agg_mean_gap_retained",
+          "auc": 0.91,
+          "direction": "A>B",
+          "cohens_d": 0.9778982204700927,
+          "mean_a": 0.9793588984681822,
+          "mean_b": 0.8863569917302556,
+          "std_a": 0.01982928651434451,
+          "std_b": 0.12604500340531843
+        }
+      ]
+    },
+    "barrel_vs_enzyme_active": {
+      "n_a": 10,
+      "n_b": 13,
+      "top_features": [
+        {
+          "feature": "agg_min_entropy_change",
+          "auc": 0.9461538461538461,
+          "direction": "A>B",
+          "cohens_d": 1.3657181090639652,
+          "mean_a": 0.45806261555769867,
+          "mean_b": 0.22026286346357546,
+          "std_a": 0.15446099433318908,
+          "std_b": 0.17748734902641852
+        },
+        {
+          "feature": "agg_min_heat_cap_change",
+          "auc": 0.9307692307692308,
+          "direction": "A>B",
+          "cohens_d": 1.2901809340931731,
+          "mean_a": 0.500916854975047,
+          "mean_b": 0.2490745595522172,
+          "std_a": 0.13845619975887363,
+          "std_b": 0.2251262793261541
+        },
+        {
+          "feature": "agg_max_free_energy_cost",
+          "auc": 0.9230769230769231,
+          "direction": "B>A",
+          "cohens_d": 1.2784213524449484,
+          "mean_a": -0.178274072705708,
+          "mean_b": -0.08567710691878183,
+          "std_a": 0.07005829700433619,
+          "std_b": 0.0682003750729791
+        },
+        {
+          "feature": "thermal_heat_cap_change",
+          "auc": 0.9076923076923077,
+          "direction": "A>B",
+          "cohens_d": 1.6881836175655984,
+          "mean_a": 0.5634656911424301,
+          "mean_b": 0.3678522061817539,
+          "std_a": 0.1478474777535738,
+          "std_b": 0.048659649231121684
+        },
+        {
+          "feature": "fick_heat_cap_change",
+          "auc": 0.8769230769230769,
+          "direction": "A>B",
+          "cohens_d": 1.5624382422656982,
+          "mean_a": 0.5286303154376923,
+          "mean_b": 0.34171161087038754,
+          "std_a": 0.15619973881020477,
+          "std_b": 0.03739204047672152
+        },
+        {
+          "feature": "agg_mean_heat_cap_change",
+          "auc": 0.8769230769230769,
+          "direction": "A>B",
+          "cohens_d": 1.6164164714484799,
+          "mean_a": 0.5709437302225191,
+          "mean_b": 0.37424932731032123,
+          "std_a": 0.1536582989253784,
+          "std_b": 0.05586031100676868
+        },
+        {
+          "feature": "algebraic_heat_cap_change",
+          "auc": 0.8615384615384616,
+          "direction": "A>B",
+          "cohens_d": 1.1804485260180613,
+          "mean_a": 0.5763380104306435,
+          "mean_b": 0.30677654791680015,
+          "std_a": 0.18500571813885675,
+          "std_b": 0.2473154160682292
+        },
+        {
+          "feature": "propagative_heat_cap_change",
+          "auc": 0.8538461538461538,
+          "direction": "A>B",
+          "cohens_d": 1.47716447884945,
+          "mean_a": 0.5529435875743147,
+          "mean_b": 0.35977381617547455,
+          "std_a": 0.16567998280524807,
+          "std_b": 0.058457790635867354
+        },
+        {
+          "feature": "agg_std_gap_trend",
+          "auc": 0.8538461538461538,
+          "direction": "B>A",
+          "cohens_d": 0.7602456351394116,
+          "mean_a": 0.0039020990551816327,
+          "mean_b": 0.016835566085950292,
+          "std_a": 0.0013979897647975804,
+          "std_b": 0.023071657393778637
+        },
+        {
+          "feature": "agg_min_gap_trend",
+          "auc": 0.8538461538461538,
+          "direction": "A>B",
+          "cohens_d": 0.707289100756772,
+          "mean_a": -0.0074302955165459535,
+          "mean_b": -0.042044081695874765,
+          "std_a": 0.0033494855762872013,
+          "std_b": 0.06640797509334713
+        }
+      ]
+    },
+    "enzyme_active_vs_globin": {
+      "n_a": 13,
+      "n_b": 10,
+      "top_features": [
+        {
+          "feature": "thermal_gap_trend",
+          "auc": 0.9692307692307692,
+          "direction": "A>B",
+          "cohens_d": 2.18401701064729,
+          "mean_a": -0.014812661472650214,
+          "mean_b": -0.05052421794929994,
+          "std_a": 0.012215447786623796,
+          "std_b": 0.01832406451072948
+        },
+        {
+          "feature": "agg_min_mean_delta_entropy",
+          "auc": 0.9692307692307692,
+          "direction": "B>A",
+          "cohens_d": 1.235307086208505,
+          "mean_a": 0.039926280997903074,
+          "mean_b": 0.072312227409033,
+          "std_a": 0.034331860911525236,
+          "std_b": 0.009379691026278298
+        },
+        {
+          "feature": "thermal_gap_retained",
+          "auc": 0.9384615384615385,
+          "direction": "A>B",
+          "cohens_d": 2.098909652468014,
+          "mean_a": 0.9084321987901086,
+          "mean_b": 0.7410959560084904,
+          "std_a": 0.06666316172025556,
+          "std_b": 0.08430984605211453
+        },
+        {
+          "feature": "thermal_gap_flatness",
+          "auc": 0.9384615384615385,
+          "direction": "A>B",
+          "cohens_d": 1.9803093184248775,
+          "mean_a": 0.8822275679488694,
+          "mean_b": 0.6945609773422177,
+          "std_a": 0.06645028435759875,
+          "std_b": 0.10890327934497145
+        },
+        {
+          "feature": "thermal_mean_delta_entropy",
+          "auc": 0.9307692307692308,
+          "direction": "B>A",
+          "cohens_d": 1.508938657398002,
+          "mean_a": 0.0851452081774925,
+          "mean_b": 0.13327933996815747,
+          "std_a": 0.028891665576791865,
+          "std_b": 0.031902365067688544
+        },
+        {
+          "feature": "agg_min_entropy_change",
+          "auc": 0.9230769230769231,
+          "direction": "B>A",
+          "cohens_d": 1.0449244365725174,
+          "mean_a": 0.22026286346357546,
+          "mean_b": 0.3615611370451649,
+          "std_a": 0.17748734902641852,
+          "std_b": 0.046898455131391494
+        },
+        {
+          "feature": "agg_max_free_energy_cost",
+          "auc": 0.9076923076923077,
+          "direction": "A>B",
+          "cohens_d": 1.2260276937402674,
+          "mean_a": -0.08567710691878183,
+          "mean_b": -0.15285702784177796,
+          "std_a": 0.0682003750729791,
+          "std_b": 0.02948616415346943
+        },
+        {
+          "feature": "thermal_free_energy_cost",
+          "auc": 0.8846153846153846,
+          "direction": "A>B",
+          "cohens_d": 1.2853297985280732,
+          "mean_a": -0.22022053597266505,
+          "mean_b": -0.35519805670519916,
+          "std_a": 0.09295740552799008,
+          "std_b": 0.10688877338461907
+        },
+        {
+          "feature": "agg_mean_mean_delta_entropy",
+          "auc": 0.8846153846153846,
+          "direction": "B>A",
+          "cohens_d": 1.186029414167496,
+          "mean_a": 0.0846316718197559,
+          "mean_b": 0.10925132532719029,
+          "std_a": 0.02556784531990855,
+          "std_b": 0.011757628572385779
+        },
+        {
+          "feature": "thermal_entropy_change",
+          "auc": 0.8769230769230769,
+          "direction": "B>A",
+          "cohens_d": 1.2891875294974866,
+          "mean_a": 0.4596266689940896,
+          "mean_b": 0.6663966998407872,
+          "std_a": 0.14626865535300637,
+          "std_b": 0.15951182533844274
+        }
+      ]
+    },
+    "barrel_vs_globin": {
+      "n_a": 10,
+      "n_b": 10,
+      "top_features": [
+        {
+          "feature": "algebraic_gap_flatness",
+          "auc": 1.0,
+          "direction": "A>B"
+        },
+        {
+          "feature": "musical_gap_volatility",
+          "auc": 1.0,
+          "direction": "B>A"
+        },
+        {
+          "feature": "musical_mean_scatter",
+          "auc": 1.0,
+          "direction": "B>A"
+        },
+        {
+          "feature": "thermal_gap_retained",
+          "auc": 1.0,
+          "direction": "A>B"
+        },
+        {
+          "feature": "thermal_gap_volatility",
+          "auc": 1.0,
+          "direction": "B>A"
+        },
+        {
+          "feature": "thermal_gap_trend",
+          "auc": 1.0,
+          "direction": "A>B"
+        },
+        {
+          "feature": "thermal_gap_flatness",
+          "auc": 1.0,
+          "direction": "A>B"
+        },
+        {
+          "feature": "propagative_mean_scatter",
+          "auc": 1.0,
+          "direction": "B>A"
+        },
+        {
+          "feature": "agg_mean_gap_volatility",
+          "auc": 1.0,
+          "direction": "B>A"
+        },
+        {
+          "feature": "agg_mean_gap_flatness",
+          "auc": 1.0,
+          "direction": "A>B"
+        }
+      ]
+    }
+  },
+  "near_miss_analysis": [
+    {
+      "name": "GroEL_subunit",
+      "truth": "allosteric",
+      "predicted": "globin",
+      "margin": -0.01665090490312665,
+      "favours_correct": 3,
+      "total_checked": 3,
+      "rescuable": true
+    },
+    {
+      "name": "Protein_kinase_A",
+      "truth": "allosteric",
+      "predicted": "globin",
+      "margin": -0.046426199852400735,
+      "favours_correct": 3,
+      "total_checked": 3,
+      "rescuable": true
+    },
+    {
+      "name": "Neuroglobin",
+      "truth": "globin",
+      "predicted": "barrel",
+      "margin": -0.04660635721341774,
+      "favours_correct": 3,
+      "total_checked": 3,
+      "rescuable": true
+    },
+    {
+      "name": "Erythrocruorin",
+      "truth": "globin",
+      "predicted": "allosteric",
+      "margin": -0.05946884808923594,
+      "favours_correct": 3,
+      "total_checked": 3,
+      "rescuable": true
+    },
+    {
+      "name": "KDPG_aldolase",
+      "truth": "barrel",
+      "predicted": "enzyme_active",
+      "margin": -0.08135780333974335,
+      "favours_correct": 2,
+      "total_checked": 3,
+      "rescuable": true
+    },
+    {
+      "name": "Transferrin",
+      "truth": "dumbbell",
+      "predicted": "allosteric",
+      "margin": -0.09291936638160528,
+      "favours_correct": 0,
+      "total_checked": 3,
+      "rescuable": false
+    },
+    {
+      "name": "Truncated_Hb",
+      "truth": "globin",
+      "predicted": "enzyme_active",
+      "margin": -0.09928394776250854,
+      "favours_correct": 3,
+      "total_checked": 3,
+      "rescuable": true
+    }
+  ],
+  "cross_axis_frequency": [
+    {
+      "feature": "thermal_gap_retained",
+      "count": 3,
+      "max_auc": 1.0
+    },
+    {
+      "feature": "algebraic_mean_delta_beta",
+      "count": 2,
+      "max_auc": 0.96
+    },
+    {
+      "feature": "agg_mean_mean_delta_beta",
+      "count": 2,
+      "max_auc": 0.9444444444444444
+    },
+    {
+      "feature": "musical_mean_scatter",
+      "count": 2,
+      "max_auc": 1.0
+    },
+    {
+      "feature": "thermal_gap_flatness",
+      "count": 2,
+      "max_auc": 0.96
+    },
+    {
+      "feature": "fick_mean_delta_beta",
+      "count": 1,
+      "max_auc": 1.0
+    },
+    {
+      "feature": "musical_mean_delta_beta",
+      "count": 1,
+      "max_auc": 0.9444444444444444
+    },
+    {
+      "feature": "propagative_mean_delta_beta",
+      "count": 1,
+      "max_auc": 0.9111111111111111
+    },
+    {
+      "feature": "fragile_mean_delta_entropy",
+      "count": 1,
+      "max_auc": 0.8
+    },
+    {
+      "feature": "fragile_free_energy_cost",
+      "count": 1,
+      "max_auc": 0.7888888888888889
+    },
+    {
+      "feature": "fragile_gap_retained",
+      "count": 1,
+      "max_auc": 0.7777777777777778
+    },
+    {
+      "feature": "agg_std_entropy_volatility",
+      "count": 1,
+      "max_auc": 0.7777777777777778
+    },
+    {
+      "feature": "fragile_mean_delta_beta",
+      "count": 1,
+      "max_auc": 0.7666666666666666
+    },
+    {
+      "feature": "propagative_mean_scatter",
+      "count": 1,
+      "max_auc": 0.9833333333333333
+    },
+    {
+      "feature": "thermal_mean_scatter",
+      "count": 1,
+      "max_auc": 0.9555555555555556
+    },
+    {
+      "feature": "agg_mean_mean_scatter",
+      "count": 1,
+      "max_auc": 0.9555555555555556
+    },
+    {
+      "feature": "agg_max_mean_scatter",
+      "count": 1,
+      "max_auc": 0.9555555555555556
+    },
+    {
+      "feature": "agg_min_gap_retained",
+      "count": 1,
+      "max_auc": 0.96
+    },
+    {
+      "feature": "agg_min_entropy_change",
+      "count": 1,
+      "max_auc": 0.9461538461538461
+    },
+    {
+      "feature": "agg_min_heat_cap_change",
+      "count": 1,
+      "max_auc": 0.9307692307692308
+    },
+    {
+      "feature": "agg_max_free_energy_cost",
+      "count": 1,
+      "max_auc": 0.9230769230769231
+    },
+    {
+      "feature": "thermal_heat_cap_change",
+      "count": 1,
+      "max_auc": 0.9076923076923077
+    },
+    {
+      "feature": "fick_heat_cap_change",
+      "count": 1,
+      "max_auc": 0.8769230769230769
+    },
+    {
+      "feature": "thermal_gap_trend",
+      "count": 1,
+      "max_auc": 0.9692307692307692
+    },
+    {
+      "feature": "agg_min_mean_delta_entropy",
+      "count": 1,
+      "max_auc": 0.9692307692307692
+    },
+    {
+      "feature": "thermal_mean_delta_entropy",
+      "count": 1,
+      "max_auc": 0.9307692307692308
+    },
+    {
+      "feature": "algebraic_gap_flatness",
+      "count": 1,
+      "max_auc": 1.0
+    },
+    {
+      "feature": "musical_gap_volatility",
+      "count": 1,
+      "max_auc": 1.0
+    },
+    {
+      "feature": "thermal_gap_volatility",
+      "count": 1,
+      "max_auc": 1.0
+    }
+  ],
+  "base_feature_axes": {
+    "gap_retained": [
+      "enzyme_active_vs_globin",
+      "allosteric_vs_dumbbell",
+      "barrel_vs_dumbbell",
+      "barrel_vs_globin"
+    ],
+    "mean_delta_beta": [
+      "allosteric_vs_dumbbell",
+      "barrel_vs_dumbbell",
+      "allosteric_vs_barrel"
+    ],
+    "gap_flatness": [
+      "enzyme_active_vs_globin",
+      "barrel_vs_dumbbell",
+      "barrel_vs_globin"
+    ],
+    "mean_delta_entropy": [
+      "enzyme_active_vs_globin",
+      "allosteric_vs_dumbbell"
+    ],
+    "free_energy_cost": [
+      "allosteric_vs_dumbbell",
+      "barrel_vs_enzyme_active"
+    ],
+    "mean_scatter": [
+      "barrel_vs_globin",
+      "allosteric_vs_globin"
+    ],
+    "entropy_volatility": [
+      "allosteric_vs_dumbbell"
+    ],
+    "entropy_change": [
+      "barrel_vs_enzyme_active"
+    ],
+    "heat_cap_change": [
+      "barrel_vs_enzyme_active"
+    ],
+    "gap_trend": [
+      "enzyme_active_vs_globin"
+    ],
+    "gap_volatility": [
+      "barrel_vs_globin"
+    ]
+  },
+  "predictions": {
+    "P1_auc_gt_085": {
+      "confirmed": true,
+      "value": 1.0,
+      "feature": "fick_mean_delta_beta",
+      "axis": "allosteric_vs_barrel"
+    },
+    "P2_agg_outperform_2axes": {
+      "confirmed": false,
+      "value": 1
+    },
+    "P3_near_miss_rescuable_2": {
+      "confirmed": true,
+      "value": 6
+    },
+    "P4_key_feats_3axes": {
+      "confirmed": true,
+      "value": 3
+    },
+    "P5_novel_feature_top3": {
+      "confirmed": true,
+      "value": 11
+    }
+  },
+  "n_confirmed": 4
+}
