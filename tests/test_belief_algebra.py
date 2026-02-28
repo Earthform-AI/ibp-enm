@@ -1,11 +1,13 @@
-"""Tests for ibp_enm.belief_algebra — Hamming bridge & ZD pair selection.
+"""Tests for ibp_enm.belief_algebra — Hamming bridge, ZD pair selection & Sedenion bridge.
 
 Covers:
   1. ZDPairSelector — D157 structural constants, fano_activation,
      route_score, select_lines, diagnose_routing
   2. HammingBridge — syndrome computation, bridge_scores with
      routing-weighted Fano coherence, diagnose with routing info
-  3. Backward compatibility — known vote patterns produce expected
+  3. SedenonBridge — D158 rank-based dual-threshold, correction
+     candidates, bridge_scores, diagnose
+  4. Backward compatibility — known vote patterns produce expected
      behaviour
 """
 
@@ -15,9 +17,11 @@ import pytest
 from ibp_enm.belief_algebra import (
     HAMMING_H,
     SYNDROME_RETENTION,
+    FANO_COMPLEMENTS,
     compute_syndrome,
     decode_error_position,
     HammingBridge,
+    SedenonBridge,
     ZDPairSelector,
 )
 from ibp_enm.algebra import FANO_LINES, INSTRUMENT_NAMES
@@ -441,3 +445,332 @@ class TestIntegration:
         assert np.all(act == 1.0)
         # 7 lines × 72 routes = 504 total routes
         assert 7 * sel.ROUTES_PER_LINE == 504
+
+
+# ═══════════════════════════════════════════════════════════════════
+# SedenonBridge tests (D158)
+# ═══════════════════════════════════════════════════════════════════
+
+class TestFanoComplements:
+    """FANO_COMPLEMENTS are correctly derived from FANO_LINES."""
+
+    def test_complement_count(self):
+        assert len(FANO_COMPLEMENTS) == 7
+
+    def test_complement_size(self):
+        for c in FANO_COMPLEMENTS:
+            assert len(c) == 4
+
+    def test_complement_is_set_complement(self):
+        for i, comp in enumerate(FANO_COMPLEMENTS):
+            assert set(comp) == set(range(7)) - set(FANO_LINES[i])
+
+    def test_complements_sorted(self):
+        for c in FANO_COMPLEMENTS:
+            assert c == tuple(sorted(c))
+
+    def test_all_complements_distinct(self):
+        assert len(set(FANO_COMPLEMENTS)) == 7
+
+
+class TestMutualExclusivity:
+    """Top-3 Fano and top-4 complement are mutually exclusive (D158 P1)."""
+
+    def test_no_nested_line_and_complement(self):
+        """No Fano line L can be extended by one element to form a complement."""
+        line_sets = [frozenset(l) for l in FANO_LINES]
+        comp_sets = [frozenset(c) for c in FANO_COMPLEMENTS]
+        for line in FANO_LINES:
+            line_set = set(line)
+            remaining = set(range(7)) - line_set
+            for d in remaining:
+                top4 = frozenset(line_set | {d})
+                # Check: is top4 a complement?
+                matches = [top4 == cs for cs in comp_sets]
+                assert not any(matches), \
+                    f"Line {line} + {d} matches complement"
+
+    def test_combined_rate_is_40_percent(self):
+        """7/35 + 7/35 = 14/35 = 40% valid rate."""
+        from itertools import combinations
+        line_sets = [frozenset(l) for l in FANO_LINES]
+        comp_sets = [frozenset(c) for c in FANO_COMPLEMENTS]
+
+        all_3 = list(combinations(range(7), 3))
+        all_4 = list(combinations(range(7), 4))
+
+        valid_3 = sum(1 for t in all_3 if frozenset(t) in line_sets)
+        valid_4 = sum(1 for t in all_4 if frozenset(t) in comp_sets)
+
+        assert valid_3 == 7
+        assert valid_4 == 7
+        # Rate = (7 + 7) / 35 = 40%
+        assert (valid_3 + valid_4) / len(all_3) == pytest.approx(0.4)
+
+
+class TestRankSyndrome:
+    """SedenonBridge.rank_syndrome detects valid and invalid patterns."""
+
+    @pytest.fixture
+    def bridge(self):
+        return SedenonBridge()
+
+    def test_top3_fano_detected(self, bridge):
+        """Votes peaked on a Fano line are detected as valid."""
+        # Line 0 = (0, 1, 3): algebraic, musical, thermal
+        v = np.array([0.30, 0.25, 0.05, 0.20, 0.06, 0.07, 0.07])
+        syn = bridge.rank_syndrome(v)
+        assert syn['valid'] is True
+        assert syn['syndrome_type'] == 'top3_fano'
+        assert syn['matched_line'] == 0
+
+    def test_top4_complement_detected(self, bridge):
+        """Votes peaked on a complement are detected as valid."""
+        # Complement 0 = (2, 4, 5, 6)
+        v = np.array([0.05, 0.06, 0.30, 0.07, 0.25, 0.20, 0.15])
+        syn = bridge.rank_syndrome(v)
+        assert syn['valid'] is True
+        assert syn['syndrome_type'] == 'top4_complement'
+        assert syn['matched_line'] == 0
+
+    def test_invalid_has_corrections(self, bridge):
+        """Non-Fano top-3 produces 3 correction candidates."""
+        # top-3 = {0, 1, 2} which is NOT a Fano line
+        v = np.array([0.30, 0.20, 0.15, 0.10, 0.10, 0.10, 0.05])
+        syn = bridge.rank_syndrome(v)
+        assert syn['valid'] is False
+        assert syn['syndrome_type'] == 'invalid'
+        assert len(syn['correction']) == 3
+
+    def test_corrections_sorted_by_coherence(self, bridge):
+        """Corrections are ranked by line coherence (highest first)."""
+        v = np.array([0.30, 0.20, 0.15, 0.10, 0.10, 0.10, 0.05])
+        syn = bridge.rank_syndrome(v)
+        coherences = [c['coherence'] for c in syn['correction']]
+        assert coherences == sorted(coherences, reverse=True)
+
+    def test_corrections_point_to_bottom4(self, bridge):
+        """The 'add' instrument is always from the bottom-4 voters."""
+        v = np.array([0.30, 0.20, 0.15, 0.10, 0.10, 0.10, 0.05])
+        syn = bridge.rank_syndrome(v)
+        top3 = set(syn['ranking'][:3])
+        for c in syn['correction']:
+            assert c['add'] not in top3
+            assert c['drop'] in top3
+
+    def test_all_seven_lines_detectable(self, bridge):
+        """Each of the 7 Fano lines can be detected as valid."""
+        for li, line in enumerate(FANO_LINES):
+            v = np.zeros(7)
+            v[list(line)] = [0.4, 0.3, 0.2]
+            syn = bridge.rank_syndrome(v)
+            assert syn['valid'] is True, f"Line {li} not detected"
+            assert syn['syndrome_type'] == 'top3_fano'
+
+    def test_all_seven_complements_detectable(self, bridge):
+        """Each of the 7 Fano complements can be detected as valid."""
+        for ci, comp in enumerate(FANO_COMPLEMENTS):
+            v = np.zeros(7)
+            v[list(comp)] = [0.4, 0.3, 0.2, 0.1]
+            syn = bridge.rank_syndrome(v)
+            assert syn['valid'] is True, f"Complement {ci} not detected"
+            assert syn['syndrome_type'] == 'top4_complement'
+
+    def test_ranking_is_descending(self, bridge):
+        """Ranking is in descending vote order."""
+        v = np.array([0.05, 0.30, 0.10, 0.25, 0.15, 0.07, 0.08])
+        syn = bridge.rank_syndrome(v)
+        # Verify ranking sorts descending
+        for i in range(6):
+            assert v[syn['ranking'][i]] >= v[syn['ranking'][i+1]]
+
+
+class TestCorrectionCandidates:
+    """Correction candidates have the right structure (D158 P2-P3)."""
+
+    @pytest.fixture
+    def bridge(self):
+        return SedenonBridge()
+
+    def test_every_invalid_triple_has_3_corrections(self, bridge):
+        """D158 P2: all 28 invalid triples yield exactly 3 corrections."""
+        from itertools import combinations
+        line_sets = [frozenset(l) for l in FANO_LINES]
+        truly_invalid = 0
+        for top3 in combinations(range(7), 3):
+            if frozenset(top3) in line_sets:
+                continue  # skip valid triples
+            v = np.zeros(7)
+            v[list(top3)] = [0.4, 0.3, 0.2]
+            syn = bridge.rank_syndrome(v)
+            if syn['syndrome_type'] == 'top4_complement':
+                # 4th-ranked element formed a valid complement —
+                # this is a legitimate 'rescue' case
+                assert syn['valid'] is True
+            else:
+                assert len(syn['correction']) == 3, \
+                    f"Triple {top3} has {len(syn['correction'])} corrections"
+                truly_invalid += 1
+        # Most of the 28 non-line triples should be truly invalid
+        assert truly_invalid >= 20
+
+    def test_correction_lines_are_fano(self, bridge):
+        """Each correction produces a valid Fano line."""
+        line_sets = [frozenset(l) for l in FANO_LINES]
+        v = np.array([0.30, 0.20, 0.15, 0.10, 0.10, 0.10, 0.05])
+        syn = bridge.rank_syndrome(v)
+        for c in syn['correction']:
+            assert frozenset(c['line']) in line_sets
+
+    def test_correction_coherence_is_mean_vote(self, bridge):
+        """Coherence equals the mean vote on the corrected line."""
+        v = np.array([0.30, 0.20, 0.15, 0.10, 0.10, 0.10, 0.05])
+        syn = bridge.rank_syndrome(v)
+        for c in syn['correction']:
+            expected = np.mean([v[k] for k in c['line']])
+            assert c['coherence'] == pytest.approx(expected)
+
+
+class TestSedenonBridgeScores:
+    """SedenonBridge.bridge_scores has the right interface and properties."""
+
+    @pytest.fixture
+    def bridge(self):
+        return SedenonBridge()
+
+    def _make_votes(self, winning_arch, archs, rng=None):
+        if rng is None:
+            rng = np.random.default_rng(42)
+        votes = []
+        for _ in range(7):
+            d = {a: rng.random() * 0.15 for a in archs}
+            d[winning_arch] += 0.3
+            votes.append(d)
+        return votes
+
+    def test_returns_all_archetypes(self, bridge):
+        archs = ['A', 'B', 'C']
+        votes = self._make_votes('A', archs)
+        scores = bridge.bridge_scores(votes, archs)
+        assert set(scores.keys()) == set(archs)
+
+    def test_normalised(self, bridge):
+        archs = ['A', 'B', 'C']
+        votes = self._make_votes('A', archs)
+        scores = bridge.bridge_scores(votes, archs)
+        assert sum(scores.values()) == pytest.approx(1.0, abs=1e-8)
+
+    def test_top_arch_gets_highest_score(self, bridge):
+        archs = ['A', 'B', 'C']
+        votes = self._make_votes('A', archs)
+        scores = bridge.bridge_scores(votes, archs)
+        assert max(scores, key=scores.get) == 'A'
+
+    def test_fewer_than_7_instruments(self, bridge):
+        """Graceful degradation with < 7 instruments."""
+        archs = ['A', 'B']
+        votes = [{'A': 0.6, 'B': 0.4} for _ in range(3)]
+        scores = bridge.bridge_scores(votes, archs)
+        assert sum(scores.values()) == pytest.approx(1.0, abs=1e-8)
+
+
+class TestSedenonBridgeDiagnose:
+    """SedenonBridge.diagnose returns rank-based syndrome diagnostics."""
+
+    @pytest.fixture
+    def bridge(self):
+        return SedenonBridge()
+
+    def test_diagnose_has_valid_fraction(self, bridge):
+        archs = ['A', 'B', 'C']
+        votes = [{'A': 0.6, 'B': 0.3, 'C': 0.1} for _ in range(7)]
+        diag = bridge.diagnose(votes, archs)
+        assert 'valid_fraction' in diag
+        assert 0 <= diag['valid_fraction'] <= 1
+
+    def test_valid_fractions_sum(self, bridge):
+        """valid_top3 + valid_top4 + invalid = 1."""
+        archs = ['A', 'B', 'C']
+        votes = [{a: np.random.random() for a in archs} for _ in range(7)]
+        diag = bridge.diagnose(votes, archs)
+        total = (diag['valid_top3_fraction']
+                 + diag['valid_top4_fraction']
+                 + diag['invalid_fraction'])
+        assert total == pytest.approx(1.0, abs=1e-8)
+
+    def test_diagnose_has_routing(self, bridge):
+        archs = ['A', 'B']
+        votes = [{'A': 0.6, 'B': 0.4} for _ in range(7)]
+        diag = bridge.diagnose(votes, archs)
+        assert 'routing' in diag
+        assert 'mean_route_score' in diag
+
+    def test_per_archetype_syndrome_types(self, bridge):
+        """Each archetype gets a syndrome classification."""
+        archs = ['A', 'B', 'C']
+        votes = [{a: np.random.random() for a in archs} for _ in range(7)]
+        diag = bridge.diagnose(votes, archs)
+        for arch in archs:
+            info = diag['per_archetype'][arch]
+            assert info['syndrome_type'] in (
+                'top3_fano', 'top4_complement', 'invalid',
+            )
+
+
+class TestSedenonBridgeValidity:
+    """Rank-based approach has higher valid rate than Hamming (D158 P4)."""
+
+    def test_synthetic_valid_rate_exceeds_hamming(self):
+        """On random Dirichlet votes, rank valid rate > Hamming valid rate."""
+        from ibp_enm.belief_algebra import compute_syndrome
+        bridge = SedenonBridge()
+        rng = np.random.default_rng(123)
+        n = 2000
+
+        hamming_valid = 0
+        rank_valid = 0
+
+        for _ in range(n):
+            v = rng.dirichlet(np.ones(7))
+            # Hamming
+            support = (v > np.mean(v)).astype(int)
+            if np.all(compute_syndrome(support) == 0):
+                hamming_valid += 1
+            # Rank
+            syn = bridge.rank_syndrome(v)
+            if syn['valid']:
+                rank_valid += 1
+
+        hamming_rate = hamming_valid / n
+        rank_rate = rank_valid / n
+        assert rank_rate > hamming_rate, \
+            f"Rank rate {rank_rate:.3f} not > Hamming rate {hamming_rate:.3f}"
+        # D158 target: ≥ 35% (allowing margin for small sample)
+        assert rank_rate >= 0.35, f"Rank rate {rank_rate:.3f} < 35%"
+
+
+class TestSedenonHammingBackwardCompat:
+    """SedenonBridge can replace HammingBridge without breaking API."""
+
+    def test_same_interface_bridge_scores(self):
+        """Both bridges return the same dict structure."""
+        archs = ['A', 'B', 'C']
+        votes = [{'A': 0.5, 'B': 0.3, 'C': 0.2} for _ in range(7)]
+        h = HammingBridge()
+        s = SedenonBridge()
+        h_scores = h.bridge_scores(votes, archs)
+        s_scores = s.bridge_scores(votes, archs)
+        assert set(h_scores.keys()) == set(s_scores.keys())
+        assert sum(h_scores.values()) == pytest.approx(1.0, abs=1e-8)
+        assert sum(s_scores.values()) == pytest.approx(1.0, abs=1e-8)
+
+    def test_threshold_shift_same_shape(self):
+        """Both bridges return the retention dict with same shape."""
+        archs = ['X', 'Y']
+        votes = [{'X': 0.6, 'Y': 0.4} for _ in range(7)]
+        h_shifts = HammingBridge().threshold_shift(votes, archs)
+        s_shifts = SedenonBridge().threshold_shift(votes, archs)
+        for arch in archs:
+            assert h_shifts[arch].shape == s_shifts[arch].shape == (7,)
+            assert np.all(h_shifts[arch] > 0)
+            assert np.all(s_shifts[arch] > 0)

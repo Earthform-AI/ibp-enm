@@ -47,8 +47,8 @@ from .thresholds import ThresholdRegistry, DEFAULT_THRESHOLDS
 # ClassificationTrace (v0.7.0)
 from .trace import ClassificationTrace, ContextSignals
 
-# Hamming bridge protocol (D153) + ZD pair selection (D157)
-from .belief_algebra import HammingBridge, HAMMING_H, SYNDROME_RETENTION, ZDPairSelector
+# Hamming bridge protocol (D153) + ZD pair selection (D157) + Sedenion bridge (D158)
+from .belief_algebra import HammingBridge, SedenonBridge, HAMMING_H, SYNDROME_RETENTION, ZDPairSelector, FANO_COMPLEMENTS
 
 # Algebraic structure analysis & deep result analysis (v0.8.0)
 from .algebra import (
@@ -131,8 +131,9 @@ __all__ = [
     "InstrumentCollinearity", "check_collinearity",
     "FiringLattice", "build_firing_lattice",
     "ThresholdSensitivity", "threshold_sensitivity",
-    # Hamming bridge protocol (D153)
-    "HammingBridge", "HAMMING_H", "SYNDROME_RETENTION",
+    # Hamming bridge (D153) + Sedenion bridge (D158)
+    "HammingBridge", "SedenonBridge", "HAMMING_H", "SYNDROME_RETENTION",
+    "FANO_COMPLEMENTS",
     # Fano plane constants & D150 isomorphism
     "INSTRUMENT_NAMES", "FANO_LINES",
     "OCTO_TO_CARVING", "CARVING_TO_OCTO",

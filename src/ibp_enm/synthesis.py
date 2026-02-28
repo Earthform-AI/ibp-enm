@@ -32,7 +32,7 @@ from typing import Dict, List
 
 from .archetypes import ARCHETYPE_EXPECTATIONS
 from .algebra import FANO_LINES
-from .belief_algebra import HammingBridge
+from .belief_algebra import HammingBridge, SedenonBridge
 from .instruments import ThermoReactionProfile
 from .thresholds import ThresholdRegistry, DEFAULT_THRESHOLDS
 from .thermodynamics import (
@@ -820,7 +820,7 @@ class AlgebraicFickBalancer(MetaFickBalancer):
         # Initialise parent — the w1/w2/w3/beta0 defaults are set
         # but ignored since we override compute_meta_fick_state.
         super().__init__(thresholds=thresholds)
-        self._hamming_bridge = HammingBridge()
+        self._hamming_bridge = SedenonBridge()  # D158: rank-based bridge
 
     # ── meta-fick state (dual-α) ───────────────────────────────
 
