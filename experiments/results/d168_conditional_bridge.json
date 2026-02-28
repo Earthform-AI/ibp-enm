@@ -1,0 +1,325 @@
+{
+  "experiment": "D168",
+  "title": "Conditional Bridge \u2014 Surgical \u03b1\u2088 De-gating",
+  "corpus_size": 52,
+  "loaded": 32,
+  "alpha8_floor": 0.14285714285714285,
+  "bridge_blind": [
+    "Cytochrome_b5",
+    "Erythrocruorin",
+    "GroEL_subunit",
+    "Neuroglobin"
+  ],
+  "variant_accuracy": {
+    "A_baseline": {
+      "correct": 15,
+      "total": 32,
+      "pct": 46.9,
+      "delta": 0
+    },
+    "B_floor_gate": {
+      "correct": 15,
+      "total": 32,
+      "pct": 46.9,
+      "delta": 0
+    },
+    "C_soft_floor": {
+      "correct": 15,
+      "total": 32,
+      "pct": 46.9,
+      "delta": 0
+    },
+    "D_margin_cond": {
+      "correct": 15,
+      "total": 32,
+      "pct": 46.9,
+      "delta": 0
+    },
+    "E_sqrt_gate": {
+      "correct": 16,
+      "total": 32,
+      "pct": 50.0,
+      "delta": 1
+    },
+    "F_sqrt_floor": {
+      "correct": 16,
+      "total": 32,
+      "pct": 50.0,
+      "delta": 1
+    }
+  },
+  "variant_changes": {
+    "B_floor_gate": {
+      "gains": [],
+      "losses": [],
+      "flips": []
+    },
+    "C_soft_floor": {
+      "gains": [],
+      "losses": [],
+      "flips": []
+    },
+    "D_margin_cond": {
+      "gains": [],
+      "losses": [],
+      "flips": []
+    },
+    "E_sqrt_gate": {
+      "gains": [
+        "+ ATCase_cat                truth=allosteric      was=enzyme_active   now=allosteric"
+      ],
+      "losses": [],
+      "flips": [
+        "~ ABP_open                  truth=allosteric      was=enzyme_active   now=dumbbell"
+      ]
+    },
+    "F_sqrt_floor": {
+      "gains": [
+        "+ ATCase_cat                truth=allosteric      was=enzyme_active   now=allosteric"
+      ],
+      "losses": [],
+      "flips": [
+        "~ ABP_open                  truth=allosteric      was=enzyme_active   now=dumbbell"
+      ]
+    }
+  },
+  "bridge_blind_results": {
+    "Cytochrome_b5": {
+      "truth": "globin",
+      "alpha_0": 0.11759373463841813,
+      "alpha_8": 0.0,
+      "variant_predictions": {
+        "A_baseline": "enzyme_active",
+        "B_floor_gate": "enzyme_active",
+        "C_soft_floor": "enzyme_active",
+        "D_margin_cond": "enzyme_active",
+        "E_sqrt_gate": "enzyme_active",
+        "F_sqrt_floor": "enzyme_active"
+      },
+      "variant_scores": {
+        "A_baseline": {
+          "dumbbell": 0.2048,
+          "barrel": 0.1154,
+          "globin": 0.1549,
+          "enzyme_active": 0.3804,
+          "allosteric": 0.1445
+        },
+        "B_floor_gate": {
+          "dumbbell": 0.1967,
+          "barrel": 0.1109,
+          "globin": 0.1787,
+          "enzyme_active": 0.3749,
+          "allosteric": 0.1388
+        },
+        "C_soft_floor": {
+          "dumbbell": 0.1969,
+          "barrel": 0.1111,
+          "globin": 0.179,
+          "enzyme_active": 0.3739,
+          "allosteric": 0.139
+        },
+        "D_margin_cond": {
+          "dumbbell": 0.2048,
+          "barrel": 0.1154,
+          "globin": 0.1549,
+          "enzyme_active": 0.3804,
+          "allosteric": 0.1445
+        },
+        "E_sqrt_gate": {
+          "dumbbell": 0.2048,
+          "barrel": 0.1154,
+          "globin": 0.1549,
+          "enzyme_active": 0.3804,
+          "allosteric": 0.1445
+        },
+        "F_sqrt_floor": {
+          "dumbbell": 0.1845,
+          "barrel": 0.105,
+          "globin": 0.2213,
+          "enzyme_active": 0.3585,
+          "allosteric": 0.1308
+        }
+      }
+    },
+    "Erythrocruorin": {
+      "truth": "globin",
+      "alpha_0": 0.020308528022537853,
+      "alpha_8": 0.14285714285714285,
+      "variant_predictions": {
+        "A_baseline": "allosteric",
+        "B_floor_gate": "allosteric",
+        "C_soft_floor": "allosteric",
+        "D_margin_cond": "allosteric",
+        "E_sqrt_gate": "allosteric",
+        "F_sqrt_floor": "allosteric"
+      },
+      "variant_scores": {
+        "A_baseline": {
+          "dumbbell": 0.1809,
+          "barrel": 0.2309,
+          "globin": 0.1996,
+          "enzyme_active": 0.1296,
+          "allosteric": 0.259
+        },
+        "B_floor_gate": {
+          "dumbbell": 0.1809,
+          "barrel": 0.2309,
+          "globin": 0.1996,
+          "enzyme_active": 0.1296,
+          "allosteric": 0.259
+        },
+        "C_soft_floor": {
+          "dumbbell": 0.1809,
+          "barrel": 0.2309,
+          "globin": 0.1996,
+          "enzyme_active": 0.1296,
+          "allosteric": 0.259
+        },
+        "D_margin_cond": {
+          "dumbbell": 0.1809,
+          "barrel": 0.2309,
+          "globin": 0.1996,
+          "enzyme_active": 0.1296,
+          "allosteric": 0.259
+        },
+        "E_sqrt_gate": {
+          "dumbbell": 0.1783,
+          "barrel": 0.2419,
+          "globin": 0.1965,
+          "enzyme_active": 0.1277,
+          "allosteric": 0.2556
+        },
+        "F_sqrt_floor": {
+          "dumbbell": 0.1786,
+          "barrel": 0.2408,
+          "globin": 0.1962,
+          "enzyme_active": 0.1276,
+          "allosteric": 0.2567
+        }
+      }
+    },
+    "GroEL_subunit": {
+      "truth": "allosteric",
+      "alpha_0": 0.03475349118087462,
+      "alpha_8": 0.14285714285714285,
+      "variant_predictions": {
+        "A_baseline": "enzyme_active",
+        "B_floor_gate": "enzyme_active",
+        "C_soft_floor": "enzyme_active",
+        "D_margin_cond": "enzyme_active",
+        "E_sqrt_gate": "enzyme_active",
+        "F_sqrt_floor": "enzyme_active"
+      },
+      "variant_scores": {
+        "A_baseline": {
+          "dumbbell": 0.1526,
+          "barrel": 0.1237,
+          "globin": 0.2272,
+          "enzyme_active": 0.4325,
+          "allosteric": 0.0641
+        },
+        "B_floor_gate": {
+          "dumbbell": 0.1526,
+          "barrel": 0.1237,
+          "globin": 0.2272,
+          "enzyme_active": 0.4325,
+          "allosteric": 0.0641
+        },
+        "C_soft_floor": {
+          "dumbbell": 0.1526,
+          "barrel": 0.1237,
+          "globin": 0.2272,
+          "enzyme_active": 0.4325,
+          "allosteric": 0.0641
+        },
+        "D_margin_cond": {
+          "dumbbell": 0.1526,
+          "barrel": 0.1237,
+          "globin": 0.2272,
+          "enzyme_active": 0.4325,
+          "allosteric": 0.0641
+        },
+        "E_sqrt_gate": {
+          "dumbbell": 0.1661,
+          "barrel": 0.097,
+          "globin": 0.2357,
+          "enzyme_active": 0.4294,
+          "allosteric": 0.0719
+        },
+        "F_sqrt_floor": {
+          "dumbbell": 0.1661,
+          "barrel": 0.0996,
+          "globin": 0.236,
+          "enzyme_active": 0.4283,
+          "allosteric": 0.07
+        }
+      }
+    },
+    "Neuroglobin": {
+      "truth": "globin",
+      "alpha_0": 0.012874039585369257,
+      "alpha_8": 0.14285714285714285,
+      "variant_predictions": {
+        "A_baseline": "barrel",
+        "B_floor_gate": "barrel",
+        "C_soft_floor": "barrel",
+        "D_margin_cond": "barrel",
+        "E_sqrt_gate": "barrel",
+        "F_sqrt_floor": "barrel"
+      },
+      "variant_scores": {
+        "A_baseline": {
+          "dumbbell": 0.1648,
+          "barrel": 0.2489,
+          "globin": 0.2023,
+          "enzyme_active": 0.1565,
+          "allosteric": 0.2275
+        },
+        "B_floor_gate": {
+          "dumbbell": 0.1648,
+          "barrel": 0.2489,
+          "globin": 0.2023,
+          "enzyme_active": 0.1565,
+          "allosteric": 0.2275
+        },
+        "C_soft_floor": {
+          "dumbbell": 0.1648,
+          "barrel": 0.2489,
+          "globin": 0.2023,
+          "enzyme_active": 0.1565,
+          "allosteric": 0.2275
+        },
+        "D_margin_cond": {
+          "dumbbell": 0.1648,
+          "barrel": 0.2489,
+          "globin": 0.2023,
+          "enzyme_active": 0.1565,
+          "allosteric": 0.2275
+        },
+        "E_sqrt_gate": {
+          "dumbbell": 0.1444,
+          "barrel": 0.2631,
+          "globin": 0.2095,
+          "enzyme_active": 0.1556,
+          "allosteric": 0.2274
+        },
+        "F_sqrt_floor": {
+          "dumbbell": 0.1447,
+          "barrel": 0.2634,
+          "globin": 0.2086,
+          "enzyme_active": 0.1546,
+          "allosteric": 0.2286
+        }
+      }
+    }
+  },
+  "predictions": {
+    "P1": false,
+    "P2": false,
+    "P3": true,
+    "P4": true,
+    "P5": true
+  },
+  "predictions_confirmed": 3,
+  "predictions_total": 5
+}

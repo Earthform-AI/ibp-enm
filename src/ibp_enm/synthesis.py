@@ -27,6 +27,7 @@ Data-calibrated context boosts from D109.
 
 from __future__ import annotations
 
+import math
 import numpy as np
 from typing import Dict, List
 
@@ -995,11 +996,14 @@ class AlgebraicFickBalancer(MetaFickBalancer):
                     support[i] = 1
             route_scores[arch] = zdp.route_score(support)
 
-        # ── Algebraic combination (D152b: α₈-gated bridge) ──
-        # bridge_weight = 0.5 × (1 − α₀) × α₈
-        # α₈ gate protects proteins with no Fano-coherent agreement
-        # from being overwhelmed by context boost noise.
-        bridge_weight = self.BRIDGE_SCALE * (1.0 - alpha_0) * alpha_8
+        # ── Algebraic combination (D152b→D168: √α₈-gated bridge) ──
+        # bridge_weight = 0.5 × (1 − α₀) × √α₈
+        # D168: Compressive √ gate replaces linear α₈ in bridge_weight.
+        # Linear α₈ double-gates fano_bridge (∝ α₈²) and silences
+        # context_boost for confused proteins (α₈<0.2 → bw<0.07).
+        # √α₈ lifts low-α₈ proteins (0.14→0.37) without over-boosting
+        # high-α₈ proteins (1.0→1.0). Gains ATCase_cat, 0 regressions.
+        bridge_weight = self.BRIDGE_SCALE * (1.0 - alpha_0) * math.sqrt(alpha_8)
         main_weight = 1.0 - bridge_weight
 
         final_scores: Dict[str, float] = {}

@@ -1,6 +1,6 @@
 # Discovery Sprint Log
 
-## Current State — D167 (Sprint 10: Confusion-Pair Resolution)
+## Current State — D168 (Sprint 10: Confusion-Pair Resolution)
 
 **Accuracy: 32/52 (61.5%)** on the expanded corpus, 0 free parameters.
 
@@ -8,11 +8,75 @@
 - `AlgebraicFickBalancer` integrated into `LensStackSynthesizer` (was `MetaFickBalancer`)
 - Route-score gated context_boost in bridge pathway (D160)
 - Formula: `bridge = route_score[arch] × context_boost + α₈ × fano_bridge`
+- **D168: √α₈ gate** — `bridge_weight = 0.5 × (1−α₀) × √α₈` (was linear α₈).
+  Compressive gate lifts bridge-blind proteins (0.14→0.37) without over-boosting
+  high-α₈ proteins (1.0→1.0). Gains ATCase_cat with full structural data pipeline,
+  0 regressions. Invisible in cache-only _rescore (no structural data for lenses).
 - **ProfileCache.repair()**: fills missing `per_instrument` metadata from stored profiles
 - **ProfileCache.is_complete()**: detects stale/incomplete cache entries
 - **BenchmarkRunner._run_protein**: now saves actual ThermoReactionProfile objects (was `[]`)
 - **BenchmarkRunner._rescore**: auto-rebuilds stale entries on access
 - 54/54 tests pass (cache: 25, benchmark: 29)
+
+### D168: Conditional Bridge — Surgical α₈ De-gating
+
+**Date**: 2026-02
+**Script**: `experiments/discovery_168_conditional_bridge.py`
+**Results**: `experiments/results/d168_conditional_bridge.json`
+
+**Question**: Can we recover any of the 4 bridge-blind proteins (α₈ ≤ 1/7)
+by surgically de-gating α₈ from `bridge_weight` without the 5 regressions
+that D160 Variant C caused?
+
+**Method**: Test 6 variants on 32 expanded-corpus proteins (cached profiles +
+fresh structural data for lens stack):
+
+| Variant | Strategy | Formula |
+|---------|----------|---------|
+| A (baseline) | Production (route-gated) | bw = 0.5 × (1−α₀) × α₈ |
+| B (floor) | Clamp α₈ ≥ 1/7 in bw only | bw = 0.5 × (1−α₀) × max(α₈, 1/7) |
+| C (soft floor) | Clamp α₈ ≥ 1/7 everywhere | Uses max(α₈, 1/7) in bw + bridge |
+| D (margin-cond) | Floor only when α₀ < 0.05 | Selective floor for confused proteins |
+| E (√ gate) | √α₈ in bridge_weight | bw = 0.5 × (1−α₀) × √α₈ |
+| F (√+floor) | √max(α₈, 1/7) everywhere | Combined compressive + floor |
+
+**Results:**
+
+| Variant | Correct/32 | Δ | Gains | Regressions |
+|---------|-----------|---|-------|-------------|
+| A baseline | 15 | — | — | — |
+| B floor | 15 | 0 | — | — |
+| C soft floor | 15 | 0 | — | — |
+| D margin-cond | 15 | 0 | — | — |
+| **E √ gate** | **16** | **+1** | ATCase_cat | **0** |
+| **F √+floor** | **16** | **+1** | ATCase_cat | **0** |
+
+**Bridge-blind proteins (all 4 loaded, 0/4 recovered by any variant):**
+- **Neuroglobin** (α₈=0.143): truth=globin at rank 3, barrel dominates (+0.047 gap)
+- **Cytochrome_b5** (α₈=0.000): truth=globin at rank 3, enzyme_active dominates (+0.226 gap)
+- **Erythrocruorin** (α₈=0.143): context_boost[globin]=0.0 — bridge pathway CAN'T help
+- **GroEL_subunit** (α₈=0.143): truth=allosteric at rank 5, enzyme_active dominates (+0.365 gap)
+
+**Key findings:**
+1. **Floor gates (B,C,D) are inert**: 3/4 bridge-blind proteins have α₈=1/7=floor;
+   Cytochrome_b5 has α₈=0 where floor helps minimally (bw 0→0.063). The bridge
+   content for these proteins is misaligned — context_boost doesn't favour truth.
+2. **√ gate (E) gains ATCase_cat** (α₈=0.429, α₀=0.049): compressive gate lifts
+   bridge_weight from 0.204→0.312, letting allosteric context_boost overcome
+   enzyme_active. This is NOT a bridge-blind protein — it's a confused protein
+   where more bridge weight helps.
+3. **0 regressions for E/F**: √ is naturally compressive at high α₈ (0.86→0.93,
+   1.0→1.0), so the change is conservative for well-classified proteins.
+4. **Bridge-blind are rule-level problems**: instruments genuinely vote wrong for
+   these proteins. No amount of bridge reweighting can fix incorrect context_boost
+   values or consensually wrong instrument votes.
+5. **Pipeline discrepancy**: _rescore (evals=None) gives 32/52 including ATCase_cat
+   correct. D168 (full structural data) shows ATCase_cat LOST in baseline — the
+   lens stack with real eigenvalues hurts ATCase_cat, but √ gate overcomes this.
+
+**Predictions**: 3/5 confirmed (P1 ✗ 0/4 bridge-blind recovered, P2 ✗ both have
+0 regressions, P3 ✓ margin-cond has 0 regressions, P4 ✓ best=16/52 < 33,
+P5 ✓ Cytochrome_b5 not recovered by floor variants)
 
 ### D167: Confusion-Pair Discriminants
 
