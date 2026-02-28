@@ -1,0 +1,226 @@
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:753: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_lap, _ = spearmanr(b_lap, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:754: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_cont, _ = spearmanr(b_cont, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:755: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_uni, _ = spearmanr(b_uni, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:767: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  result.rho_consensus, _ = spearmanr(b_cons, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:753: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_lap, _ = spearmanr(b_lap, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:754: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_cont, _ = spearmanr(b_cont, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:755: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_uni, _ = spearmanr(b_uni, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:767: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  result.rho_consensus, _ = spearmanr(b_cons, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:753: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_lap, _ = spearmanr(b_lap, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:754: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_cont, _ = spearmanr(b_cont, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:755: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_uni, _ = spearmanr(b_uni, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:767: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  result.rho_consensus, _ = spearmanr(b_cons, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:753: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_lap, _ = spearmanr(b_lap, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:754: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_cont, _ = spearmanr(b_cont, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:755: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  rho_uni, _ = spearmanr(b_uni, b_factors)
+/mnt/projects/ibp_enm/src/ibp_enm/analyzer.py:767: ConstantInputWarning: An input array is constant; the correlation coefficient is not defined.
+  result.rho_consensus, _ = spearmanr(b_cons, b_factors)
+D162: Benchmark Routing-Enhanced Bridge
+  Corpus: 52 proteins
+  Variants: A (HammingBridge/D153), B (SedenonBridge/D158)
+  Pipeline: AlgebraicFickBalancer + D160 route-gating + lens stack
+  Prediction: SedenonBridge ≥ 30/52 (target 31+)
+
+========================================================================
+PHASE 1: LOADING PROFILES & STRUCTURAL DATA
+========================================================================
+  [1/52] ✓ T4_lysozyme (N=164, α₀=0.131, α₈=0.571)
+  [2/52] ✓ HEWL (N=129, α₀=0.274, α₈=0.857)
+  [3/52] ✓ CaM_Ca_bound (N=143, α₀=0.284, α₈=0.857)
+  [4/52] ✓ Myoglobin (N=153, α₀=0.050, α₈=0.429)
+  [5/52] ✓ AdK_open (N=214, α₀=0.096, α₈=0.429)
+  [6/52] ✓ DHFR (N=162, α₀=0.003, α₈=0.429)
+  [7/52] ✓ Streptavidin (N=121, α₀=0.208, α₈=0.571)
+  [8/52] ✓ TIM_barrel (N=247, α₀=0.397, α₈=1.000)
+  [9/52] ✓ LAO_binding (N=238, α₀=0.203, α₈=0.857)
+  [10/52] ✓ HIV_protease (N=99, α₀=0.294, α₈=0.857)
+  [11/52] ✓ Hemoglobin_alpha (N=141, α₀=0.169, α₈=0.857)
+  [12/52] ✓ Citrate_synthase (N=429, α₀=0.606, α₈=1.000)
+  [13/52] ✓ Chymotrypsin (N=245, α₀=0.563, α₈=1.000)
+  [14/52] ✓ Trypsin (N=223, α₀=0.293, α₈=0.857)
+  [15/52] ✓ RNase_A (N=124, α₀=0.185, α₈=0.857)
+  [16/52] ✓ Carbonic_anhyd_II (N=258, α₀=0.124, α₈=0.857)
+  [17/52] ✓ Subtilisin (N=275, α₀=0.564, α₈=1.000)
+  [18/52] ✓ Thermolysin (N=316, α₀=0.042, α₈=0.000)
+  [19/52] ✓ Papain (N=211, α₀=0.001, α₈=0.000)
+  [20/52] ✓ Elastase (N=240, α₀=0.062, α₈=0.429)
+  [21/52] ✓ Aldolase_A (N=363, α₀=0.078, α₈=0.857)
+  [22/52] ✓ Enolase (N=436, α₀=0.440, α₈=1.000)
+  [23/52] ✓ Xylose_isomerase (N=386, α₀=0.164, α₈=0.857)
+  [24/52] ✓ Rubisco_large (N=467, α₀=0.217, α₈=1.000)
+  [25/52] ✓ Glycolate_oxidase (N=350, α₀=0.421, α₈=1.000)
+  [26/52] ✓ Tryptophan_synth (N=148, α₀=0.265, α₈=1.000)
+  [27/52] ✓ KDPG_aldolase (N=213, α₀=0.099, α₈=0.571)
+  [28/52] ✓ Mandelate_racemase (N=357, α₀=0.205, α₈=0.571)
+  [29/52] ✓ Leghemoglobin (N=143, α₀=0.050, α₈=0.429)
+  [30/52] ✓ Neuroglobin (N=147, α₀=0.013, α₈=0.143)
+  [31/52] ✓ Cytochrome_b5 (N=108, α₀=0.118, α₈=0.000)
+  [32/52] ✓ Cytochrome_c (N=104, α₀=0.196, α₈=0.857)
+  [33/52] ✓ Hemoglobin_beta (N=146, α₀=0.081, α₈=0.857)
+  [34/52] ✓ Erythrocruorin (N=136, α₀=0.020, α₈=0.143)
+  [35/52] ✓ Myoglobin_whale (N=151, α₀=0.150, α₈=0.857)
+  [36/52] ✓ Truncated_Hb (N=116, α₀=0.136, α₈=0.571)
+  [37/52] ✓ Lactoferrin (N=691, α₀=0.027, α₈=0.429)
+  [38/52] ✓ Transferrin (N=329, α₀=0.067, α₈=0.429)
+  [39/52] ✓ Pyruvate_kinase (N=514, α₀=0.342, α₈=1.000)
+  [40/52] ✓ Immunoglobulin (N=214, α₀=0.287, α₈=1.000)
+  [41/52] ✓ MBP (N=370, α₀=0.157, α₈=0.857)
+  [42/52] ✓ Phosphoglycerate_k (N=415, α₀=0.104, α₈=0.143)
+  [43/52] ✓ HSP70_NBD (N=380, α₀=0.241, α₈=0.857)
+  [44/52] ✓ Glutamine_BP (N=220, α₀=0.384, α₈=1.000)
+  [45/52] ✓ ATCase_cat (N=310, α₀=0.049, α₈=0.429)
+  [46/52] ✓ Hemoglobin_T (N=141, α₀=0.077, α₈=0.000)
+  [47/52] ✓ Phosphofructokinase (N=319, α₀=0.094, α₈=0.429)
+  [48/52] ✓ Glycogen_phosph (N=823, α₀=0.622, α₈=1.000)
+  [49/52] ✓ Protein_kinase_A (N=334, α₀=0.036, α₈=0.429)
+  [50/52] ✓ ABP_open (N=305, α₀=0.096, α₈=0.857)
+  [51/52] ✓ CheY (N=128, α₀=0.255, α₈=0.857)
+  [52/52] ✓ GroEL_subunit (N=518, α₀=0.035, α₈=0.143)
+
+  Loaded: 52/52 (62.3s)
+
+========================================================================
+PHASE 2: BENCHMARKING BOTH BRIDGES
+========================================================================
+  [1/52] H:✓ S:✓ T4_lysozyme               truth=enzyme_active   H=enzyme_active   S=enzyme_active  
+  [2/52] H:✓ S:✓ HEWL                      truth=enzyme_active   H=enzyme_active   S=enzyme_active  
+  [3/52] H:✓ S:✓ CaM_Ca_bound              truth=dumbbell        H=dumbbell        S=dumbbell       
+  [4/52] H:✓ S:✓ Myoglobin                 truth=globin          H=globin          S=globin         
+  [5/52] H:✓ S:✓ AdK_open                  truth=allosteric      H=allosteric      S=allosteric     
+  [6/52] H:✓ S:✓ DHFR                      truth=enzyme_active   H=enzyme_active   S=enzyme_active  
+  [7/52] H:✓ S:✓ Streptavidin              truth=enzyme_active   H=enzyme_active   S=enzyme_active  
+  [8/52] H:✓ S:✓ TIM_barrel                truth=barrel          H=barrel          S=barrel         
+  [9/52] H:✓ S:✓ LAO_binding               truth=dumbbell        H=dumbbell        S=dumbbell       
+  [10/52] H:✓ S:✓ HIV_protease              truth=enzyme_active   H=enzyme_active   S=enzyme_active  
+  [11/52] H:✓ S:✓ Hemoglobin_alpha          truth=globin          H=globin          S=globin         
+  [12/52] H:✓ S:✓ Citrate_synthase          truth=barrel          H=barrel          S=barrel         
+  [13/52] H:✗ S:✗ Chymotrypsin              truth=enzyme_active   H=barrel          S=barrel         
+  [14/52] H:✗ S:✗ Trypsin                   truth=enzyme_active   H=barrel          S=barrel         
+  [15/52] H:✓ S:✓ RNase_A                   truth=enzyme_active   H=enzyme_active   S=enzyme_active  
+  [16/52] H:✗ S:✗ Carbonic_anhyd_II         truth=enzyme_active   H=globin          S=globin         
+  [17/52] H:✗ S:✗ Subtilisin                truth=enzyme_active   H=barrel          S=barrel         
+  [18/52] H:✓ S:✓ Thermolysin               truth=enzyme_active   H=enzyme_active   S=enzyme_active  
+  [19/52] H:✓ S:✓ Papain                    truth=enzyme_active   H=enzyme_active   S=enzyme_active  
+  [20/52] H:✓ S:✓ Elastase                  truth=enzyme_active   H=enzyme_active   S=enzyme_active  
+  [21/52] H:✓ S:✓ Aldolase_A                truth=barrel          H=barrel          S=barrel         
+  [22/52] H:✓ S:✓ Enolase                   truth=barrel          H=barrel          S=barrel         
+  [23/52] H:✗ S:✗ Xylose_isomerase          truth=barrel          H=allosteric      S=allosteric     
+  [24/52] H:✓ S:✓ Rubisco_large             truth=barrel          H=barrel          S=barrel         
+  [25/52] H:✓ S:✓ Glycolate_oxidase         truth=barrel          H=barrel          S=barrel         
+  [26/52] H:✓ S:✓ Tryptophan_synth          truth=barrel          H=barrel          S=barrel         
+  [27/52] H:✗ S:✗ KDPG_aldolase             truth=barrel          H=enzyme_active   S=enzyme_active  
+  [28/52] H:✓ S:✓ Mandelate_racemase        truth=barrel          H=barrel          S=barrel         
+  [29/52] H:✓ S:✓ Leghemoglobin             truth=globin          H=globin          S=globin         
+  [30/52] H:✗ S:✗ Neuroglobin               truth=globin          H=barrel          S=barrel         
+  [31/52] H:✗ S:✗ Cytochrome_b5             truth=globin          H=enzyme_active   S=enzyme_active  
+  [32/52] H:✗ S:✗ Cytochrome_c              truth=globin          H=dumbbell        S=dumbbell       
+  [33/52] H:✓ S:✓ Hemoglobin_beta           truth=globin          H=globin          S=globin         
+  [34/52] H:✗ S:✗ Erythrocruorin            truth=globin          H=allosteric      S=allosteric     
+  [35/52] H:✓ S:✓ Myoglobin_whale           truth=globin          H=globin          S=globin         
+  [36/52] H:✗ S:✗ Truncated_Hb              truth=globin          H=enzyme_active   S=enzyme_active  
+  [37/52] H:✓ S:✓ Lactoferrin               truth=dumbbell        H=dumbbell        S=dumbbell       
+  [38/52] H:✗ S:✗ Transferrin               truth=dumbbell        H=enzyme_active   S=enzyme_active  
+  [39/52] H:✗ S:✗ Pyruvate_kinase           truth=dumbbell        H=barrel          S=barrel         
+  [40/52] H:✓ S:✓ Immunoglobulin            truth=dumbbell        H=dumbbell        S=dumbbell       
+  [41/52] H:✗ S:✗ MBP                       truth=dumbbell        H=enzyme_active   S=enzyme_active  
+  [42/52] H:✓ S:✓ Phosphoglycerate_k        truth=dumbbell        H=dumbbell        S=dumbbell       
+  [43/52] H:✗ S:✗ HSP70_NBD                 truth=dumbbell        H=barrel          S=barrel         
+  [44/52] H:✓ S:✓ Glutamine_BP              truth=dumbbell        H=dumbbell        S=dumbbell       
+  [45/52] H:✗ S:✗ ATCase_cat                truth=allosteric      H=enzyme_active   S=enzyme_active  
+  [46/52] H:✓ S:✓ Hemoglobin_T              truth=allosteric      H=allosteric      S=allosteric     
+  [47/52] H:✓ S:✓ Phosphofructokinase       truth=allosteric      H=allosteric      S=allosteric     
+  [48/52] H:✗ S:✗ Glycogen_phosph           truth=allosteric      H=barrel          S=barrel         
+  [49/52] H:✗ S:✗ Protein_kinase_A          truth=allosteric      H=globin          S=globin         
+  [50/52] H:✗ S:✗ ABP_open                  truth=allosteric      H=enzyme_active   S=enzyme_active  
+  [51/52] H:✗ S:✗ CheY                      truth=allosteric      H=enzyme_active   S=enzyme_active  
+  [52/52] H:✗ S:✗ GroEL_subunit             truth=allosteric      H=enzyme_active   S=enzyme_active  
+
+========================================================================
+PHASE 3: ACCURACY COMPARISON
+========================================================================
+
+  A (HammingBridge/D153):   31/52 (59.6%)
+  B (SedenonBridge/D158):   31/52 (59.6%)
+  Delta (B - A):            +0
+
+  SPRINT prediction (P5): SedenonBridge ≥ 30/52 → CONFIRMED (31/52)
+  SPRINT target 31+: ACHIEVED (31/52)
+
+========================================================================
+PHASE 4: PER-PROTEIN CHANGES (SedenonBridge vs HammingBridge)
+========================================================================
+
+  SedenonBridge GAINS (0):
+
+  SedenonBridge LOSSES (0):
+
+  DIFFERENT but both wrong (0):
+
+========================================================================
+PHASE 5: SYNDROME STATISTICS COMPARISON
+========================================================================
+
+  HammingBridge (D153):
+    Total syndromes: 0
+    Valid syndromes: 0 (0.0%)
+
+  SedenonBridge (D158):
+    Total syndromes: 0
+    Valid (top-3 Fano):      42
+    Valid (top-4 complement): 61
+    Valid total:             103 (10300.0%)
+    Invalid:                 157
+
+========================================================================
+PHASE 6: BRIDGE SCORE DIVERGENCE
+========================================================================
+
+  Top-10 largest fano_bridge divergences (any archetype):
+    Chymotrypsin              max_div=0.0869 on barrel          H:✗ S:✗ 
+    ATCase_cat                max_div=0.0835 on allosteric      H:✗ S:✗ 
+    Xylose_isomerase          max_div=0.0785 on allosteric      H:✗ S:✗ 
+    Hemoglobin_beta           max_div=0.0762 on dumbbell        H:✓ S:✓ 
+    Immunoglobulin            max_div=0.0698 on dumbbell        H:✓ S:✓ 
+    MBP                       max_div=0.0687 on barrel          H:✗ S:✗ 
+    Tryptophan_synth          max_div=0.0682 on allosteric      H:✓ S:✓ 
+    RNase_A                   max_div=0.0681 on allosteric      H:✓ S:✓ 
+    Cytochrome_c              max_div=0.0675 on barrel          H:✗ S:✗ 
+    Papain                    max_div=0.0609 on allosteric      H:✓ S:✓ 
+
+========================================================================
+PHASE 7: SUMMARY
+========================================================================
+
+  ROUTING-ENHANCED BRIDGE BENCHMARK (D162):
+
+  Pipeline: AlgebraicFickBalancer + D160 route-gating + lens stack
+
+  | Bridge | Accuracy | Syndrome Valid Rate |
+  |--------|----------|---------------------|
+  | HammingBridge (D153) | 31/52 (59.6%) | 0.0% |
+  | SedenonBridge (D158) | 31/52 (59.6%) | 10300.0% |
+  | Delta (Sedenon−Hamming) | +0 | +10300.0pp |
+
+  Gains: 0 proteins improved by SedenonBridge
+  Losses: 0 proteins regressed by SedenonBridge
+  Net: +0
+
+  SPRINT P5 (SedenonBridge ≥ 30/52): CONFIRMED ✓
+  Target 31+: ACHIEVED ✓
+
+  Results saved to /mnt/projects/ibp_enm/experiments/results/d162_bridge_benchmark.json

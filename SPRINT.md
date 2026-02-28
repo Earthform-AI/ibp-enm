@@ -1,6 +1,6 @@
 # Discovery Sprint Log
 
-## Current State — D161 (Pivot Instrument Validation)
+## Current State — D163 (45° Plane Bridge Signals)
 
 **Accuracy: 31/52 (59.6%)** on the expanded corpus, 0 free parameters.
 
@@ -9,6 +9,99 @@
 - Route-score gated context_boost in bridge pathway (D160)
 - Formula: `bridge = route_score[arch] × context_boost + α₈ × fano_bridge`
 - 474/474 tests pass
+
+### D163: 45° Plane Bridge Signals
+
+**Date**: 2025-06
+**Script**: `experiments/discovery_163_fortyfive_plane_bridge.py`
+**Results**: `experiments/results/d163_fortyfive_plane_bridge.json`
+
+**Question**: Do D156's 210 unique 45° planes (from 2016 half-diagonal
+kernel–subalgebra pairs at {π/4,π/4,π/2,π/2}) provide supplementary
+correction signals for the 21 LOST proteins where contained channels alone
+are insufficient?
+
+**Method**: Enumerate 210 unique 45° planes from sedenion geometry.  Each
+plane loads 0.5 on exactly 4 basis elements (2 low-half e₁-e₇, 2 high-half
+e₈-e₁₅).  Map low-half indices to instruments via OCTO_TO_CARVING.  Compute
+per-archetype "45° plane score" and compare against contained route_score on
+all 52 proteins.
+
+**Geometric results:**
+
+| Property | Contained Channels | 45° Planes |
+|----------|--------------------|------------|
+| Total unique objects | 168 edges | 210 planes |
+| Per kernel | 4 subs | 24 subs |
+| Per Fano line | 72 routes | 30 planes |
+| Instrument pairs | 21 (via lines) | **ALL 21 = C(7,2)** |
+| Planes per pair | — | 10 (perfectly uniform) |
+| Signal strength | 1/√2 ≈ 0.707 | cos(π/4) = 1/√2 (**same**) |
+| Subalgebra coverage | 21 cross-half only | All 35 (incl. pure-low/high) |
+
+**Key structural finding**: 45° planes are PERFECTLY UNIFORM — every Fano
+line has exactly 30 planes, every instrument pair has exactly 10 planes.
+Each plane maps to exactly 1 Fano line.  This is a second-tier routing
+structure covering all C(7,2)=21 pairwise instrument interactions.
+
+**Signal comparison (CORRECT vs LOST):**
+
+| Signal | CORRECT mean | LOST mean | Separation |
+|--------|-------------|-----------|------------|
+| Contained route_score | 0.727 | 0.276 | **0.451** |
+| 45° plane score | 0.614 | 0.198 | 0.417 |
+
+| Metric | Contained | 45° Plane |
+|--------|-----------|-----------|
+| Truth rank (CORRECT) | 1.74 | 1.71 |
+| Truth rank (LOST) | 3.24 | **3.14** |
+
+**Correction potential for 21 LOSTs:**
+- 45° favours truth (vs contained): **11/21** (52%)
+- 45° favours pred (vs contained): 6/21 (29%)
+- Neutral: 4/21 (19%)
+- **Net correction tendency: +5**
+
+**Conclusion**: SPRINT prediction CONFIRMED — 45° planes provide a
+*weaker but broader* correction signal.  They are weaker (separation
+0.417 vs 0.451) but have a net favourable correction tendency (11 vs 6
+LOSTs).  The perfect uniformity (30 planes/line, 10 planes/pair)
+suggests a structured second-tier channel that could complement
+contained routing if the bridge pathway weight were increased.
+Currently, the bridge_weight damping that makes Hamming=Sedenon
+(D162) also suppresses 45° plane corrections.
+
+### D162: Bridge Benchmark (HammingBridge vs SedenonBridge)
+
+**Date**: 2025-06
+**Script**: `experiments/discovery_162_bridge_benchmark.py`
+**Results**: `experiments/results/d162_bridge_benchmark.json`
+
+**Question**: Does the D158 SedenonBridge (rank-based dual-threshold, 40.8%
+valid syndrome rate) improve accuracy over the D153 HammingBridge
+(mean-threshold Hamming(7,4), 13.1% valid rate)?
+
+**Method**: Run both bridges through the identical production pipeline
+(AlgebraicFickBalancer + D160 route-gating + lens stack) on all 52 proteins.
+
+**Key results:**
+
+| Bridge | Accuracy | Valid Rate |
+|--------|----------|-----------|
+| HammingBridge (D153) | 31/52 (59.6%) | 13.1% |
+| SedenonBridge (D158) | 31/52 (59.6%) | 40.8% |
+| Delta | **0** | +27.7pp |
+
+- **Identical classifications on all 52 proteins** — 0 gains, 0 losses, 0 diffs
+- **Bridge score divergence exists** (max 0.087 on Chymotrypsin) but
+  `bridge_weight = 0.5 × (1-α₀) × α₈` damps the pathway enough that
+  the ~0.05–0.09 fano_bridge differences can't flip any classification
+- **Implication**: Accuracy comes from route-score gating and spectral
+  weights, not from the specific syndrome decoding method. SedenonBridge
+  is geometrically better-founded (matches contained-channel theory) but
+  functionally equivalent at current bridge_weight levels
+
+**SPRINT P5 CONFIRMED**: SedenonBridge ≥ 30/52 → 31/52 ✓
 
 ### D161: Pivot Instrument Validation — Cooperative (BECOMING)
 
@@ -150,3 +243,5 @@ the easy flips without touching bridge_weight.
 | D159 | Error analysis | 30/52 | 0 | 22 LOSTs in 3 failure categories |
 | **D160** | **Route-gated context boost** | **31/52** | **0** | **+1 net gain, Variant B** |
 | **D161** | **Pivot instrument validation** | **31/52** | **0** | **Cooperative is net +2 pivot, 0 hurts** |
+| **D162** | **Bridge benchmark** | **31/52** | **0** | **Hamming=Sedenon (identical classifications), P5 confirmed** |
+| **D163** | **45° plane bridge signals** | **31/52** | **0** | **210 planes, perfect uniformity (30/line, 10/pair), weaker but broader correction (+5 net)** |

@@ -1,0 +1,494 @@
+{
+  "accuracy_hamming": 31,
+  "accuracy_sedenon": 31,
+  "total": 52,
+  "delta": 0,
+  "p5_confirmed": true,
+  "target_31_achieved": true,
+  "gains": [],
+  "losses": [],
+  "diffs": [],
+  "syndrome_stats": {
+    "hamming": {
+      "total": 0,
+      "valid": 0
+    },
+    "sedenon": {
+      "total": 0,
+      "valid_top3": 42,
+      "valid_top4": 61,
+      "valid_total": 103,
+      "invalid": 157
+    }
+  },
+  "per_protein": {
+    "T4_lysozyme": {
+      "truth": "enzyme_active",
+      "hamming_pred": "enzyme_active",
+      "sedenon_pred": "enzyme_active",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.13130260165695914,
+      "alpha_8": 0.5714285714285714
+    },
+    "HEWL": {
+      "truth": "enzyme_active",
+      "hamming_pred": "enzyme_active",
+      "sedenon_pred": "enzyme_active",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.27366704517559026,
+      "alpha_8": 0.8571428571428571
+    },
+    "CaM_Ca_bound": {
+      "truth": "dumbbell",
+      "hamming_pred": "dumbbell",
+      "sedenon_pred": "dumbbell",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.2843080496534006,
+      "alpha_8": 0.8571428571428571
+    },
+    "Myoglobin": {
+      "truth": "globin",
+      "hamming_pred": "globin",
+      "sedenon_pred": "globin",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.049871449218311104,
+      "alpha_8": 0.42857142857142855
+    },
+    "AdK_open": {
+      "truth": "allosteric",
+      "hamming_pred": "allosteric",
+      "sedenon_pred": "allosteric",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.09645899524773252,
+      "alpha_8": 0.42857142857142855
+    },
+    "DHFR": {
+      "truth": "enzyme_active",
+      "hamming_pred": "enzyme_active",
+      "sedenon_pred": "enzyme_active",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.002808343570557703,
+      "alpha_8": 0.42857142857142855
+    },
+    "Streptavidin": {
+      "truth": "enzyme_active",
+      "hamming_pred": "enzyme_active",
+      "sedenon_pred": "enzyme_active",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.20848528078783524,
+      "alpha_8": 0.5714285714285714
+    },
+    "TIM_barrel": {
+      "truth": "barrel",
+      "hamming_pred": "barrel",
+      "sedenon_pred": "barrel",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.3966336624132363,
+      "alpha_8": 1.0
+    },
+    "LAO_binding": {
+      "truth": "dumbbell",
+      "hamming_pred": "dumbbell",
+      "sedenon_pred": "dumbbell",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.20284882231988513,
+      "alpha_8": 0.8571428571428571
+    },
+    "HIV_protease": {
+      "truth": "enzyme_active",
+      "hamming_pred": "enzyme_active",
+      "sedenon_pred": "enzyme_active",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.2938924960953907,
+      "alpha_8": 0.8571428571428571
+    },
+    "Hemoglobin_alpha": {
+      "truth": "globin",
+      "hamming_pred": "globin",
+      "sedenon_pred": "globin",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.1692627495087381,
+      "alpha_8": 0.8571428571428571
+    },
+    "Citrate_synthase": {
+      "truth": "barrel",
+      "hamming_pred": "barrel",
+      "sedenon_pred": "barrel",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.6060464766622333,
+      "alpha_8": 1.0
+    },
+    "Chymotrypsin": {
+      "truth": "enzyme_active",
+      "hamming_pred": "barrel",
+      "sedenon_pred": "barrel",
+      "hamming_correct": false,
+      "sedenon_correct": false,
+      "alpha_0": 0.563272690874942,
+      "alpha_8": 1.0
+    },
+    "Trypsin": {
+      "truth": "enzyme_active",
+      "hamming_pred": "barrel",
+      "sedenon_pred": "barrel",
+      "hamming_correct": false,
+      "sedenon_correct": false,
+      "alpha_0": 0.2929826071880939,
+      "alpha_8": 0.8571428571428571
+    },
+    "RNase_A": {
+      "truth": "enzyme_active",
+      "hamming_pred": "enzyme_active",
+      "sedenon_pred": "enzyme_active",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.18492327996645844,
+      "alpha_8": 0.8571428571428571
+    },
+    "Carbonic_anhyd_II": {
+      "truth": "enzyme_active",
+      "hamming_pred": "globin",
+      "sedenon_pred": "globin",
+      "hamming_correct": false,
+      "sedenon_correct": false,
+      "alpha_0": 0.12389808945979747,
+      "alpha_8": 0.8571428571428571
+    },
+    "Subtilisin": {
+      "truth": "enzyme_active",
+      "hamming_pred": "barrel",
+      "sedenon_pred": "barrel",
+      "hamming_correct": false,
+      "sedenon_correct": false,
+      "alpha_0": 0.5640431309785351,
+      "alpha_8": 1.0
+    },
+    "Thermolysin": {
+      "truth": "enzyme_active",
+      "hamming_pred": "enzyme_active",
+      "sedenon_pred": "enzyme_active",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.04232727160569752,
+      "alpha_8": 0.0
+    },
+    "Papain": {
+      "truth": "enzyme_active",
+      "hamming_pred": "enzyme_active",
+      "sedenon_pred": "enzyme_active",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.0005186241354306342,
+      "alpha_8": 0.0
+    },
+    "Elastase": {
+      "truth": "enzyme_active",
+      "hamming_pred": "enzyme_active",
+      "sedenon_pred": "enzyme_active",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.061995198628476245,
+      "alpha_8": 0.42857142857142855
+    },
+    "Aldolase_A": {
+      "truth": "barrel",
+      "hamming_pred": "barrel",
+      "sedenon_pred": "barrel",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.07815788689202602,
+      "alpha_8": 0.8571428571428571
+    },
+    "Enolase": {
+      "truth": "barrel",
+      "hamming_pred": "barrel",
+      "sedenon_pred": "barrel",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.44026753535583474,
+      "alpha_8": 1.0
+    },
+    "Xylose_isomerase": {
+      "truth": "barrel",
+      "hamming_pred": "allosteric",
+      "sedenon_pred": "allosteric",
+      "hamming_correct": false,
+      "sedenon_correct": false,
+      "alpha_0": 0.16366671046490164,
+      "alpha_8": 0.8571428571428571
+    },
+    "Rubisco_large": {
+      "truth": "barrel",
+      "hamming_pred": "barrel",
+      "sedenon_pred": "barrel",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.21687332373988513,
+      "alpha_8": 1.0
+    },
+    "Glycolate_oxidase": {
+      "truth": "barrel",
+      "hamming_pred": "barrel",
+      "sedenon_pred": "barrel",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.4206712493128127,
+      "alpha_8": 1.0
+    },
+    "Tryptophan_synth": {
+      "truth": "barrel",
+      "hamming_pred": "barrel",
+      "sedenon_pred": "barrel",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.2650370214345002,
+      "alpha_8": 1.0
+    },
+    "KDPG_aldolase": {
+      "truth": "barrel",
+      "hamming_pred": "enzyme_active",
+      "sedenon_pred": "enzyme_active",
+      "hamming_correct": false,
+      "sedenon_correct": false,
+      "alpha_0": 0.09886545324103344,
+      "alpha_8": 0.5714285714285714
+    },
+    "Mandelate_racemase": {
+      "truth": "barrel",
+      "hamming_pred": "barrel",
+      "sedenon_pred": "barrel",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.20490938345021292,
+      "alpha_8": 0.5714285714285714
+    },
+    "Leghemoglobin": {
+      "truth": "globin",
+      "hamming_pred": "globin",
+      "sedenon_pred": "globin",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.04953135379271817,
+      "alpha_8": 0.42857142857142855
+    },
+    "Neuroglobin": {
+      "truth": "globin",
+      "hamming_pred": "barrel",
+      "sedenon_pred": "barrel",
+      "hamming_correct": false,
+      "sedenon_correct": false,
+      "alpha_0": 0.012874039585369257,
+      "alpha_8": 0.14285714285714285
+    },
+    "Cytochrome_b5": {
+      "truth": "globin",
+      "hamming_pred": "enzyme_active",
+      "sedenon_pred": "enzyme_active",
+      "hamming_correct": false,
+      "sedenon_correct": false,
+      "alpha_0": 0.11759373463841813,
+      "alpha_8": 0.0
+    },
+    "Cytochrome_c": {
+      "truth": "globin",
+      "hamming_pred": "dumbbell",
+      "sedenon_pred": "dumbbell",
+      "hamming_correct": false,
+      "sedenon_correct": false,
+      "alpha_0": 0.19584787917870844,
+      "alpha_8": 0.8571428571428571
+    },
+    "Hemoglobin_beta": {
+      "truth": "globin",
+      "hamming_pred": "globin",
+      "sedenon_pred": "globin",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.08110534463422209,
+      "alpha_8": 0.8571428571428571
+    },
+    "Erythrocruorin": {
+      "truth": "globin",
+      "hamming_pred": "allosteric",
+      "sedenon_pred": "allosteric",
+      "hamming_correct": false,
+      "sedenon_correct": false,
+      "alpha_0": 0.020308528022537853,
+      "alpha_8": 0.14285714285714285
+    },
+    "Myoglobin_whale": {
+      "truth": "globin",
+      "hamming_pred": "globin",
+      "sedenon_pred": "globin",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.15039219642121462,
+      "alpha_8": 0.8571428571428571
+    },
+    "Truncated_Hb": {
+      "truth": "globin",
+      "hamming_pred": "enzyme_active",
+      "sedenon_pred": "enzyme_active",
+      "hamming_correct": false,
+      "sedenon_correct": false,
+      "alpha_0": 0.1360563180755331,
+      "alpha_8": 0.5714285714285714
+    },
+    "Lactoferrin": {
+      "truth": "dumbbell",
+      "hamming_pred": "dumbbell",
+      "sedenon_pred": "dumbbell",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.02652541402609976,
+      "alpha_8": 0.42857142857142855
+    },
+    "Transferrin": {
+      "truth": "dumbbell",
+      "hamming_pred": "enzyme_active",
+      "sedenon_pred": "enzyme_active",
+      "hamming_correct": false,
+      "sedenon_correct": false,
+      "alpha_0": 0.06682352487409618,
+      "alpha_8": 0.42857142857142855
+    },
+    "Pyruvate_kinase": {
+      "truth": "dumbbell",
+      "hamming_pred": "barrel",
+      "sedenon_pred": "barrel",
+      "hamming_correct": false,
+      "sedenon_correct": false,
+      "alpha_0": 0.3422220150747636,
+      "alpha_8": 1.0
+    },
+    "Immunoglobulin": {
+      "truth": "dumbbell",
+      "hamming_pred": "dumbbell",
+      "sedenon_pred": "dumbbell",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.2873954052980411,
+      "alpha_8": 1.0
+    },
+    "MBP": {
+      "truth": "dumbbell",
+      "hamming_pred": "enzyme_active",
+      "sedenon_pred": "enzyme_active",
+      "hamming_correct": false,
+      "sedenon_correct": false,
+      "alpha_0": 0.15697368499026865,
+      "alpha_8": 0.8571428571428571
+    },
+    "Phosphoglycerate_k": {
+      "truth": "dumbbell",
+      "hamming_pred": "dumbbell",
+      "sedenon_pred": "dumbbell",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.10433741688811907,
+      "alpha_8": 0.14285714285714285
+    },
+    "HSP70_NBD": {
+      "truth": "dumbbell",
+      "hamming_pred": "barrel",
+      "sedenon_pred": "barrel",
+      "hamming_correct": false,
+      "sedenon_correct": false,
+      "alpha_0": 0.24098810737928925,
+      "alpha_8": 0.8571428571428571
+    },
+    "Glutamine_BP": {
+      "truth": "dumbbell",
+      "hamming_pred": "dumbbell",
+      "sedenon_pred": "dumbbell",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.3836639071637928,
+      "alpha_8": 1.0
+    },
+    "ATCase_cat": {
+      "truth": "allosteric",
+      "hamming_pred": "enzyme_active",
+      "sedenon_pred": "enzyme_active",
+      "hamming_correct": false,
+      "sedenon_correct": false,
+      "alpha_0": 0.04938328567636002,
+      "alpha_8": 0.42857142857142855
+    },
+    "Hemoglobin_T": {
+      "truth": "allosteric",
+      "hamming_pred": "allosteric",
+      "sedenon_pred": "allosteric",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.07654091520862666,
+      "alpha_8": 0.0
+    },
+    "Phosphofructokinase": {
+      "truth": "allosteric",
+      "hamming_pred": "allosteric",
+      "sedenon_pred": "allosteric",
+      "hamming_correct": true,
+      "sedenon_correct": true,
+      "alpha_0": 0.09359829631834082,
+      "alpha_8": 0.42857142857142855
+    },
+    "Glycogen_phosph": {
+      "truth": "allosteric",
+      "hamming_pred": "barrel",
+      "sedenon_pred": "barrel",
+      "hamming_correct": false,
+      "sedenon_correct": false,
+      "alpha_0": 0.6217030929455555,
+      "alpha_8": 1.0
+    },
+    "Protein_kinase_A": {
+      "truth": "allosteric",
+      "hamming_pred": "globin",
+      "sedenon_pred": "globin",
+      "hamming_correct": false,
+      "sedenon_correct": false,
+      "alpha_0": 0.0355858717354445,
+      "alpha_8": 0.42857142857142855
+    },
+    "ABP_open": {
+      "truth": "allosteric",
+      "hamming_pred": "enzyme_active",
+      "sedenon_pred": "enzyme_active",
+      "hamming_correct": false,
+      "sedenon_correct": false,
+      "alpha_0": 0.09642101378092821,
+      "alpha_8": 0.8571428571428571
+    },
+    "CheY": {
+      "truth": "allosteric",
+      "hamming_pred": "enzyme_active",
+      "sedenon_pred": "enzyme_active",
+      "hamming_correct": false,
+      "sedenon_correct": false,
+      "alpha_0": 0.25532726321759724,
+      "alpha_8": 0.8571428571428571
+    },
+    "GroEL_subunit": {
+      "truth": "allosteric",
+      "hamming_pred": "enzyme_active",
+      "sedenon_pred": "enzyme_active",
+      "hamming_correct": false,
+      "sedenon_correct": false,
+      "alpha_0": 0.03475349118087462,
+      "alpha_8": 0.14285714285714285
+    }
+  }
+}
