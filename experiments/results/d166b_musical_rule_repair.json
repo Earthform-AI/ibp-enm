@@ -1,0 +1,273 @@
+{
+  "experiment": "D166b_musical_rule_repair",
+  "timestamp": "2026-02-28T11:27:31",
+  "corpus_size": 52,
+  "variants": {
+    "A_baseline": {
+      "overall_accuracy": 31,
+      "musical_accuracy": 12,
+      "musical_globin_accuracy": 0,
+      "musical_globin_total": 10,
+      "changes": [],
+      "gains": 0,
+      "losses": 0,
+      "net": 0,
+      "per_archetype_musical": {
+        "dumbbell": {
+          "correct": 4,
+          "total": 10
+        },
+        "barrel": {
+          "correct": 3,
+          "total": 10
+        },
+        "globin": {
+          "correct": 0,
+          "total": 10
+        },
+        "enzyme_active": {
+          "correct": 1,
+          "total": 13
+        },
+        "allosteric": {
+          "correct": 4,
+          "total": 9
+        }
+      }
+    },
+    "B_boost_globin": {
+      "overall_accuracy": 31,
+      "musical_accuracy": 11,
+      "musical_globin_accuracy": 0,
+      "musical_globin_total": 10,
+      "changes": [],
+      "gains": 0,
+      "losses": 0,
+      "net": 0,
+      "per_archetype_musical": {
+        "dumbbell": {
+          "correct": 4,
+          "total": 10
+        },
+        "barrel": {
+          "correct": 3,
+          "total": 10
+        },
+        "globin": {
+          "correct": 0,
+          "total": 10
+        },
+        "enzyme_active": {
+          "correct": 1,
+          "total": 13
+        },
+        "allosteric": {
+          "correct": 3,
+          "total": 9
+        }
+      }
+    },
+    "C_widen_globin": {
+      "overall_accuracy": 31,
+      "musical_accuracy": 12,
+      "musical_globin_accuracy": 0,
+      "musical_globin_total": 10,
+      "changes": [
+        {
+          "name": "ABP_open",
+          "truth": "allosteric",
+          "baseline": "enzyme_active",
+          "variant": "dumbbell",
+          "gain": false,
+          "loss": false
+        }
+      ],
+      "gains": 0,
+      "losses": 0,
+      "net": 0,
+      "per_archetype_musical": {
+        "dumbbell": {
+          "correct": 4,
+          "total": 10
+        },
+        "barrel": {
+          "correct": 3,
+          "total": 10
+        },
+        "globin": {
+          "correct": 0,
+          "total": 10
+        },
+        "enzyme_active": {
+          "correct": 1,
+          "total": 13
+        },
+        "allosteric": {
+          "correct": 4,
+          "total": 9
+        }
+      }
+    },
+    "D_new_globin_evol": {
+      "overall_accuracy": 31,
+      "musical_accuracy": 9,
+      "musical_globin_accuracy": 0,
+      "musical_globin_total": 10,
+      "changes": [],
+      "gains": 0,
+      "losses": 0,
+      "net": 0,
+      "per_archetype_musical": {
+        "dumbbell": {
+          "correct": 4,
+          "total": 10
+        },
+        "barrel": {
+          "correct": 3,
+          "total": 10
+        },
+        "globin": {
+          "correct": 0,
+          "total": 10
+        },
+        "enzyme_active": {
+          "correct": 1,
+          "total": 13
+        },
+        "allosteric": {
+          "correct": 1,
+          "total": 9
+        }
+      }
+    },
+    "E_tighten_allosteric": {
+      "overall_accuracy": 31,
+      "musical_accuracy": 9,
+      "musical_globin_accuracy": 0,
+      "musical_globin_total": 10,
+      "changes": [],
+      "gains": 0,
+      "losses": 0,
+      "net": 0,
+      "per_archetype_musical": {
+        "dumbbell": {
+          "correct": 4,
+          "total": 10
+        },
+        "barrel": {
+          "correct": 3,
+          "total": 10
+        },
+        "globin": {
+          "correct": 0,
+          "total": 10
+        },
+        "enzyme_active": {
+          "correct": 1,
+          "total": 13
+        },
+        "allosteric": {
+          "correct": 1,
+          "total": 9
+        }
+      }
+    },
+    "F_combined": {
+      "overall_accuracy": 31,
+      "musical_accuracy": 13,
+      "musical_globin_accuracy": 4,
+      "musical_globin_total": 10,
+      "changes": [
+        {
+          "name": "ABP_open",
+          "truth": "allosteric",
+          "baseline": "enzyme_active",
+          "variant": "dumbbell",
+          "gain": false,
+          "loss": false
+        }
+      ],
+      "gains": 0,
+      "losses": 0,
+      "net": 0,
+      "per_archetype_musical": {
+        "dumbbell": {
+          "correct": 4,
+          "total": 10
+        },
+        "barrel": {
+          "correct": 3,
+          "total": 10
+        },
+        "globin": {
+          "correct": 4,
+          "total": 10
+        },
+        "enzyme_active": {
+          "correct": 1,
+          "total": 13
+        },
+        "allosteric": {
+          "correct": 1,
+          "total": 9
+        }
+      }
+    },
+    "G_reduce_dumbbell": {
+      "overall_accuracy": 31,
+      "musical_accuracy": 17,
+      "musical_globin_accuracy": 0,
+      "musical_globin_total": 10,
+      "changes": [],
+      "gains": 0,
+      "losses": 0,
+      "net": 0,
+      "per_archetype_musical": {
+        "dumbbell": {
+          "correct": 2,
+          "total": 10
+        },
+        "barrel": {
+          "correct": 3,
+          "total": 10
+        },
+        "globin": {
+          "correct": 0,
+          "total": 10
+        },
+        "enzyme_active": {
+          "correct": 6,
+          "total": 13
+        },
+        "allosteric": {
+          "correct": 6,
+          "total": 9
+        }
+      }
+    }
+  },
+  "best_variant": "G_reduce_dumbbell",
+  "predictions": {
+    "P1_any_globin_gt_30": {
+      "confirmed": true,
+      "value": 40.0
+    },
+    "P2_widen_flips_2": {
+      "confirmed": false,
+      "value": 0
+    },
+    "P3_combined_globin_50": {
+      "confirmed": false,
+      "value": 40.0
+    },
+    "P4_no_regression": {
+      "confirmed": true,
+      "value": 31
+    },
+    "P5_best_ge_32": {
+      "confirmed": false,
+      "value": 31
+    }
+  },
+  "n_confirmed": 2
+}

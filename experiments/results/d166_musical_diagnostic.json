@@ -1,0 +1,332 @@
+{
+  "experiment": "D166_musical_diagnostic",
+  "timestamp": "2026-02-28T11:01:26",
+  "corpus_size": 52,
+  "production_accuracy": 31,
+  "n_lost": 21,
+  "phase1_per_instrument_accuracy": {
+    "algebraic": 42.3,
+    "musical": 23.1,
+    "fick": 30.8,
+    "thermal": 50.0,
+    "cooperative": 40.4,
+    "propagative": 40.4,
+    "fragile": 40.4
+  },
+  "musical_accuracy_all": 23.1,
+  "mean_instrument_accuracy_all": 38.2,
+  "phase2_musical_accuracy_lost": 19.0,
+  "phase3_musical_per_archetype": {
+    "dumbbell": {
+      "correct": 4,
+      "total": 10,
+      "accuracy": 40.0,
+      "confusion": {
+        "dumbbell": 4,
+        "globin": 2,
+        "allosteric": 4
+      }
+    },
+    "barrel": {
+      "correct": 3,
+      "total": 10,
+      "accuracy": 30.0,
+      "confusion": {
+        "globin": 2,
+        "barrel": 3,
+        "enzyme_active": 2,
+        "allosteric": 3
+      }
+    },
+    "globin": {
+      "correct": 0,
+      "total": 10,
+      "accuracy": 0.0,
+      "confusion": {
+        "dumbbell": 10
+      }
+    },
+    "enzyme_active": {
+      "correct": 1,
+      "total": 13,
+      "accuracy": 7.7,
+      "confusion": {
+        "allosteric": 2,
+        "dumbbell": 7,
+        "barrel": 2,
+        "globin": 1,
+        "enzyme_active": 1
+      }
+    },
+    "allosteric": {
+      "correct": 4,
+      "total": 9,
+      "accuracy": 44.4,
+      "confusion": {
+        "dumbbell": 4,
+        "allosteric": 4,
+        "barrel": 1
+      }
+    }
+  },
+  "phase5_ablation": {
+    "algebraic": {
+      "accuracy": 30,
+      "net": -1,
+      "gains": 0,
+      "losses": 1,
+      "changes": [
+        {
+          "name": "Aldolase_A",
+          "truth": "barrel",
+          "prod_pred": "barrel",
+          "abl_pred": "enzyme_active",
+          "gain": false,
+          "loss": true
+        }
+      ]
+    },
+    "musical": {
+      "accuracy": 31,
+      "net": 0,
+      "gains": 0,
+      "losses": 0,
+      "changes": [
+        {
+          "name": "ABP_open",
+          "truth": "allosteric",
+          "prod_pred": "enzyme_active",
+          "abl_pred": "dumbbell",
+          "gain": false,
+          "loss": false
+        }
+      ]
+    },
+    "fick": {
+      "accuracy": 30,
+      "net": -1,
+      "gains": 0,
+      "losses": 1,
+      "changes": [
+        {
+          "name": "Aldolase_A",
+          "truth": "barrel",
+          "prod_pred": "barrel",
+          "abl_pred": "enzyme_active",
+          "gain": false,
+          "loss": true
+        }
+      ]
+    },
+    "thermal": {
+      "accuracy": 30,
+      "net": -1,
+      "gains": 0,
+      "losses": 1,
+      "changes": [
+        {
+          "name": "Aldolase_A",
+          "truth": "barrel",
+          "prod_pred": "barrel",
+          "abl_pred": "enzyme_active",
+          "gain": false,
+          "loss": true
+        }
+      ]
+    },
+    "cooperative": {
+      "accuracy": 30,
+      "net": -1,
+      "gains": 0,
+      "losses": 1,
+      "changes": [
+        {
+          "name": "Aldolase_A",
+          "truth": "barrel",
+          "prod_pred": "barrel",
+          "abl_pred": "enzyme_active",
+          "gain": false,
+          "loss": true
+        }
+      ]
+    },
+    "propagative": {
+      "accuracy": 31,
+      "net": 0,
+      "gains": 0,
+      "losses": 0,
+      "changes": [
+        {
+          "name": "ABP_open",
+          "truth": "allosteric",
+          "prod_pred": "enzyme_active",
+          "abl_pred": "dumbbell",
+          "gain": false,
+          "loss": false
+        }
+      ]
+    },
+    "fragile": {
+      "accuracy": 31,
+      "net": 0,
+      "gains": 0,
+      "losses": 0,
+      "changes": [
+        {
+          "name": "ABP_open",
+          "truth": "allosteric",
+          "prod_pred": "enzyme_active",
+          "abl_pred": "dumbbell",
+          "gain": false,
+          "loss": false
+        }
+      ]
+    }
+  },
+  "phase7_musical_uniquely_correct": [
+    {
+      "name": "Elastase",
+      "truth": "enzyme_active",
+      "musical_top": "enzyme_active",
+      "other_majority": "barrel",
+      "other_tops": {
+        "algebraic": "barrel",
+        "fick": "barrel",
+        "thermal": "barrel",
+        "cooperative": "enzyme_active",
+        "propagative": "globin",
+        "fragile": "enzyme_active"
+      },
+      "correct": true
+    },
+    {
+      "name": "ATCase_cat",
+      "truth": "allosteric",
+      "musical_top": "allosteric",
+      "other_majority": "barrel",
+      "other_tops": {
+        "algebraic": "barrel",
+        "fick": "barrel",
+        "thermal": "allosteric",
+        "cooperative": "globin",
+        "propagative": "allosteric",
+        "fragile": "barrel"
+      },
+      "correct": false
+    },
+    {
+      "name": "Protein_kinase_A",
+      "truth": "allosteric",
+      "musical_top": "allosteric",
+      "other_majority": "globin",
+      "other_tops": {
+        "algebraic": "globin",
+        "fick": "globin",
+        "thermal": "barrel",
+        "cooperative": "globin",
+        "propagative": "allosteric",
+        "fragile": "dumbbell"
+      },
+      "correct": false
+    },
+    {
+      "name": "ABP_open",
+      "truth": "allosteric",
+      "musical_top": "allosteric",
+      "other_majority": "dumbbell",
+      "other_tops": {
+        "algebraic": "dumbbell",
+        "fick": "dumbbell",
+        "thermal": "dumbbell",
+        "cooperative": "dumbbell",
+        "propagative": "allosteric",
+        "fragile": "globin"
+      },
+      "correct": false
+    },
+    {
+      "name": "GroEL_subunit",
+      "truth": "allosteric",
+      "musical_top": "allosteric",
+      "other_majority": "barrel",
+      "other_tops": {
+        "algebraic": "barrel",
+        "fick": "barrel",
+        "thermal": "globin",
+        "cooperative": "allosteric",
+        "propagative": "dumbbell",
+        "fragile": "globin"
+      },
+      "correct": false
+    }
+  ],
+  "phase7_sole_dissenter": [
+    {
+      "name": "TIM_barrel",
+      "truth": "barrel",
+      "musical": "globin",
+      "others": "barrel",
+      "musical_correct": false,
+      "others_correct": true
+    },
+    {
+      "name": "Rubisco_large",
+      "truth": "barrel",
+      "musical": "allosteric",
+      "others": "barrel",
+      "musical_correct": false,
+      "others_correct": true
+    },
+    {
+      "name": "Tryptophan_synth",
+      "truth": "barrel",
+      "musical": "allosteric",
+      "others": "barrel",
+      "musical_correct": false,
+      "others_correct": true
+    },
+    {
+      "name": "Pyruvate_kinase",
+      "truth": "dumbbell",
+      "musical": "globin",
+      "others": "barrel",
+      "musical_correct": false,
+      "others_correct": false
+    }
+  ],
+  "phase9_musical_agreement_row": {
+    "algebraic": 0.269,
+    "musical": 1.0,
+    "fick": 0.173,
+    "thermal": 0.308,
+    "cooperative": 0.385,
+    "propagative": 0.269,
+    "fragile": 0.288
+  },
+  "predictions": {
+    "P1_musical_acc_lt_35_lost": {
+      "value": 19.0,
+      "confirmed": true
+    },
+    "P2_barrel_enzyme_cluster": {
+      "value": 10.0,
+      "confirmed": false
+    },
+    "P3_fick_agree_lt_25_lost": {
+      "value": 14.3,
+      "confirmed": true
+    },
+    "P4_ablation_ge_31": {
+      "value": 31,
+      "net": 0,
+      "confirmed": true
+    },
+    "P5_correct_when_partners_agree": {
+      "value": 22.8,
+      "baseline": 23.1,
+      "confirmed": false
+    }
+  },
+  "n_confirmed": 3,
+  "verdict": "neutral"
+}
