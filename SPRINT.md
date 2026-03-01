@@ -1,6 +1,6 @@
 # Discovery Sprint Log
 
-## Current State — D168 (Sprint 10: Confusion-Pair Resolution)
+## Current State — D169 (Sprint 10: Confusion-Pair Resolution)
 
 **Accuracy: 32/52 (61.5%)** on the expanded corpus, 0 free parameters.
 
@@ -17,6 +17,56 @@
 - **BenchmarkRunner._run_protein**: now saves actual ThermoReactionProfile objects (was `[]`)
 - **BenchmarkRunner._rescore**: auto-rebuilds stale entries on access
 - 54/54 tests pass (cache: 25, benchmark: 29)
+
+### D169: Rank-2 Correction Lens — Confusion-Pair Discriminants (NEGATIVE RESULT)
+
+**Date**: 2026-02
+**Script**: `experiments/discovery_169_rank2_correction.py`
+**Results**: `experiments/results/d169_rank2_correction.json`
+
+**Question**: Can D167's per-axis discriminant features be used as a post-hoc
+lens to flip near-miss rank-2 predictions correct?
+
+**Method**: Built a `ConfusionPairLens` implementing the Lens protocol.
+Gate: top-2 margin < threshold. Apply: extract D167 discriminant feature
+from all 7 instrument profiles, compare against population-level medians
+(corpus central tendency), boost rank-2 / demote rank-1 if majority of
+instruments favour rank-2. 5 variants tested on 32 expanded-corpus proteins.
+
+| Variant | Strategy | Accuracy | Δ |
+|---------|----------|----------|---|
+| A (baseline) | Production pipeline | 16/32 | — |
+| B (CPL only) | ConfusionPairLens, no default lenses | 15/32 | -1 |
+| C (full+CPL) | Default stack + CPL appended | 14/32 | -2 |
+| D (aggressive) | Wider margin (0.15), larger boost | 14/32 | -2 |
+| E (conservative) | Higher quorum (5/7), smaller boost | 16/32 | 0 |
+
+**Key findings — NEGATIVE RESULT, no production change**:
+
+1. **Most near-miss proteins have truth at rank-3+, not rank-2.**
+   The lens can only flip rank-1↔rank-2, making it structurally unable
+   to help Neuroglobin (truth rank-3), Erythrocruorin (rank-3),
+   Transferrin (rank-5).
+
+2. **The enzyme lens is the primary error source, not confusion margins.**
+   KDPG_aldolase is correct PRE-lens (barrel rank-1) but the enzyme lens
+   pushes enzyme_active above barrel. GroEL_subunit is rank-2 pre-lens
+   but enzyme lens pushes it to rank-4+. Future work should target
+   enzyme lens false-positive rate.
+
+3. **Discriminant features create false positives on correct proteins.**
+   Leghemoglobin (correct) and Phosphoglycerate_k (correct) have small
+   margins and D167 features that point the WRONG way, causing regressions.
+
+4. **Only Truncated_Hb is recoverable** via aggressive variant D (+1),
+   but at cost of -3 regressions (net -2).
+
+**Predictions**: 2/5 confirmed (P4✓ Transferrin not recovered, P5✓ E has
+0 regressions). P1✗ P2✗ P3✗ — lens doesn't work as designed.
+
+**Key redirect**: Next experiment should investigate **enzyme lens
+over-activation** — the enzyme lens's false-positive rate on barrel and
+allosteric proteins is the dominant error mode for near-miss proteins.
 
 ### D168: Conditional Bridge — Surgical α₈ De-gating
 

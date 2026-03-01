@@ -1,0 +1,180 @@
+{
+  "experiment": "D169",
+  "title": "Rank-2 Correction Lens \u2014 Confusion-Pair Discriminants",
+  "corpus_size": 52,
+  "loaded": 32,
+  "near_miss_targets": [
+    "Erythrocruorin",
+    "GroEL_subunit",
+    "KDPG_aldolase",
+    "Neuroglobin",
+    "Protein_kinase_A",
+    "Transferrin",
+    "Truncated_Hb"
+  ],
+  "discriminant_table": [
+    {
+      "arch_a": "allosteric",
+      "arch_b": "barrel",
+      "feature": "fick_mean_delta_beta",
+      "auc": 1.0,
+      "higher_favours": "A"
+    },
+    {
+      "arch_a": "allosteric",
+      "arch_b": "barrel",
+      "feature": "algebraic_mean_delta_beta",
+      "auc": 0.956,
+      "higher_favours": "A"
+    },
+    {
+      "arch_a": "allosteric",
+      "arch_b": "globin",
+      "feature": "propagative_mean_scatter",
+      "auc": 0.983,
+      "higher_favours": "A"
+    },
+    {
+      "arch_a": "allosteric",
+      "arch_b": "dumbbell",
+      "feature": "fragile_mean_delta_entropy",
+      "auc": 0.8,
+      "higher_favours": "A"
+    },
+    {
+      "arch_a": "barrel",
+      "arch_b": "enzyme_active",
+      "feature": "agg_min_entropy_change",
+      "auc": 0.946,
+      "higher_favours": "B"
+    },
+    {
+      "arch_a": "barrel",
+      "arch_b": "dumbbell",
+      "feature": "algebraic_mean_delta_beta",
+      "auc": 0.96,
+      "higher_favours": "B"
+    },
+    {
+      "arch_a": "enzyme_active",
+      "arch_b": "globin",
+      "feature": "thermal_gap_trend",
+      "auc": 0.969,
+      "higher_favours": "A"
+    }
+  ],
+  "variant_accuracy": {
+    "A_baseline": {
+      "correct": 16,
+      "total": 32,
+      "pct": 50.0,
+      "delta": 0
+    },
+    "B_cpl_only": {
+      "correct": 14,
+      "total": 32,
+      "pct": 43.8,
+      "delta": -2
+    },
+    "C_full_plus_cpl": {
+      "correct": 14,
+      "total": 32,
+      "pct": 43.8,
+      "delta": -2
+    },
+    "D_aggressive": {
+      "correct": 14,
+      "total": 32,
+      "pct": 43.8,
+      "delta": -2
+    },
+    "E_conservative": {
+      "correct": 16,
+      "total": 32,
+      "pct": 50.0,
+      "delta": 0
+    }
+  },
+  "variant_changes": {
+    "B_cpl_only": {
+      "gains": [
+        "+ KDPG_aldolase             truth=barrel          was=enzyme_active   now=barrel \u2605"
+      ],
+      "losses": [
+        "- Leghemoglobin             truth=globin          was_correct, now=allosteric",
+        "- Lactoferrin               truth=dumbbell        was_correct, now=barrel",
+        "- Phosphoglycerate_k        truth=dumbbell        was_correct, now=allosteric"
+      ],
+      "flips": [
+        "~ Transferrin               truth=dumbbell        was=enzyme_active   now=globin \u2605",
+        "~ MBP                       truth=dumbbell        was=enzyme_active   now=barrel",
+        "~ GroEL_subunit             truth=allosteric      was=enzyme_active   now=globin \u2605"
+      ]
+    },
+    "C_full_plus_cpl": {
+      "gains": [],
+      "losses": [
+        "- Leghemoglobin             truth=globin          was_correct, now=allosteric",
+        "- Phosphoglycerate_k        truth=dumbbell        was_correct, now=allosteric"
+      ],
+      "flips": []
+    },
+    "D_aggressive": {
+      "gains": [
+        "+ Truncated_Hb              truth=globin          was=enzyme_active   now=globin \u2605"
+      ],
+      "losses": [
+        "- Leghemoglobin             truth=globin          was_correct, now=allosteric",
+        "- Phosphoglycerate_k        truth=dumbbell        was_correct, now=allosteric",
+        "- Phosphofructokinase       truth=allosteric      was_correct, now=dumbbell"
+      ],
+      "flips": []
+    },
+    "E_conservative": {
+      "gains": [],
+      "losses": [],
+      "flips": []
+    }
+  },
+  "cpl_activations": [
+    {
+      "name": "Leghemoglobin",
+      "truth": "globin",
+      "identity": "allosteric",
+      "correct": false,
+      "rank1": "globin",
+      "rank2": "allosteric",
+      "margin": 0.084,
+      "discriminant": "propagative_mean_scatter",
+      "auc": 0.983,
+      "n_favour_rank2": 6,
+      "n_total": 7,
+      "mean_feature": 3.5143,
+      "quorum": 4
+    },
+    {
+      "name": "Phosphoglycerate_k",
+      "truth": "dumbbell",
+      "identity": "allosteric",
+      "correct": false,
+      "rank1": "dumbbell",
+      "rank2": "allosteric",
+      "margin": 0.0579,
+      "discriminant": "fragile_mean_delta_entropy",
+      "auc": 0.8,
+      "n_favour_rank2": 4,
+      "n_total": 7,
+      "mean_feature": 0.0827,
+      "quorum": 4
+    }
+  ],
+  "predictions": {
+    "P1": false,
+    "P2": false,
+    "P3": false,
+    "P4": true,
+    "P5": true
+  },
+  "predictions_confirmed": 2,
+  "predictions_total": 5
+}
