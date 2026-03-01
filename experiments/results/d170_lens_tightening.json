@@ -1,0 +1,133 @@
+{
+  "experiment": "D170",
+  "title": "Hinge + Enzyme Lens Gate Tightening",
+  "corpus_size": 52,
+  "loaded": 32,
+  "pre_lens_accuracy": 15,
+  "fp_targets": [
+    "ABP_open",
+    "GroEL_subunit",
+    "KDPG_aldolase",
+    "MBP",
+    "Transferrin"
+  ],
+  "variant_accuracy": {
+    "A_baseline": {
+      "correct": 16,
+      "total": 32,
+      "pct": 50.0,
+      "delta": 0
+    },
+    "B_enz_vote_min": {
+      "correct": 16,
+      "total": 32,
+      "pct": 50.0,
+      "delta": 0
+    },
+    "C_B_plus_tight_enz": {
+      "correct": 16,
+      "total": 32,
+      "pct": 50.0,
+      "delta": 0
+    },
+    "D_B_plus_low_cap": {
+      "correct": 16,
+      "total": 32,
+      "pct": 50.0,
+      "delta": 0
+    },
+    "E_B_plus_alg_strict": {
+      "correct": 16,
+      "total": 32,
+      "pct": 50.0,
+      "delta": 0
+    },
+    "F_all_tight": {
+      "correct": 16,
+      "total": 32,
+      "pct": 50.0,
+      "delta": 0
+    }
+  },
+  "variant_changes": {
+    "B_enz_vote_min": {
+      "gains": [],
+      "losses": [],
+      "flips": [
+        "~ GroEL_subunit             truth=allosteric      was=enzyme_active   now=globin \u2605",
+        "~ MBP                       truth=dumbbell        was=enzyme_active   now=allosteric \u2605",
+        "~ Transferrin               truth=dumbbell        was=enzyme_active   now=allosteric \u2605"
+      ]
+    },
+    "C_B_plus_tight_enz": {
+      "gains": [],
+      "losses": [],
+      "flips": [
+        "~ GroEL_subunit             truth=allosteric      was=enzyme_active   now=globin \u2605",
+        "~ MBP                       truth=dumbbell        was=enzyme_active   now=allosteric \u2605",
+        "~ Transferrin               truth=dumbbell        was=enzyme_active   now=allosteric \u2605"
+      ]
+    },
+    "D_B_plus_low_cap": {
+      "gains": [],
+      "losses": [],
+      "flips": [
+        "~ GroEL_subunit             truth=allosteric      was=enzyme_active   now=globin \u2605",
+        "~ MBP                       truth=dumbbell        was=enzyme_active   now=allosteric \u2605",
+        "~ Transferrin               truth=dumbbell        was=enzyme_active   now=allosteric \u2605"
+      ]
+    },
+    "E_B_plus_alg_strict": {
+      "gains": [],
+      "losses": [],
+      "flips": [
+        "~ GroEL_subunit             truth=allosteric      was=enzyme_active   now=globin \u2605",
+        "~ MBP                       truth=dumbbell        was=enzyme_active   now=allosteric \u2605",
+        "~ Transferrin               truth=dumbbell        was=enzyme_active   now=allosteric \u2605"
+      ]
+    },
+    "F_all_tight": {
+      "gains": [],
+      "losses": [],
+      "flips": [
+        "~ GroEL_subunit             truth=allosteric      was=enzyme_active   now=globin \u2605",
+        "~ MBP                       truth=dumbbell        was=enzyme_active   now=allosteric \u2605",
+        "~ Transferrin               truth=dumbbell        was=enzyme_active   now=allosteric \u2605"
+      ]
+    }
+  },
+  "variant_configs": {
+    "A_baseline": {},
+    "B_enz_vote_min": {
+      "hinge_lens.enzyme_vote_min": 0.1429
+    },
+    "C_B_plus_tight_enz": {
+      "hinge_lens.enzyme_vote_min": 0.1429,
+      "enzyme_lens.close_call_gap": 0.06
+    },
+    "D_B_plus_low_cap": {
+      "hinge_lens.enzyme_vote_min": 0.1429,
+      "hinge_lens.boost_cap": 0.2
+    },
+    "E_B_plus_alg_strict": {
+      "hinge_lens.enzyme_vote_min": 0.1429,
+      "enzyme_lens.alg_strong": 0.4
+    },
+    "F_all_tight": {
+      "hinge_lens.enzyme_vote_min": 0.1429,
+      "enzyme_lens.close_call_gap": 0.06,
+      "hinge_lens.boost_cap": 0.2,
+      "enzyme_lens.alg_strong": 0.4
+    }
+  },
+  "predictions": {
+    "P1": false,
+    "P2": false,
+    "P3": false,
+    "P4": true,
+    "P5": true
+  },
+  "predictions_confirmed": 2,
+  "predictions_total": 5,
+  "recommended": "A_baseline"
+}

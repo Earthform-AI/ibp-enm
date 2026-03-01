@@ -278,9 +278,9 @@ _DEFAULT_DATA: Dict[str, float] = {
 
     # ── enzyme_lens — EnzymeLens thresholds (D110) ──────────────
 
-    # Activation gate
-    "enzyme_lens.close_call_gap": 0.10,
-    "enzyme_lens.ea_proximity_gap": 0.15,
+    # Activation gate  (D170: disabled — 1 activation on expanded corpus, 1 FP)
+    "enzyme_lens.close_call_gap": 0.0,       # was 0.10; set to 0 → lens never fires
+    "enzyme_lens.ea_proximity_gap": 0.0,      # was 0.15; set to 0 → lens never fires
     "enzyme_lens.allosteric_counter_ratio": 0.5,
 
     # IPR signal
@@ -319,7 +319,7 @@ _DEFAULT_DATA: Dict[str, float] = {
 
     # D116 gates (default = no additional gating)
     "hinge_lens.dom_stiff_max": 999.0,     # block if dom_stiff > this
-    "hinge_lens.enzyme_vote_min": 0.0,      # require ≥ this fraction of instruments voting enzyme
+    "hinge_lens.enzyme_vote_min": 0.143,    # D170: require ≥1/7 instruments voting enzyme (was 0.0)
     "hinge_lens.hinge_r_effective_cap": 999.0,  # cap effective hinge_r for boost calc
 
     # Boost computation

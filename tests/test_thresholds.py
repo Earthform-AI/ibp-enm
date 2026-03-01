@@ -250,7 +250,7 @@ class TestDefaultThresholds:
         ("ctx_boost.dumbbell_db_high", 0.12),
         ("ctx_boost.enzyme_ipr_high", 0.025),
         ("enzyme_lens.ipr_strong", 0.025),
-        ("enzyme_lens.close_call_gap", 0.10),
+        ("enzyme_lens.close_call_gap", 0.0),       # D170: disabled
         ("hinge_lens.boost_cap", 0.35),
         ("barrel_penalty.size_gate_n", 250.0),
         ("renorm.floor", 0.01),

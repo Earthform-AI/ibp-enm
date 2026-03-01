@@ -190,24 +190,39 @@ class TestLensStack:
 # ═══════════════════════════════════════════════════════════════════
 
 class TestEnzymeLens:
+    def _enabled_enzyme_lens(self):
+        """Build an EnzymeLens with the gate re-enabled (production disables it via D170)."""
+        from ibp_enm.thresholds import DEFAULT_THRESHOLDS, ThresholdRegistry
+        t = dict(DEFAULT_THRESHOLDS)
+        t["enzyme_lens.close_call_gap"] = 0.10
+        t["enzyme_lens.ea_proximity_gap"] = 0.15
+        return EnzymeLens(thresholds=ThresholdRegistry(t))
+
     def test_no_activation_clear_winner(self, seven_profiles, default_context):
         """When barrel dominates, enzyme lens should NOT activate."""
         scores = {"barrel": 0.5, "dumbbell": 0.15, "globin": 0.15,
                   "enzyme_active": 0.1, "allosteric": 0.1}
-        lens = EnzymeLens()
+        lens = self._enabled_enzyme_lens()
         assert not lens.should_activate(scores, seven_profiles, default_context)
 
-    def test_activation_enzyme_allosteric_contest(self, enzyme_contest_profiles, default_context):
-        """When enzyme and allosteric are close, lens should activate."""
+    def test_disabled_by_default(self, enzyme_contest_profiles, default_context):
+        """D170: enzyme lens is disabled in production (both gate gaps = 0)."""
         scores = {"barrel": 0.1, "dumbbell": 0.1, "globin": 0.1,
                   "enzyme_active": 0.35, "allosteric": 0.35}
-        lens = EnzymeLens()
+        lens = EnzymeLens()  # default thresholds → disabled
+        assert not lens.should_activate(scores, enzyme_contest_profiles, default_context)
+
+    def test_activation_enzyme_allosteric_contest(self, enzyme_contest_profiles, default_context):
+        """When enzyme and allosteric are close, lens should activate (with gate enabled)."""
+        scores = {"barrel": 0.1, "dumbbell": 0.1, "globin": 0.1,
+                  "enzyme_active": 0.35, "allosteric": 0.35}
+        lens = self._enabled_enzyme_lens()
         assert lens.should_activate(scores, enzyme_contest_profiles, default_context)
 
     def test_apply_boosts_enzyme(self, enzyme_contest_profiles, default_context):
         scores = {"barrel": 0.1, "dumbbell": 0.1, "globin": 0.1,
                   "enzyme_active": 0.35, "allosteric": 0.35}
-        lens = EnzymeLens()
+        lens = self._enabled_enzyme_lens()
         new_scores, trace = lens.apply(scores, enzyme_contest_profiles, default_context)
         assert trace.activated
         assert new_scores["enzyme_active"] >= scores["enzyme_active"]
@@ -401,6 +416,15 @@ class TestStackManipulation:
 # ═══════════════════════════════════════════════════════════════════
 
 class TestEquivalenceWithOldSynthesis:
+    @staticmethod
+    def _legacy_thresholds():
+        """Return thresholds matching the old SizeAwareHingeLens (pre-D170)."""
+        from ibp_enm.thresholds import DEFAULT_THRESHOLDS, ThresholdRegistry
+        t = dict(DEFAULT_THRESHOLDS)
+        t["enzyme_lens.close_call_gap"] = 0.10
+        t["enzyme_lens.ea_proximity_gap"] = 0.15
+        return ThresholdRegistry(t)
+
     def test_same_identity_no_spectral_data(self, seven_profiles):
         """Without evals/evecs, both systems should produce same result.
 
@@ -415,6 +439,7 @@ class TestEquivalenceWithOldSynthesis:
         new_synth = LensStackSynthesizer(
             evals=None, evecs=None,
             domain_labels=None, contacts=None,
+            thresholds=self._legacy_thresholds(),
         )
         votes = [p.archetype_vote() for p in seven_profiles]
 
@@ -447,6 +472,7 @@ class TestEquivalenceWithOldSynthesis:
         new_synth = LensStackSynthesizer(
             evals=evals, evecs=evecs,
             domain_labels=domain_labels, contacts=None,
+            thresholds=self._legacy_thresholds(),
         )
         votes = [p.archetype_vote() for p in profiles]
 

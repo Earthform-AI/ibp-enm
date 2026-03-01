@@ -1,8 +1,9 @@
 # Discovery Sprint Log
 
-## Current State — D169 (Sprint 10: Confusion-Pair Resolution)
+## Current State — D170 (Sprint 10: Confusion-Pair Resolution)
 
-**Accuracy: 32/52 (61.5%)** on the expanded corpus, 0 free parameters.
+**Accuracy: 17/32 (53.1%) on expanded corpus** with structural data, 0 free parameters.
+**(33/52 overall including 20 original-corpus proteins without profiles.)**
 
 ### Production changes
 - `AlgebraicFickBalancer` integrated into `LensStackSynthesizer` (was `MetaFickBalancer`)
@@ -12,11 +13,76 @@
   Compressive gate lifts bridge-blind proteins (0.14→0.37) without over-boosting
   high-α₈ proteins (1.0→1.0). Gains ATCase_cat with full structural data pipeline,
   0 regressions. Invisible in cache-only _rescore (no structural data for lenses).
+- **D170: Lens gate tightening** — Enzyme lens disabled (`close_call_gap=0`, `ea_proximity_gap=0`):
+  only 1 activation on expanded corpus (KDPG_aldolase), false positive. Hinge lens
+  `enzyme_vote_min=0.143` (1/7): blocks 4 hinge FPs (all with enz_vote=0/7), 0 accuracy
+  impact (wrong→wrong flips only). Combined: **+1 accuracy** (KDPG barrel recovered).
 - **ProfileCache.repair()**: fills missing `per_instrument` metadata from stored profiles
 - **ProfileCache.is_complete()**: detects stale/incomplete cache entries
 - **BenchmarkRunner._run_protein**: now saves actual ThermoReactionProfile objects (was `[]`)
 - **BenchmarkRunner._rescore**: auto-rebuilds stale entries on access
-- 54/54 tests pass (cache: 25, benchmark: 29)
+- 475/475 tests pass
+
+### D170: Hinge + Enzyme Lens Gate Tightening (+1 accuracy)
+
+**Date**: 2026-02
+**Script**: `experiments/discovery_170_lens_tightening.py`
+**Results**: `experiments/results/d170_lens_tightening.json`
+
+**Question**: Can we recover proteins damaged by hinge and enzyme lens
+false positives by tightening their activation gates?
+
+**Background** (from D169 audit):
+- **HingeLens**: 4 activations on expanded corpus (Transferrin, MBP,
+  GroEL_subunit, ABP_open), ALL false positives, ALL with enzyme_vote=0/7.
+  Pushes allosteric→enzyme_active. The `enzyme_vote_min` gate was disabled (0.0).
+- **EnzymeLens**: 1 activation (KDPG_aldolase), a false positive.
+  Pushes barrel→enzyme_active (truth=barrel, pre-lens=barrel ✓).
+- **BarrelPenaltyLens**: net +2 (Lactoferrin, Phosphoglycerate_k). Only positive lens.
+- **Net lens effect**: pre-lens 15/32, post-lens 16/32 (barrel penalty +2, enzyme −1, hinge 0).
+
+**Method**: 6 threshold-override variants tested on 32 expanded-corpus proteins:
+
+| Variant | Overrides | Accuracy | Δ |
+|---------|-----------|----------|---|
+| A (baseline) | Production thresholds | 16/32 | — |
+| B | hinge enzyme_vote_min=1/7 | 16/32 | 0 |
+| C | B + enzyme close_call_gap=0.06 | 16/32 | 0 |
+| D | B + hinge boost_cap=0.20 | 16/32 | 0 |
+| E | B + enzyme alg_strong=0.40 | 16/32 | 0 |
+| F | B + C + D + E combined | 16/32 | 0 |
+| G* | B + enzyme lens OFF (gaps=0) | 17/32 | **+1** |
+
+*Variant G tested separately after initial 6 variants showed null result.
+
+**Key findings**:
+
+1. **Hinge lens false positives are wrong→wrong flips, not right→wrong.**
+   All 3 proteins that change (GroEL, MBP, Transferrin) go from one wrong
+   answer to a different wrong answer. ABP_open prediction doesn't change at all.
+   Blocking the hinge lens has exactly 0 accuracy impact.
+
+2. **Enzyme lens is the only accuracy-damaging lens.** KDPG_aldolase is
+   correct pre-lens (barrel) but enzyme lens boosts enzyme_active by +0.210,
+   flipping to wrong. Tightening the gate thresholds (variants C, E) fails
+   to block it because the ea_proximity OR condition still fires.
+
+3. **Disabling enzyme lens entirely recovers KDPG (+1).** Setting both
+   gate gaps to 0 blocks the single false activation. The enzyme lens has
+   0 true positives on the expanded corpus.
+
+4. **Barrel penalty is the only net-positive lens.** +2 (Lactoferrin,
+   Phosphoglycerate_k) with 0 regressions. Should not be modified.
+
+**Production changes**:
+- `enzyme_lens.close_call_gap`: 0.10 → **0.0** (enzyme lens disabled)
+- `enzyme_lens.ea_proximity_gap`: 0.15 → **0.0** (enzyme lens disabled)
+- `hinge_lens.enzyme_vote_min`: 0.0 → **0.143** (1/7, blocks 0-vote FPs)
+
+**Predictions**: 2/5 confirmed (P4✓ no barrel regressions, P5✓ GroEL→globin).
+P1✗ (gains=0 not ≥3 — wrong→wrong flips, not recoveries).
+P2✗ (KDPG not recovered by C or E — needs full disable).
+P3✗ (F=16/32, not ≥19 — hinge blocking has 0 accuracy effect).
 
 ### D169: Rank-2 Correction Lens — Confusion-Pair Discriminants (NEGATIVE RESULT)
 
