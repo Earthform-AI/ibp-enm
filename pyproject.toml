@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "ibp-enm"
 version = "0.8.0"
-description = "Spectral Elastic Network Model for protein structural analysis — 7-instrument thermodynamic band with composable LensStack (enzyme, hinge, barrel-penalty), decomposed ArchetypeRule registry, per-rule tracing, programmatic threshold sweeps, algebraic fingerprinting (rule-firing lattice, instrument collinearity, threshold sensitivity landscape), deep result analysis with cross-experiment comparison, profile caching, and 52-protein benchmark harness."
+description = "Instrument-Based Probing Elastic Network Model — spectral protein structural analysis with 7-instrument thermodynamic band, composable LensStack (enzyme, hinge, barrel-penalty), decomposed ArchetypeRule registry, per-rule tracing, programmatic threshold sweeps, algebraic fingerprinting, deep result analysis, profile caching, and 52-protein benchmark harness."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"

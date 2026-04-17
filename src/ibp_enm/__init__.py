@@ -1,12 +1,13 @@
-"""IBP-ENM: Spectral Elastic Network Model for Protein Structural Analysis.
+"""IBP-ENM: Instrument-Based Probing — Elastic Network Model for Protein
+Structural Analysis.
 
 Provides per-residue structural role profiles, unsupervised domain detection,
 hinge identification, and multi-perspective flexibility prediction — all from
 a single static structure with no training data.
 
 The **Thermodynamic Band** (D109) extends the core analyser with a 7-instrument
-carving protocol that achieves 83% archetype accuracy on the 12-protein benchmark,
-with 100% barrel detection and zero false reclassifications.
+carving protocol.  With the full lens stack (HingeLens), the system achieves
+100% archetype accuracy on the 12-protein benchmark corpus.
 """
 from .analyzer import IBPProteinAnalyzer, IBPResult
 from .fetch import fetch_pdb_ca_data, search_rcsb

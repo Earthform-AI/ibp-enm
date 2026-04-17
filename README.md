@@ -1,6 +1,6 @@
 # IBP-ENM
 
-**Spectral Elastic Network Model for Protein Structural Analysis**
+**Instrument-Based Probing — Elastic Network Model for Protein Structural Analysis**
 
 [![CI](https://github.com/Earthform-AI/ibp-enm/actions/workflows/ci.yml/badge.svg)](https://github.com/Earthform-AI/ibp-enm/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/ibp-enm)](https://pypi.org/project/ibp-enm/)
@@ -14,6 +14,7 @@ The **Thermodynamic Band** extends the core elastic network analyzer with a 7-in
 ## Key Features
 
 - **Zero-parameter domain detection** — Fiedler vector sign changes partition the contact graph into structural domains without any tunable thresholds.
+- **Zero-parameter vote fusion** — The `AlgebraicFickBalancer` derives all weights from sedenion spectral constants (√2 ratios), with no fitted parameters. The downstream lens stack uses a fixed threshold registry for refinement.
 - **7 thermodynamic instruments** — Each probes a distinct physical signal (symmetry breaking, resonance sensitivity, diffusion-optimal cuts, entropy disruption, cooperativity, allosteric reach, thermal fragility).
 - **Two synthesis lenses** — EnzymeLens (92% accuracy) and HingeLens (100% accuracy) fuse instrument votes via Meta-Fick diffusion consensus.
 - **Self-contained** — Only requires `numpy`, `scipy`, and `requests`. Fetches PDB structures directly from RCSB.
@@ -95,22 +96,25 @@ ThermodynamicBand           ← 7-instrument orchestrator
 
 ## The 12-Protein Benchmark
 
-| PDB  | Protein              | Archetype     | Band | Enzyme Lens | Hinge Lens |
-|------|----------------------|---------------|------|-------------|------------|
-| 2LZM | T4 Lysozyme         | enzyme_active | ✓    | ✓           | ✓          |
-| 1MBO | Myoglobin            | globin        | ✓    | ✓           | ✓          |
-| 2DHB | Deoxyhemoglobin      | globin        | ✓    | ✓           | ✓          |
-| 1GGG | Galactose Oxidase    | barrel        | ✓    | ✓           | ✓          |
-| 2POR | Porin                | barrel        | ✓    | ✓           | ✓          |
-| 4AKE | Adenylate Kinase     | enzyme_active | ✗    | ✗           | ✓          |
-| 1ANF | ABP (open)           | allosteric    | ✓    | ✓           | ✓          |
-| 3CLN | Calmodulin           | dumbbell      | ✓    | ✓           | ✓          |
-| 1LFG | Lactoferrin          | allosteric    | ✗    | ✓           | ✓          |
-| 1OMP | OmpA                 | barrel        | ✓    | ✓           | ✓          |
-| 1HNF | Inorganic PPase      | enzyme_active | ✓    | ✓           | ✓          |
-| 5CYT | Cytochrome c         | globin        | ✓    | ✓           | ✓          |
+| Name                 | PDB  | Archetype     |
+|----------------------|------|---------------|
+| T4 Lysozyme          | 2LZM | enzyme_active |
+| HEWL                 | 1LYZ | enzyme_active |
+| Calmodulin (Ca²⁺)   | 3CLN | dumbbell      |
+| Myoglobin            | 1MBO | globin        |
+| Adenylate Kinase     | 4AKE | allosteric    |
+| DHFR                 | 3DFR | enzyme_active |
+| Streptavidin         | 1STP | enzyme_active |
+| TIM Barrel           | 1TIM | barrel        |
+| LAO Binding Protein  | 2LAO | dumbbell      |
+| HIV Protease         | 1HHP | enzyme_active |
+| Hemoglobin α         | 2HHB | globin        |
+| Citrate Synthase     | 5CSC | barrel        |
 
-**Accuracy**: Band 83% → EnzymeLens 92% → HingeLens **100%**
+**Accuracy**: HingeLens (default pipeline) achieves **100%** on this corpus.
+
+The benchmark is defined in code as `PROTEINS` and `GROUND_TRUTH` in
+`ibp_enm.archetypes` and verified by `tests/test_integration.py`.
 
 ## API Reference
 
@@ -259,7 +263,18 @@ pip install pytest
 pytest tests/ -v
 ```
 
-All 402 tests pass on Python 3.10–3.12.
+All 475+ tests pass on Python 3.10–3.12.
+
+Integration tests (requiring network access to RCSB PDB) are marked with
+`@pytest.mark.network` and skipped by default.  Run them explicitly:
+
+```bash
+pytest tests/test_integration.py -v --run-network
+```
+
+> **Note:** Integration tests are compute-intensive (~3-10 minutes per protein,
+> ~30-90 minutes total).  Results are cached in `tests/.integration_cache/`
+> so subsequent runs complete in seconds.  Delete the cache to force re-analysis.
 
 ## Citation
 
